@@ -38,10 +38,10 @@ export const ServerPage = () => {
         channelName={currentChannel?.name}
         serverId={serverId}
         onMenuClick={undefined}
-        showMembers={showMembers}
-        onToggleMembers={() => setShowMembers(!showMembers)}
+        showMembers={isMobile ? false : showMembers}
+        onToggleMembers={isMobile ? undefined : () => setShowMembers(!showMembers)}
       />
-      {serverId && (
+      {serverId && !isMobile && (
         <ServerMembers
           serverId={serverId}
           isOpen={showMembers}

@@ -1,4 +1,4 @@
-import { Menu, X } from "lucide-react";
+import { Menu, X, Users } from "lucide-react";
 import { Skeleton } from "@components/ui/Skeleton";
 import { useEffect } from "react";
 import { ServerButton } from "./ServerButton";
@@ -8,7 +8,10 @@ import { useAuth } from "@store/hooks/useAuth";
 import { useNavigate, useParams } from "react-router";
 import { AppRoutes } from "@routes/routes";
 import { PalataList } from "@components/server/PalataList";
+import { ServerMembers } from "@components/server/ServerMembers";
 import { useMobileMenu } from "@components/layout/MobileMenuContext";
+import { selectParticipants } from "@store/selectors/roomSelectors";
+import { useState } from "react";
 
 export function GradList() {
   const dispatch = useAppDispatch();
@@ -19,6 +22,8 @@ export function GradList() {
 
   const servers = useAppSelector((state) => state.servers.servers);
   const currentServer = servers.find((s) => s.id === serverId);
+  const participants = useAppSelector(selectParticipants);
+  const [showMembers, setShowMembers] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
@@ -42,10 +47,27 @@ export function GradList() {
           {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
 
-        <span className="ml-3 font-semibold text-sidebar-foreground truncate">
+        <span className="ml-3 font-semibold text-sidebar-foreground truncate flex-1">
           {currentServer?.name || "Грады"}
         </span>
+
+        {serverId && (
+          <button
+            onClick={() => setShowMembers(!showMembers)}
+            className="flex items-center gap-1 p-2 rounded-lg hover:bg-sidebar-accent transition text-sidebar-foreground/70 hover:text-sidebar-foreground"
+            title="Люди града"
+          >
+            <Users size={18} strokeWidth={2} />
+            {participants.length > 0 && (
+              <span className="text-xs font-medium">{participants.length}</span>
+            )}
+          </button>
+        )}
       </div>
+
+      {showMembers && serverId && (
+        <ServerMembers serverId={serverId} isOpen={showMembers} onClose={() => setShowMembers(false)} />
+      )}
 
       {/* MOBILE OVERLAY */}
       {isMobileMenuOpen && (
