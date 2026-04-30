@@ -74,12 +74,11 @@ jobs:
           TAG=$(echo "${{ needs.docker.outputs.tags }}" | head -1 | cut -d',' -f1 | xargs)
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
-      - name: Update k8s deployment
+      - name: Restart deployment
         run: |
-          kubectl set image deployment/veche-frontend-app \
-            -n veche \
-            frontend=${{ steps.extract.outputs.tag }}
+          kubectl rollout restart deployment/veche-frontend \
+            -n veche
 
       - name: Verify rollout
         run: |
-          kubectl rollout status deployment/veche-frontend-app -n veche --timeout=120s
+          kubectl rollout status deployment/veche-frontend -n veche --timeout=180s
