@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
-
-const QUICK_EMOJIS = ["👍", "❤️", "😄", "😮", "😢", "😡"];
+import { EmojiPicker } from "../ui/EmojiPicker";
 
 export interface ReactionGroup {
   emoji: string;
@@ -44,20 +43,10 @@ export function ReactionsBar({ reactions, onToggle }: ReactionsBarProps) {
         </button>
 
         {showPicker && (
-          <>
-            <div className="fixed inset-0 z-50" onClick={() => setShowPicker(false)} />
-            <div className="absolute bottom-full left-0 mb-1 z-50 flex gap-0.5 p-1.5 bg-popover border border-border rounded-lg shadow-xl">
-              {QUICK_EMOJIS.map((emoji) => (
-                <button
-                  key={emoji}
-                  onClick={() => { onToggle(emoji); setShowPicker(false); }}
-                  className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-muted text-lg transition-colors"
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
-          </>
+          <EmojiPicker
+            onSelect={(emoji) => { onToggle(emoji); setShowPicker(false); }}
+            onClose={() => setShowPicker(false)}
+          />
         )}
       </div>
     </div>

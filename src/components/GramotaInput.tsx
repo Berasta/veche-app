@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import { Send, Image, X } from 'lucide-react';
+import { EmojiPicker } from './ui/EmojiPicker';
+import { Send, Image, Smile, X } from 'lucide-react';
 
 interface GramotaInputProps {
   onSend: (message: string, files?: File[]) => void;
@@ -63,6 +64,18 @@ export function GramotaInput({ onSend }: GramotaInputProps) {
     const files = Array.from(e.target.files || []);
     setSelectedFiles((prev) => [...prev, ...files]);
     e.target.value = '';
+  };
+
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  const handleEmojiSelect = (emoji: string) => {
+    setMessage((prev) => prev + emoji);
+    setShowEmojiPicker(false);
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+    }
   };
 
   const removeFile = (index: number) => {
@@ -130,6 +143,19 @@ export function GramotaInput({ onSend }: GramotaInputProps) {
 
             {/* Дополнительные кнопки */}
             <div className="flex gap-0.5 md:gap-1 flex-shrink-0 items-center">
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  className="w-8 md:w-9 h-8 md:h-9 rounded-md hover:bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-all"
+                  title="Додати улыбку"
+                >
+                  <Smile className="w-4 md:w-5 h-4 md:h-5" strokeWidth={2} />
+                </button>
+                {showEmojiPicker && (
+                  <EmojiPicker onSelect={handleEmojiSelect} onClose={() => setShowEmojiPicker(false)} />
+                )}
+              </div>
               <button
                 type="submit"
                 disabled={!canSend}
