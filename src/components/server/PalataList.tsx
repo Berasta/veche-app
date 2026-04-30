@@ -15,6 +15,9 @@ import {
   UserPlus,
   Settings,
   Shield,
+  Pencil,
+  Trash2,
+  MoreHorizontal,
 } from "lucide-react";
 import { pb } from "@api/pb";
 import { fetchChannels } from "@store/slices/channelsSlice";
@@ -51,6 +54,8 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
     null,
   );
   const [newChannelName, setNewChannelName] = useState("");
+  const [editingChannel, setEditingChannel] = useState<{ id: string; name: string } | null>(null);
+  const [deletingChannelId, setDeletingChannelId] = useState<string | null>(null);
   const [participantCounts, setParticipantCounts] = useState<
     Record<string, number>
   >({});
@@ -83,6 +88,24 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
       }
     })();
   }, [serverId, channels]);
+
+  const handleRenameChannel = async () => {
+    if (!editingChannel || !editingChannel.name.trim()) return;
+    try {
+      await pb.collection("channels").update(editingChannel.id, { name: editingChannel.name.trim() });
+      if (serverId) dispatch(fetchChannels(serverId));
+      setEditingChannel(null);
+    } catch {}
+  };
+
+  const handleDeleteChannel = async () => {
+    if (!deletingChannelId) return;
+    try {
+      await pb.collection("channels").delete(deletingChannelId);
+      if (serverId) dispatch(fetchChannels(serverId));
+      setDeletingChannelId(null);
+    } catch {}
+  };
 
   const handleCreateChannel = async () => {
     const name = newChannelName.trim();
@@ -174,13 +197,32 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
               {channels
                 .filter((c) => c.type === "text")
                 .map((palata, index) => (
-                  <TextPalata
-                    key={palata.id}
-                    index={index}
-                    channelId={palata.id}
-                    channelName={palata.name}
-                    serverId={palata.server_id}
-                  />
+                  <div key={palata.id} className="group relative">
+                    <TextPalata
+                      index={index}
+                      channelId={palata.id}
+                      channelName={palata.name}
+                      serverId={palata.server_id}
+                    />
+                    {canManageChannels && (
+                      <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-0.5 bg-sidebar/90 rounded-md p-0.5">
+                        <button
+                          onClick={() => setEditingChannel({ id: palata.id, name: palata.name })}
+                          className="w-5 h-5 rounded hover:bg-sidebar-accent flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                          title="Переименовати"
+                        >
+                          <Pencil className="w-3 h-3" strokeWidth={2} />
+                        </button>
+                        <button
+                          onClick={() => setDeletingChannelId(palata.id)}
+                          className="w-5 h-5 rounded hover:bg-sidebar-accent flex items-center justify-center text-muted-foreground hover:text-destructive transition-colors"
+                          title="Удалити"
+                        >
+                          <Trash2 className="w-3 h-3" strokeWidth={2} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 ))}
             </div>
           </div>
@@ -215,13 +257,32 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
               {channels
                 .filter((c) => c.type === "voice" || !c.type)
                 .map((palata, index) => (
-                  <Palata
-                    key={palata.id}
-                    index={index}
-                    channelId={palata.id}
-                    channelName={palata.name}
-                    participantCount={participantCounts[palata.id] || 0}
-                  />
+                  <div key={palata.id} className="group relative">
+                    <Palata
+                      index={index}
+                      channelId={palata.id}
+                      channelName={palata.name}
+                      participantCount={participantCounts[palata.id] || 0}
+                    />
+                    {canManageChannels && (
+                      <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-0.5 bg-sidebar/90 rounded-md p-0.5">
+                        <button
+                          onClick={() => setEditingChannel({ id: palata.id, name: palata.name })}
+                          className="w-5 h-5 rounded hover:bg-sidebar-accent flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                          title="Переименовати"
+                        >
+                          <Pencil className="w-3 h-3" strokeWidth={2} />
+                        </button>
+                        <button
+                          onClick={() => setDeletingChannelId(palata.id)}
+                          className="w-5 h-5 rounded hover:bg-sidebar-accent flex items-center justify-center text-muted-foreground hover:text-destructive transition-colors"
+                          title="Удалити"
+                        >
+                          <Trash2 className="w-3 h-3" strokeWidth={2} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 ))}
             </div>
           </div>
@@ -333,6 +394,52 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
             >
               <div className="p-5">
                 <InviteManager serverId={serverId} />
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* Rename channel modal */}
+      {editingChannel && (
+        <Portal>
+          <div className="fixed inset-0 z-[70] bg-black/50 flex items-center justify-center" onClick={() => setEditingChannel(null)}>
+            <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <div className="px-5 py-4 border-b border-border">
+                <h4 className="text-sm font-semibold text-foreground">Переименовати палату</h4>
+              </div>
+              <div className="p-5">
+                <input
+                  autoFocus
+                  value={editingChannel.name}
+                  onChange={(e) => setEditingChannel({ ...editingChannel, name: e.target.value })}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleRenameChannel(); if (e.key === "Escape") setEditingChannel(null); }}
+                  className="w-full bg-input-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/50"
+                />
+              </div>
+              <div className="px-5 py-4 border-t border-border flex items-center justify-end gap-2">
+                <button onClick={() => setEditingChannel(null)} className="px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground text-sm font-medium transition-colors">Отмѣна</button>
+                <button onClick={handleRenameChannel} disabled={!editingChannel.name.trim()} className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium transition-colors">Сохранити</button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* Delete channel confirmation */}
+      {deletingChannelId && (
+        <Portal>
+          <div className="fixed inset-0 z-[70] bg-black/50 flex items-center justify-center" onClick={() => setDeletingChannelId(null)}>
+            <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <div className="px-5 py-4 border-b border-border">
+                <h4 className="text-sm font-semibold text-foreground">Удалити палату</h4>
+              </div>
+              <div className="p-5">
+                <p className="text-sm text-muted-foreground">Вы увѣрены, что хотите удалить сію палату? Это дѣйствіе необратимо.</p>
+              </div>
+              <div className="px-5 py-4 border-t border-border flex items-center justify-end gap-2">
+                <button onClick={() => setDeletingChannelId(null)} className="px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground text-sm font-medium transition-colors">Отмѣна</button>
+                <button onClick={handleDeleteChannel} className="px-4 py-2 rounded-lg bg-destructive hover:bg-destructive/80 text-destructive-foreground text-sm font-medium transition-colors">Удалити</button>
               </div>
             </div>
           </div>
