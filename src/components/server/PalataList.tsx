@@ -131,29 +131,26 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
           </div>
         </div>
         <div className="flex items-center gap-0.5 flex-shrink-0">
-          {isOwner && (
-            <>
-              {canManageInvites && (
-                <button
-                  onClick={() => setShowInvites(true)}
-                  className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
-                  title="Приглашенiя"
-                >
-                  <UserPlus className="w-3.5 h-3.5" strokeWidth={2} />
-                </button>
-              )}
-
-              {isOwner && serverId && (
-                <button
-                  onClick={() => navigate(AppRoutes.SERVER_SETTINGS.replace(":serverId", serverId))}
-                  className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
-                  title="Настройки града"
-                >
-                  <Settings className="w-3.5 h-3.5" strokeWidth={2} />
-                </button>
-              )}
-            </>
+          {canManageInvites && (
+            <button
+              onClick={() => setShowInvites(true)}
+              className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+              title="Приглашенiя"
+            >
+              <UserPlus className="w-3.5 h-3.5" strokeWidth={2} />
+            </button>
           )}
+
+          {isOwner && serverId && (
+            <button
+              onClick={() => navigate(AppRoutes.SERVER_SETTINGS.replace(":serverId", serverId))}
+              className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+              title="Настройки града"
+            >
+              <Settings className="w-3.5 h-3.5" strokeWidth={2} />
+            </button>
+          )}
+
           {isMobile && onMobileClose && (
             <button
               onClick={onMobileClose}
