@@ -289,31 +289,32 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
       </div>
 
       {/* User */}
-      <div className="h-14 px-2 flex items-center">
+      <div className="border-t border-sidebar-border/50 pt-1.5 px-1.5 pb-1.5 mt-auto">
         <button
           ref={userBtnRef}
-          onClick={() => {
-            navigate(AppRoutes.SETTINGS);
-            onMobileClose?.();
-          }}
-          className="flex items-center gap-2 flex-1 min-w-0 hover:bg-muted/30 rounded-md p-1 transition-colors"
+          onClick={() => { navigate(AppRoutes.SETTINGS); onMobileClose?.(); }}
+          className="flex items-center gap-2 w-full rounded-lg p-2 transition-all hover:bg-sidebar-accent/50 group"
         >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center flex-shrink-0 ring-2 ring-primary/20 relative overflow-hidden">
-            {user?.avatar_url ? (
-              <img
-                src={user.avatar_url}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-xs font-bold text-foreground">
-                {user?.username ? user.username[0].toUpperCase() : "Г"}
-              </div>
-            )}
+          <div className="relative flex-shrink-0">
+            <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-sidebar-border/50 group-hover:ring-primary/30 transition-all">
+              {user?.avatar_url ? (
+                <img src={user.avatar_url} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center text-xs font-bold text-sidebar-foreground">
+                  {user?.username ? user.username[0].toUpperCase() : "Г"}
+                </div>
+              )}
+            </div>
+            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-500 border-2 border-sidebar" />
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-xs truncate text-foreground text-left">
+          <div className="flex-1 min-w-0 text-left">
+            <div className="text-xs font-medium text-sidebar-foreground truncate">
               {user?.username || "Гость градскій"}
             </div>
+            <div className="text-[10px] text-sidebar-foreground/50 truncate">В сети</div>
+          </div>
+          <div className="w-7 h-7 rounded-md flex items-center justify-center text-sidebar-foreground/40 hover:text-sidebar-foreground transition-colors opacity-0 group-hover:opacity-100" title="Настройки">
+            <Settings className="w-3.5 h-3.5" strokeWidth={2} />
           </div>
         </button>
       </div>
