@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { Volume2, User, ArrowLeft } from "lucide-react";
 import { ScreenShareModal, type ShareOptions } from "./ScreenShareModal";
 import { PageHeader } from "../ui/PageHeader";
@@ -7,14 +7,12 @@ import { VoiceMemberCard, type VoiceMember } from "./VoiceMemberCard";
 import { ScreenShareDisplay } from "./ScreenShareDisplay";
 import { VoiceControls } from "./VoiceControls";
 import { useNavigate, useParams } from "react-router";
-import { useOverlay } from "@hooks/useOverlay";
 import { useAppDispatch, useAppSelector } from "@store/hooks";
 import {
   selectActiveChannelName,
   selectParticipants,
   selectIsMuted,
   selectIsScreenSharing,
-  selectError,
   selectSpeakingCount,
   selectVolumes,
 } from "@store/selectors/roomSelectors";
@@ -26,8 +24,7 @@ import {
   screenShareElements,
 } from "@store/thunks/roomThunk";
 import { setScreenShareQuality } from "@store/slices/roomSlice";
-import { getUserById } from "@api/userApi";
-import { pb } from "@api/pb";
+import { useVoiceData } from "@hooks/useVoiceData";
 import { getRoleMap } from "@api/rolesApi";
 
 export function VoiceChat() {
@@ -48,60 +45,7 @@ export function VoiceChat() {
 
   const [isDeafened, setIsDeafened] = useState(false);
   const [showScreenShareModal, setShowScreenShareModal] = useState(false);
-  const [userDataMap, setUserDataMap] = useState<
-    Record<string, { username: string; avatarUrl?: string; banner?: string }>
-  >({});
-  const [roleMap, setRoleMap] = useState<Record<string, { name: string; color: string }>>({});
-  const [joinedAtMap, setJoinedAtMap] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    const ids = participants.map((p) => p.identity);
-    const missing = ids.filter((id) => !userDataMap[id]);
-
-    if (missing.length === 0) return;
-
-    let cancelled = false;
-    Promise.all(
-      missing.map(async (id) => {
-        try {
-          const user = await getUserById(id);
-          return {
-            id,
-            data: { username: user.username, avatarUrl: user.avatar_url, banner: user.banner },
-          };
-        } catch {
-          return { id, data: { username: id, avatarUrl: undefined, banner: undefined } };
-        }
-      }),
-    ).then((results) => {
-      if (cancelled) return;
-      setUserDataMap((prev) => {
-        const next = { ...prev };
-        results.forEach((r) => {
-          next[r.id] = r.data;
-        });
-        return next;
-      });
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [participants]);
-
-  useEffect(() => {
-    if (!serverId) return;
-    getRoleMap(serverId).then(setRoleMap).catch(() => {});
-    pb.collection("server_members").getFullList({
-      filter: `server_id = "${serverId}"`,
-    }).then((list) => {
-      const map: Record<string, string> = {};
-      for (const entry of list as any[]) {
-        map[entry.user_id] = entry.created;
-      }
-      setJoinedAtMap(map);
-    }).catch(() => {});
-  }, [serverId]);
+  const { userDataMap, roleMap, joinedAtMap } = useVoiceData(serverId, participants.map((p) => p.identity));
 
   const voiceMembers: VoiceMember[] = participants.map((p) => {
     const ud = userDataMap[p.identity];

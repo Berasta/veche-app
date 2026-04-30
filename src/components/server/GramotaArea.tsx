@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, useCallback } from "react";
-import { ScrollText, Users } from "lucide-react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { ScrollText, Users, MessageSquare } from "lucide-react";
+import { groupMessages } from "../../utils/groupMessages";
 import { GramotaInput } from "../GramotaInput";
 import { PageHeader } from "../ui/PageHeader";
 import { IconButton } from "../ui/IconButton";
@@ -106,6 +107,8 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const groupedMessages = useMemo(() => groupMessages(messages), [messages]);
+
   const handleSend = useCallback((content: string, files?: File[]) => {
     if (!channelId) return;
     dispatch(sendMessage({ channelId, content, files }));
@@ -175,26 +178,31 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
           </div>
         )}
 
-        {messages.map((msg) => (
-          <GramotaMessage
-            key={msg.id}
-            author={msg.author_name}
-            avatar={msg.author_avatar_url || undefined}
-            time={new Date(msg.created).toLocaleTimeString("ru-RU", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-            content={msg.content}
-            images={msg.images.length > 0 ? msg.images : undefined}
-            reactions={reactionMap[msg.id]}
-            onReaction={handleReaction}
-            messageId={msg.id}
-            authorRole={roleMap[msg.user_id]?.name}
-            authorRoleColor={roleMap[msg.user_id]?.color}
-            authorBanner={msg.author_banner}
-            authorJoinedAt={joinedAtMap[msg.user_id]}
-          />
-        ))}
+        {groupedMessages.map(({ msg, showHeader, dateLabel }) => (
+            <div key={msg.id}>
+              {dateLabel && (
+                <div className="flex items-center gap-3 py-3">
+                  <div className="h-px flex-1 bg-border" />
+                  <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider flex-shrink-0">{dateLabel}</span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+              )}
+              <GramotaMessage
+                author={msg.author_name}
+                avatar={showHeader ? (msg.author_avatar_url || undefined) : undefined}
+                time={new Date(msg.created).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+                content={msg.content}
+                images={msg.images.length > 0 ? msg.images : undefined}
+                reactions={reactionMap[msg.id]}
+                onReaction={handleReaction}
+                messageId={msg.id}
+                authorRole={roleMap[msg.user_id]?.name}
+                authorRoleColor={roleMap[msg.user_id]?.color}
+                authorBanner={msg.author_banner}
+                authorJoinedAt={joinedAtMap[msg.user_id]}
+              />
+            </div>
+          ))}
         <div ref={bottomRef} />
       </MessageList>
 
