@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
-import { ArrowLeft, Crown, Edit2, Image, Check, X, Trash2 } from "lucide-react";
+import { ArrowLeft, Crown, Image, Shield } from "lucide-react";
 import { pb, PB_URL } from "@api/pb";
 import { useAppSelector } from "@store/hooks";
 import { PageHeader } from "@components/ui/PageHeader";
+import { RolesManager } from "@components/invite/RolesManager";
 
 export function ServerSettingsPage() {
   const { serverId } = useParams();
@@ -88,6 +89,13 @@ export function ServerSettingsPage() {
               className="w-full bg-input-background border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/50"
             />
           </div>
+
+          {/* Roles */}
+          {serverId && (
+            <div className="bg-card/40 border border-border rounded-lg p-5">
+              <RolesManager serverId={serverId} />
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex items-center gap-3 pt-2">

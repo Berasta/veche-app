@@ -14,7 +14,6 @@ import {
   Plus,
   UserPlus,
   Settings,
-  Shield,
   Pencil,
   Trash2,
   MoreHorizontal,
@@ -25,7 +24,6 @@ import { useAppDispatch } from "@store/hooks";
 import { useState, useRef, useEffect } from "react";
 import { Portal } from "@components/ui/Portal";
 import { InviteManager } from "@components/invite/InviteManager";
-import { RolesManager } from "@components/invite/RolesManager";
 
 interface PalataListProps {
   isMobileOpen?: boolean;
@@ -47,9 +45,8 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
   const { can } = usePermissions(serverId);
   const canManageChannels = isOwner || can(PERMISSIONS.MANAGE_CHANNELS);
   const canManageInvites = isOwner || can(PERMISSIONS.MANAGE_INVITES);
-  const canManageRoles = isOwner || can(PERMISSIONS.MANAGE_ROLES);
+
   const [showInvites, setShowInvites] = useState(false);
-  const [showRoles, setShowRoles] = useState(false);
   const [creatingType, setCreatingType] = useState<"text" | "voice" | null>(
     null,
   );
@@ -145,15 +142,7 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
                   <UserPlus className="w-3.5 h-3.5" strokeWidth={2} />
                 </button>
               )}
-              {canManageRoles && (
-                <button
-                  onClick={() => setShowRoles(true)}
-                  className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
-                  title="Роли"
-                >
-                  <Shield className="w-3.5 h-3.5" strokeWidth={2} />
-                </button>
-              )}
+
               {isOwner && serverId && (
                 <button
                   onClick={() => navigate(AppRoutes.SERVER_SETTINGS.replace(":serverId", serverId))}
@@ -455,24 +444,7 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
         </Portal>
       )}
 
-      {/* Roles manager modal */}
-      {showRoles && serverId && (
-        <Portal>
-          <div
-            className="fixed inset-0 z-[70] bg-black/50 flex items-start justify-center pt-[5vh]"
-            onClick={() => setShowRoles(false)}
-          >
-            <div
-              className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-5">
-                <RolesManager serverId={serverId} />
-              </div>
-            </div>
-          </div>
-        </Portal>
-      )}
+
     </>
   );
 
