@@ -168,13 +168,11 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
       <div className="flex-1 overflow-y-auto px-2 py-3">
         {(channels.filter((c) => c.type === "text").length > 0 || canManageChannels) && (
           <div className="mb-3">
-            <div className="flex items-center gap-1.5 px-1 mb-1">
-              <MessageSquare
-                size={12}
-                className="text-muted-foreground/60"
-                strokeWidth={2}
-              />
-              <span className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-wider flex-1">
+            <div className="flex items-center gap-1.5 px-1 mb-1.5">
+              <div className="w-4 h-4 rounded bg-muted/40 flex items-center justify-center">
+                <MessageSquare size={10} className="text-muted-foreground/60" strokeWidth={2} />
+              </div>
+              <span className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest flex-1">
                 Текстовыя
               </span>
               {canManageChannels && (
@@ -228,13 +226,11 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
         {(channels.filter((c) => c.type === "voice" || !c.type).length > 0 ||
           canManageChannels) && (
           <div>
-            <div className="flex items-center gap-1.5 px-1 mb-1">
-              <Volume2
-                size={12}
-                className="text-muted-foreground/60"
-                strokeWidth={2}
-              />
-              <span className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-wider flex-1">
+            <div className="flex items-center gap-1.5 px-1 mb-1.5">
+              <div className="w-4 h-4 rounded bg-muted/40 flex items-center justify-center">
+                <Volume2 size={10} className="text-muted-foreground/60" strokeWidth={2} />
+              </div>
+              <span className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest flex-1">
                 Голосовыя
               </span>
               {canManageChannels && (

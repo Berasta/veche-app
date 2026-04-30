@@ -100,7 +100,7 @@ export function GradList() {
                   key={grad.id}
                   name={grad.name}
                   avatarUrl={grad.avatar_url}
-                  isSelected={false}
+                  isSelected={grad.id === serverId}
                   index={index}
                   onClick={() => onClickServer(grad.id)}
                 />

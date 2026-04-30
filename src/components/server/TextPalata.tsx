@@ -1,6 +1,6 @@
 import { MessageSquare } from "lucide-react";
 import { motion } from "motion/react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 interface Props {
   channelId: string;
@@ -11,6 +11,8 @@ interface Props {
 
 export function TextPalata({ channelId, channelName, serverId, index }: Props) {
   const navigate = useNavigate();
+  const { channelId: activeChannelId } = useParams();
+  const isActive = activeChannelId === channelId;
 
   const handleClick = () => {
     navigate(`/app/server/${serverId}/text/${channelId}`);
@@ -23,10 +25,14 @@ export function TextPalata({ channelId, channelName, serverId, index }: Props) {
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
       whileHover={{ y: -2 }}
-      className="cursor-pointer w-full px-2 py-1.5 rounded-md text-left transition-all duration-100 flex items-center gap-2 group hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+      className={`cursor-pointer w-full px-2 py-1.5 rounded-md text-left transition-all duration-100 flex items-center gap-2 group ${
+        isActive
+          ? "bg-muted/80 text-foreground"
+          : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+      }`}
     >
-      <MessageSquare size={16} strokeWidth={2} />
-      <span>{channelName}</span>
+      <MessageSquare size={16} strokeWidth={isActive ? 2.5 : 2} className={isActive ? "text-primary" : ""} />
+      <span className={isActive ? "font-medium" : ""}>{channelName}</span>
     </motion.button>
   );
 }
