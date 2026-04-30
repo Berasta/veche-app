@@ -2,7 +2,6 @@ import { useAppSelector } from "@store/hooks";
 import { useNavigate, useParams } from "react-router";
 import { Palata } from "./Palata";
 import { TextPalata } from "./TextPalata";
-import { ThemeSwitcher } from "@components/ThemeSwitcher";
 import { useAuth } from "@store/hooks/useAuth";
 import { AppRoutes } from "@routes/routes";
 import { useIsMobile } from "@components/ui/use-mobile";
@@ -263,19 +262,6 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
             </div>
           </div>
         </button>
-        <div className="flex gap-0.5 flex-shrink-0">
-          <button
-            onClick={() => {
-              navigate(AppRoutes.SETTINGS);
-              onMobileClose?.();
-            }}
-            className="w-8 h-8 rounded-md hover:bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-            title="Настройки"
-          >
-            <Settings className="w-4 h-4" strokeWidth={2} />
-          </button>
-          <ThemeSwitcher compact />
-        </div>
       </div>
     </>
   );

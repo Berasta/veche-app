@@ -116,7 +116,8 @@ export function ServerMembers({ serverId, isOpen, onClose }: ServerMembersProps)
         setLoading(false);
       }
     })();
-  }, [animState, serverId, voiceParticipants]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [animState, serverId]);
 
   if (animState === "closed") return null;
 
