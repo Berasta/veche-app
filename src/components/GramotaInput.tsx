@@ -68,61 +68,55 @@ export function GramotaInput({ onSend }: GramotaInputProps) {
   const isActive = message.trim().length > 0;
 
   return (
-    <div className="bg-gradient-to-t from-card/40 to-transparent">
-      <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
+    <div>
+      <form onSubmit={handleSubmit}>
         {selectedFiles.length > 0 && (
-          <div className="flex gap-1.5 px-4 pt-3 pb-1 overflow-x-auto">
+          <div className="flex gap-1.5 px-4 pt-2 pb-0 overflow-x-auto">
             {selectedFiles.map((file, i) => (
-              <div key={i} className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0 group ring-1 ring-border/50">
+              <div key={i} className="relative w-10 h-10 rounded overflow-hidden bg-muted flex-shrink-0 group">
                 <img src={URL.createObjectURL(file)} alt="" className="w-full h-full object-cover" />
                 <button type="button" onClick={() => removeFile(i)}
-                  className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <X className="w-2.5 h-2.5 text-white" />
+                  className="absolute top-0 right-0 w-3.5 h-3.5 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <X className="w-2 h-2 text-white" />
                 </button>
               </div>
             ))}
           </div>
         )}
 
-        <div className="flex items-center gap-1.5 px-4 py-3">
+        <div className="flex items-center gap-1 px-3 py-2.5">
           <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileSelect} />
           <button type="button" onClick={() => fileInputRef.current?.click()}
-            className="w-8 h-8 rounded-xl hover:bg-muted/50 flex items-center justify-center text-muted-foreground/60 hover:text-foreground transition-all flex-shrink-0"
+            className="w-7 h-7 flex items-center justify-center text-muted-foreground/40 hover:text-foreground transition-colors flex-shrink-0"
             title="Приложити изображеніе">
-            <Image className="w-4 h-4" strokeWidth={1.5} />
+            <Image className="w-3.5 h-3.5" strokeWidth={1.5} />
           </button>
 
-          <div className="flex-1 relative">
-            <textarea ref={textareaRef} value={message} onChange={handleChange} onKeyDown={handleKeyDown} onPaste={handlePaste}
-              placeholder="Напишите грамоту..."
-              className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/30 resize-none outline-none min-h-[2.25rem] max-h-[160px] py-1.5 px-0 leading-relaxed"
-              rows={1} />
-          </div>
+          <textarea ref={textareaRef} value={message} onChange={handleChange} onKeyDown={handleKeyDown} onPaste={handlePaste}
+            placeholder="Грамота..."
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/25 resize-none outline-none min-h-[1.75rem] max-h-[120px] py-1 px-0 leading-relaxed"
+            rows={1} />
 
-          <div className="flex gap-1 items-center">
-            <div className="relative">
-              <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                className="w-8 h-8 rounded-xl hover:bg-muted/50 flex items-center justify-center text-muted-foreground/60 hover:text-foreground transition-all"
-                title="Додати улыбку">
-                <Smile className="w-4 h-4" strokeWidth={1.5} />
-              </button>
-              {showEmojiPicker && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setShowEmojiPicker(false)} />
-                  <div className="absolute bottom-full right-0 mb-2 z-50">
-                    <EmojiPicker onSelect={handleEmojiSelect} />
-                  </div>
-                </>
-              )}
-            </div>
+          <div className="flex gap-0.5 items-center">
+            <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              className="w-7 h-7 flex items-center justify-center text-muted-foreground/40 hover:text-foreground transition-colors relative"
+              title="Додати улыбку">
+              <Smile className="w-3.5 h-3.5" strokeWidth={1.5} />
+            </button>
+            {showEmojiPicker && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowEmojiPicker(false)} />
+                <div className="absolute bottom-full right-0 mb-2 z-50">
+                  <EmojiPicker onSelect={handleEmojiSelect} />
+                </div>
+              </>
+            )}
             <button type="submit" disabled={!canSend}
-              className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-200 ${
-                isActive
-                  ? 'bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-sm shadow-primary/20 hover:shadow-md hover:shadow-primary/30 scale-100 hover:scale-105'
-                  : 'text-muted-foreground/30 cursor-not-allowed'
+              className={`w-7 h-7 flex items-center justify-center transition-all duration-200 ${
+                isActive ? 'text-primary hover:text-primary/80' : 'text-muted-foreground/20 cursor-not-allowed'
               }`}
               title="Отправити грамоту">
-              <Send className="w-4 h-4" strokeWidth={2} />
+              <Send className="w-3.5 h-3.5" strokeWidth={2} />
             </button>
           </div>
         </div>
