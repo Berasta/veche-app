@@ -293,7 +293,7 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
         <button
           ref={userBtnRef}
           onClick={() => { navigate(AppRoutes.SETTINGS); onMobileClose?.(); }}
-          className="flex items-center gap-2 w-full rounded-lg p-2 transition-all hover:bg-sidebar-accent/50 group"
+          className="flex items-center gap-2 w-full rounded-lg p-2 transition-all hover:bg-sidebar-accent/50 group cursor-pointer"
         >
           <div className="relative flex-shrink-0">
             <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-sidebar-border/50 group-hover:ring-primary/30 transition-all">
