@@ -15,6 +15,10 @@
 @custom-variant cherry (&:is(.cherry *));
 @custom-variant midnight (&:is(.midnight *));
 @custom-variant night (&:is(.night *));
+@custom-variant moss (&:is(.moss *));
+@custom-variant clay (&:is(.clay *));
+@custom-variant pearl (&:is(.pearl *));
+@custom-variant heather (&:is(.heather *));
 
 /* Тема: Древняя Русь (по умолчанию) */
 :root {
@@ -695,6 +699,140 @@
   --sidebar-accent-foreground: #8888a0;
   --sidebar-border: rgba(136, 136, 160, 0.1);
   --sidebar-ring: #8888a0;
+}
+
+/* Тема: Мшистый камень */
+.moss {
+  --background: #121812;
+  --foreground: #d0d8c8;
+  --card: #1e241e;
+  --card-foreground: #d0d8c8;
+  --popover: #1e241e;
+  --popover-foreground: #d0d8c8;
+  --primary: #6a8a6a;
+  --primary-foreground: #121812;
+  --secondary: #2a3628;
+  --secondary-foreground: #d0d8c8;
+  --muted: #1e261e;
+  --muted-foreground: #889880;
+  --accent: #8a7a5a;
+  --accent-foreground: #121812;
+  --destructive: #a06050;
+  --destructive-foreground: #d0d8c8;
+  --border: rgba(106, 138, 106, 0.18);
+  --input-background: rgba(30, 36, 30, 0.7);
+  --switch-background: #2a3628;
+  --ring: #6a8a6a;
+  --chart-1: #6a8a6a;
+  --chart-2: #8a7a5a;
+  --chart-3: #2a3628;
+  --chart-4: #90a888;
+  --chart-5: #a06050;
+  --sidebar: #0e120e;
+  --sidebar-foreground: #6a8a6a;
+  --sidebar-accent: #1e241e;
+  --sidebar-border: rgba(106, 138, 106, 0.12);
+  --sidebar-ring: #6a8a6a;
+}
+
+/* Тема: Красная глина */
+.clay {
+  --background: #18120e;
+  --foreground: #e0d0c0;
+  --card: #2a1e16;
+  --card-foreground: #e0d0c0;
+  --popover: #2a1e16;
+  --popover-foreground: #e0d0c0;
+  --primary: #c07a5a;
+  --primary-foreground: #18120e;
+  --secondary: #3a2820;
+  --secondary-foreground: #e0d0c0;
+  --muted: #2a1e18;
+  --muted-foreground: #a09080;
+  --accent: #a06040;
+  --accent-foreground: #e0d0c0;
+  --destructive: #c04840;
+  --destructive-foreground: #e0d0c0;
+  --border: rgba(192, 122, 90, 0.18);
+  --input-background: rgba(42, 30, 22, 0.7);
+  --switch-background: #3a2820;
+  --ring: #c07a5a;
+  --chart-1: #c07a5a;
+  --chart-2: #a06040;
+  --chart-3: #3a2820;
+  --chart-4: #d0a088;
+  --chart-5: #c04840;
+  --sidebar: #120e0a;
+  --sidebar-accent: #2a1e16;
+  --sidebar-border: rgba(192, 122, 90, 0.12);
+  --sidebar-ring: #c07a5a;
+}
+
+/* Тема: Жемчужная заря */
+.pearl {
+  --background: #f0e8ec;
+  --foreground: #2a2028;
+  --card: #ffffff;
+  --card-foreground: #2a2028;
+  --popover: #ffffff;
+  --popover-foreground: #2a2028;
+  --primary: #c08a98;
+  --primary-foreground: #f0e8ec;
+  --secondary: #e8d8e0;
+  --secondary-foreground: #2a2028;
+  --muted: #e8d8e0;
+  --muted-foreground: #887080;
+  --accent: #b8a0b0;
+  --accent-foreground: #ffffff;
+  --destructive: #c06060;
+  --destructive-foreground: #ffffff;
+  --border: rgba(192, 138, 152, 0.2);
+  --input-background: rgba(255, 255, 255, 0.5);
+  --switch-background: #e8d8e0;
+  --ring: #c08a98;
+  --chart-1: #c08a98;
+  --chart-2: #b8a0b0;
+  --chart-3: #887080;
+  --chart-4: #d4b8c0;
+  --chart-5: #c06060;
+  --sidebar: #e8dce4;
+  --sidebar-foreground: #2a2028;
+  --sidebar-accent: #e8d8e0;
+  --sidebar-border: rgba(192, 138, 152, 0.15);
+  --sidebar-ring: #c08a98;
+}
+
+/* Тема: Вересковый мёдъ */
+.heather {
+  --background: #141014;
+  --foreground: #e0d0d8;
+  --card: #221a22;
+  --card-foreground: #e0d0d8;
+  --popover: #221a22;
+  --popover-foreground: #e0d0d8;
+  --primary: #b080a0;
+  --primary-foreground: #141014;
+  --secondary: #322432;
+  --secondary-foreground: #e0d0d8;
+  --muted: #221a22;
+  --muted-foreground: #a08090;
+  --accent: #c09060;
+  --accent-foreground: #141014;
+  --destructive: #b05058;
+  --destructive-foreground: #e0d0d8;
+  --border: rgba(176, 128, 160, 0.18);
+  --input-background: rgba(34, 26, 34, 0.7);
+  --switch-background: #322432;
+  --ring: #b080a0;
+  --chart-1: #b080a0;
+  --chart-2: #c09060;
+  --chart-3: #322432;
+  --chart-4: #d0a0b8;
+  --chart-5: #b05058;
+  --sidebar: #0e0a0e;
+  --sidebar-accent: #221a22;
+  --sidebar-border: rgba(176, 128, 160, 0.12);
+  --sidebar-ring: #b080a0;
 }
 
 @theme inline {
