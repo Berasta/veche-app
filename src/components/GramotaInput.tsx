@@ -87,7 +87,7 @@ export function GramotaInput({ onSend }: GramotaInputProps) {
   return (
     <div className="px-2 md:px-4 pb-3 md:pb-6 pt-2 md:pt-3">
       <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-        <div className="relative bg-card/40 backdrop-blur-sm rounded-lg border border-border shadow-sm overflow-hidden">
+        <div className="relative bg-card/40 backdrop-blur-sm rounded-lg border border-border shadow-sm">
           {/* Выбранные файлы */}
           {selectedFiles.length > 0 && (
             <div className="flex gap-2 p-2 pb-0 overflow-x-auto">
