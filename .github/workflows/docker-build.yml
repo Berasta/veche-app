@@ -76,9 +76,9 @@ jobs:
 
       - name: Restart deployment
         run: |
-          kubectl rollout restart deployment/veche-frontend \
+          kubectl rollout restart deployment/veche-frontend-app \
             -n veche
 
       - name: Verify rollout
         run: |
-          kubectl rollout status deployment/veche-frontend -n veche --timeout=180s
+          kubectl rollout status deployment/veche-frontend-app -n veche --timeout=180s
