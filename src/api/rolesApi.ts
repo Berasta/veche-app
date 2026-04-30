@@ -104,16 +104,24 @@ export async function getRoleMap(serverId: string): Promise<Record<string, { nam
 }
 
 export async function getUserPermissions(serverId: string, userId: string): Promise<string[]> {
-  const assignments = await pb.collection("server_role_assignments").getFullList<RoleAssignment>({
-    filter: `server_id = "${serverId}" && user_id = "${userId}"`,
-    expand: "role_id",
-  });
-  const perms = new Set<string>();
-  for (const a of assignments) {
-    const role = a.expand?.role_id;
-    if (role?.permissions) {
-      role.permissions.forEach((p) => perms.add(p));
+  try {
+    const assignments = await pb.collection("server_role_assignments").getFullList<RoleAssignment>({
+      filter: `server_id = "${serverId}" && user_id = "${userId}"`,
+      expand: "role_id",
+    });
+    console.log("[getUserPermissions] assignments:", assignments.length, assignments);
+    const perms = new Set<string>();
+    for (const a of assignments) {
+      const role = a.expand?.role_id;
+      console.log("[getUserPermissions] role:", role?.name, role?.permissions);
+      if (role?.permissions) {
+        role.permissions.forEach((p) => perms.add(p));
+      }
     }
+    console.log("[getUserPermissions] result:", Array.from(perms));
+    return Array.from(perms);
+  } catch (e) {
+    console.error("[getUserPermissions] error:", e);
+    return [];
   }
-  return Array.from(perms);
 }
