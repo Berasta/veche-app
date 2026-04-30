@@ -16,14 +16,16 @@ import {
   Settings,
   Pencil,
   Trash2,
-  MoreHorizontal,
 } from "lucide-react";
 import { pb } from "@api/pb";
 import { fetchChannels } from "@store/slices/channelsSlice";
 import { useAppDispatch } from "@store/hooks";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Portal } from "@components/ui/Portal";
 import { InviteManager } from "@components/invite/InviteManager";
+import { CreateChannelModal } from "./CreateChannelModal";
+import { EditChannelModal } from "./EditChannelModal";
+import { ConfirmModal } from "@components/ui/ConfirmModal";
 
 interface PalataListProps {
   isMobileOpen?: boolean;
@@ -324,56 +326,21 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
 
   const modals = (
     <>
-      {/* Create channel modal */}
       {creatingType && (
-        <Portal>
-          <div
-            className="fixed inset-0 z-[70] bg-black/50 flex items-start justify-center pt-[15vh]"
-            onClick={() => setCreatingType(null)}
-          >
-            <div
-              className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="px-5 py-4 border-b border-border">
-                <h4 className="text-sm font-semibold text-foreground">
-                  Создати {creatingType === "text" ? "текстовую" : "голосовую"}{" "}
-                  палату
-                </h4>
-              </div>
-              <div className="p-5">
-                <input
-                  autoFocus
-                  value={newChannelName}
-                  onChange={(e) => setNewChannelName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleCreateChannel();
-                    if (e.key === "Escape") setCreatingType(null);
-                  }}
-                  placeholder={
-                    creatingType === "text" ? "общая-бесѣда" : "Общiй гласъ"
-                  }
-                  className="w-full bg-input-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/50"
-                />
-              </div>
-              <div className="px-5 py-4 border-t border-border flex items-center justify-end gap-2">
-                <button
-                  onClick={() => setCreatingType(null)}
-                  className="px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground text-sm font-medium transition-colors"
-                >
-                  Отмѣна
-                </button>
-                <button
-                  onClick={handleCreateChannel}
-                  disabled={!newChannelName.trim()}
-                  className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium transition-colors disabled:opacity-50"
-                >
-                  Создати
-                </button>
-              </div>
-            </div>
-          </div>
-        </Portal>
+        <CreateChannelModal type={creatingType} value={newChannelName} onChange={setNewChannelName}
+          onSave={handleCreateChannel} onClose={() => setCreatingType(null)} />
+      )}
+
+      {editingChannel && (
+        <EditChannelModal name={editingChannel.name} onChange={(name) => setEditingChannel({ ...editingChannel, name })}
+          onSave={handleRenameChannel} onClose={() => setEditingChannel(null)} />
+      )}
+
+      {deletingChannelId && (
+        <ConfirmModal title="Удалити палату" confirmLabel="Удалити" confirmVariant="destructive"
+          onConfirm={handleDeleteChannel} onCancel={() => setDeletingChannelId(null)}>
+          <p className="text-sm text-muted-foreground">Вы увѣрены, что хотите удалить сію палату? Это дѣйствіе необратимо.</p>
+        </ConfirmModal>
       )}
 
       {/* Invite manager modal */}
