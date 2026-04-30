@@ -5,6 +5,7 @@ import { AppLayout } from "@components/layout/AppLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { AppRoutes } from "./routes";
 import { Settings } from "@pages/Settings";
+import { ServerSettingsPage } from "@pages/ServerSettingsPage";
 import { VoiceChat } from "@components/voice/VoiceChat";
 import { InvitePage } from "@pages/InvitePage";
 import { OverlayPage } from "@pages/OverlayPage";
@@ -38,6 +39,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "", element: <AppPage /> },
           { path: AppRoutes.SERVER, element: <ServerPage /> },
+          { path: AppRoutes.SERVER_SETTINGS, element: <ServerSettingsPage /> },
           { path: AppRoutes.TEXT_CHANNEL, element: <ServerPage /> },
           { path: AppRoutes.VOICE_CHAT, element: <VoiceChat /> },
           { path: AppRoutes.SETTINGS, element: <Settings /> },

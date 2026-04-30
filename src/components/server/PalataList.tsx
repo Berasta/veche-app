@@ -154,6 +154,15 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
                   <Shield className="w-3.5 h-3.5" strokeWidth={2} />
                 </button>
               )}
+              {isOwner && serverId && (
+                <button
+                  onClick={() => navigate(AppRoutes.SERVER_SETTINGS.replace(":serverId", serverId))}
+                  className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+                  title="Настройки града"
+                >
+                  <Settings className="w-3.5 h-3.5" strokeWidth={2} />
+                </button>
+              )}
             </>
           )}
           {isMobile && onMobileClose && (

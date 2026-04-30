@@ -6,6 +6,7 @@ export enum AppRoutes {
   APP = "/app",
   SERVER = "/app/server/:serverId",
   VOICE_CHAT = "/app/server/:serverId/voice/:channelId",
+  SERVER_SETTINGS = "/app/server/:serverId/settings",
 
   SETTINGS = "/app/settings",
   TEXT_CHANNEL = "/app/server/:serverId/text/:channelId",
