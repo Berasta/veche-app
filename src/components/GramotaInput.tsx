@@ -153,7 +153,12 @@ export function GramotaInput({ onSend }: GramotaInputProps) {
                   <Smile className="w-4 md:w-5 h-4 md:h-5" strokeWidth={2} />
                 </button>
                 {showEmojiPicker && (
-                  <EmojiPicker onSelect={handleEmojiSelect} onClose={() => setShowEmojiPicker(false)} />
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowEmojiPicker(false)} />
+                    <div className="absolute bottom-full right-0 mb-2 z-50">
+                      <EmojiPicker onSelect={handleEmojiSelect} />
+                    </div>
+                  </>
                 )}
               </div>
               <button

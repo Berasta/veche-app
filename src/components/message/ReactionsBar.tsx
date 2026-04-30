@@ -43,10 +43,12 @@ export function ReactionsBar({ reactions, onToggle }: ReactionsBarProps) {
         </button>
 
         {showPicker && (
-          <EmojiPicker
-            onSelect={(emoji) => { onToggle(emoji); setShowPicker(false); }}
-            onClose={() => setShowPicker(false)}
-          />
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setShowPicker(false)} />
+            <div className="absolute bottom-full left-0 mb-2 z-50">
+              <EmojiPicker onSelect={(emoji) => { onToggle(emoji); setShowPicker(false); }} />
+            </div>
+          </>
         )}
       </div>
     </div>
