@@ -728,6 +728,66 @@
   animation: bounce 1s infinite;
 }
 
+/* Древнерусские декоративные элементы */
+.ornament-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--primary);
+  opacity: 0.3;
+  font-size: 10px;
+  user-select: none;
+}
+
+.ornament-divider::before,
+.ornament-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--primary), transparent);
+}
+
+.ornament-divider span {
+  font-family: 'Old Standard TT', Georgia, serif;
+  letter-spacing: 0.3em;
+}
+
+/* Initial caps for messages */
+.initial-cap::first-letter {
+  font-size: 1.2em;
+  color: var(--primary);
+  font-weight: bold;
+}
+
+/* Subtle Slavic pattern overlay */
+.slavic-pattern {
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 4px,
+      rgba(212, 175, 55, 0.02) 4px,
+      rgba(212, 175, 55, 0.02) 8px
+    );
+}
+
+/* Decorative corner flourishes */
+.corner-ornament {
+  position: relative;
+}
+
+.corner-ornament::before,
+.corner-ornament::after {
+  content: '✦';
+  position: absolute;
+  font-size: 8px;
+  color: var(--primary);
+  opacity: 0.2;
+}
+
+.corner-ornament::before { top: 4px; left: 4px; }
+.corner-ornament::after { bottom: 4px; right: 4px; }
+
 /* Плавный скролл */
 html {
   scroll-behavior: smooth;

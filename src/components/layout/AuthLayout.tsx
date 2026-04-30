@@ -31,9 +31,15 @@ export const AuthLayout = () => {
       <div className="w-full max-w-md px-4 md:px-6 relative z-10">
         {/* Header */}
         <div className="text-center mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mx-auto mb-4 ring-2 ring-primary/10">
+            <span className="text-2xl font-bold text-primary" style={{ fontFamily: "'Old Standard TT', Georgia, serif" }}>В</span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2 tracking-wide" style={{ fontFamily: "'Old Standard TT', Georgia, serif" }}>
             Вече
           </h1>
+          <div className="ornament-divider justify-center mb-3">
+            <span>❦</span>
+          </div>
           <p className="text-sm text-muted-foreground">Войдите въ свой градъ</p>
         </div>
         <Outlet />
