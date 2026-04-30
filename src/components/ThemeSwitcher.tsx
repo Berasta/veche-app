@@ -22,6 +22,7 @@ const themes = [
   { id: 'silver', name: 'Серебряная гривна', description: 'Студёное сребро', colors: ['#a8b0b8', '#7890a8', '#2a2e34', '#101214'] },
   { id: 'cherry', name: 'Черёмуховая весна', description: 'Цвѣтущій садъ', colors: ['#d87090', '#d0a060', '#3a1e2a', '#1a0e14'] },
   { id: 'midnight', name: 'Полуночный звонъ', description: 'Глубокая лазурь', colors: ['#5a7acc', '#d4af37', '#1a2038', '#080a12'] },
+  { id: 'night', name: 'Ночной дозоръ', description: 'Простая тьма', colors: ['#8888a0', '#6a8aba', '#24242a', '#0c0c0e'] },
 ];
 
 const gradients: Record<string, string> = {
@@ -41,6 +42,7 @@ const gradients: Record<string, string> = {
   silver: 'from-[#a8b0b8] via-[#2a2e34] to-[#101214]',
   cherry: 'from-[#d87090] via-[#3a1e2a] to-[#1a0e14]',
   midnight: 'from-[#5a7acc] via-[#1a2038] to-[#080a12]',
+  night: 'from-[#8888a0] via-[#24242a] to-[#0c0c0e]',
 };
 
 function ThemeCard({ theme, isSelected, onClick }: {

@@ -14,6 +14,7 @@
 @custom-variant silver (&:is(.silver *));
 @custom-variant cherry (&:is(.cherry *));
 @custom-variant midnight (&:is(.midnight *));
+@custom-variant night (&:is(.night *));
 
 /* Тема: Древняя Русь (по умолчанию) */
 :root {
@@ -654,6 +655,46 @@
   --sidebar-accent-foreground: #5a7acc;
   --sidebar-border: rgba(90, 122, 204, 0.15);
   --sidebar-ring: #5a7acc;
+}
+
+/* Тема: Ночной дозоръ */
+.night {
+  --background: #0c0c0e;
+  --foreground: #d0d0d4;
+  --card: #16161a;
+  --card-foreground: #d0d0d4;
+  --popover: #16161a;
+  --popover-foreground: #d0d0d4;
+  --primary: #8888a0;
+  --primary-foreground: #0c0c0e;
+  --secondary: #24242a;
+  --secondary-foreground: #d0d0d4;
+  --muted: #1a1a20;
+  --muted-foreground: #808090;
+  --accent: #6a8aba;
+  --accent-foreground: #0c0c0e;
+  --destructive: #b04850;
+  --destructive-foreground: #d0d0d4;
+  --border: rgba(136, 136, 160, 0.15);
+  --input: transparent;
+  --input-background: rgba(22, 22, 26, 0.7);
+  --switch-background: #24242a;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #8888a0;
+  --chart-1: #8888a0;
+  --chart-2: #6a8aba;
+  --chart-3: #24242a;
+  --chart-4: #a0a0b8;
+  --chart-5: #b04850;
+  --sidebar: #08080a;
+  --sidebar-foreground: #8888a0;
+  --sidebar-primary: #8888a0;
+  --sidebar-primary-foreground: #08080a;
+  --sidebar-accent: #16161a;
+  --sidebar-accent-foreground: #8888a0;
+  --sidebar-border: rgba(136, 136, 160, 0.1);
+  --sidebar-ring: #8888a0;
 }
 
 @theme inline {
