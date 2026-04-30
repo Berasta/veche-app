@@ -158,6 +158,7 @@ export const joinChannel = createAsyncThunk(
           el.id = `screen-${participant.identity}`;
           el.style.cssText = "width:100%;height:100%;object-fit:contain;border-radius:8px";
           screenShareElements[participant.identity] = el;
+          dispatch(setScreenSharing(true));
         }
         // ... остальной код
       });
@@ -166,6 +167,9 @@ export const joinChannel = createAsyncThunk(
         if (track.source === Track.Source.ScreenShare) {
           screenShareElements[participant.identity]?.remove();
           delete screenShareElements[participant.identity];
+          if (Object.keys(screenShareElements).length === 0) {
+            dispatch(setScreenSharing(false));
+          }
         }
         // ... остальной код
       });
