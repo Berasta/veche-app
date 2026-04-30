@@ -143,13 +143,7 @@ export function VoiceChat() {
     : undefined;
 
   return (
-    <div className="flex-1 flex flex-col bg-background relative z-10 min-w-0">
-      {connectError && (
-        <div className="px-4 py-2 bg-destructive/10 border-b border-destructive/20 text-destructive text-sm">
-          {connectError}
-        </div>
-      )}
-
+    <div className="flex-1 flex flex-col bg-background relative z-10 min-w-0 pt-14 md:pt-0">
       {/* Header */}
       <PageHeader
         icon={Volume2}
@@ -159,14 +153,9 @@ export function VoiceChat() {
             ? `${participants.length} участниковъ`
             : undefined
         }
+        onMenuClick={handleCollapse}
         actions={
-          <>
-            <IconButton
-              icon={ArrowLeft}
-              onClick={handleCollapse}
-              tooltip="Свернуть звонокъ"
-            />
-          </>
+          <IconButton icon={ArrowLeft} onClick={handleCollapse} tooltip="Свернуть звонокъ" />
         }
       />
 
