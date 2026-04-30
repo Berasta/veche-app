@@ -87,27 +87,34 @@ export function Settings() {
   const currentBanner = banners.find((b) => b.id === selectedBanner) || banners[0];
 
   return (
-    <div className="flex-1 flex bg-background min-w-0">
-      {/* Sidebar */}
-      <div className="w-48 md:w-56 border-r border-border bg-card/20 flex-shrink-0 flex flex-col pt-2">
-        <div className="px-4 pb-3 mb-1 border-b border-border">
+    <div className="flex-1 flex flex-col md:flex-row bg-background min-w-0">
+      {/* Mobile header */}
+      <div className="md:hidden h-12 border-b border-border bg-card/30 backdrop-blur-xl flex items-center px-4 flex-shrink-0">
+        <Crown className="w-5 h-5 text-primary mr-2" strokeWidth={2} />
+        <h3 className="text-sm font-semibold text-foreground">Настройки</h3>
+      </div>
+
+      {/* Nav: horizontal on mobile, vertical sidebar on desktop */}
+      <div className="md:w-56 md:border-r border-border bg-card/20 flex-shrink-0 flex md:flex-col overflow-x-auto md:overflow-y-auto md:pt-2">
+        <div className="hidden md:block px-4 pb-3 mb-1 border-b border-border">
           <h3 className="text-sm font-semibold text-foreground tracking-wide">Настройки</h3>
         </div>
-        <nav className="flex-1 overflow-y-auto px-2 space-y-0.5">
+        <nav className="flex md:flex-col gap-0.5 px-2 py-2 md:py-0 md:flex-1">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                   activeTab === tab.id
                     ? "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                 }`}
               >
                 <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
-                {tab.label}
+                <span className="hidden md:inline">{tab.label}</span>
+                <span className="md:hidden text-xs">{tab.label}</span>
               </button>
             );
           })}
@@ -115,7 +122,7 @@ export function Settings() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto md:border-t-0">
         <div className="max-w-2xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
 
           {/* Profile tab */}
