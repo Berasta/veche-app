@@ -10,6 +10,10 @@
 @custom-variant amber (&:is(.amber *));
 @custom-variant copper (&:is(.copper *));
 @custom-variant wine (&:is(.wine *));
+@custom-variant honey (&:is(.honey *));
+@custom-variant silver (&:is(.silver *));
+@custom-variant cherry (&:is(.cherry *));
+@custom-variant midnight (&:is(.midnight *));
 
 /* Тема: Древняя Русь (по умолчанию) */
 :root {
@@ -490,6 +494,166 @@
   --sidebar-accent-foreground: #b84a6a;
   --sidebar-border: rgba(184, 74, 106, 0.15);
   --sidebar-ring: #b84a6a;
+}
+
+/* Тема: Медовый спас */
+.honey {
+  --background: #1a1408;
+  --foreground: #f0e8d0;
+  --card: #2a1e0e;
+  --card-foreground: #f0e8d0;
+  --popover: #2a1e0e;
+  --popover-foreground: #f0e8d0;
+  --primary: #d4a040;
+  --primary-foreground: #1a1408;
+  --secondary: #4a3018;
+  --secondary-foreground: #f0e8d0;
+  --muted: #3a240e;
+  --muted-foreground: #c0a878;
+  --accent: #b87830;
+  --accent-foreground: #1a1408;
+  --destructive: #c04830;
+  --destructive-foreground: #f0e8d0;
+  --border: rgba(212, 160, 64, 0.18);
+  --input: transparent;
+  --input-background: rgba(42, 30, 14, 0.7);
+  --switch-background: #4a3018;
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --ring: #d4a040;
+  --chart-1: #d4a040;
+  --chart-2: #b87830;
+  --chart-3: #4a3018;
+  --chart-4: #e0c070;
+  --chart-5: #c04830;
+  --sidebar: #120e06;
+  --sidebar-foreground: #d4a040;
+  --sidebar-primary: #d4a040;
+  --sidebar-primary-foreground: #120e06;
+  --sidebar-accent: #2a1e0e;
+  --sidebar-accent-foreground: #d4a040;
+  --sidebar-border: rgba(212, 160, 64, 0.12);
+  --sidebar-ring: #d4a040;
+}
+
+/* Тема: Серебряная гривна */
+.silver {
+  --background: #101214;
+  --foreground: #d8dce0;
+  --card: #1c1e22;
+  --card-foreground: #d8dce0;
+  --popover: #1c1e22;
+  --popover-foreground: #d8dce0;
+  --primary: #a8b0b8;
+  --primary-foreground: #101214;
+  --secondary: #2a2e34;
+  --secondary-foreground: #d8dce0;
+  --muted: #1e2228;
+  --muted-foreground: #889098;
+  --accent: #7890a8;
+  --accent-foreground: #101214;
+  --destructive: #b05850;
+  --destructive-foreground: #d8dce0;
+  --border: rgba(168, 176, 184, 0.15);
+  --input: transparent;
+  --input-background: rgba(28, 30, 34, 0.7);
+  --switch-background: #2a2e34;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #a8b0b8;
+  --chart-1: #a8b0b8;
+  --chart-2: #7890a8;
+  --chart-3: #2a2e34;
+  --chart-4: #c8d0d8;
+  --chart-5: #b05850;
+  --sidebar: #0c0e10;
+  --sidebar-foreground: #a8b0b8;
+  --sidebar-primary: #a8b0b8;
+  --sidebar-primary-foreground: #0c0e10;
+  --sidebar-accent: #1c1e22;
+  --sidebar-accent-foreground: #a8b0b8;
+  --sidebar-border: rgba(168, 176, 184, 0.1);
+  --sidebar-ring: #a8b0b8;
+}
+
+/* Тема: Черёмуховая весна */
+.cherry {
+  --background: #1a0e14;
+  --foreground: #f0dce4;
+  --card: #28161e;
+  --card-foreground: #f0dce4;
+  --popover: #28161e;
+  --popover-foreground: #f0dce4;
+  --primary: #d87090;
+  --primary-foreground: #1a0e14;
+  --secondary: #3a1e2a;
+  --secondary-foreground: #f0dce4;
+  --muted: #2a1420;
+  --muted-foreground: #c088a0;
+  --accent: #d0a060;
+  --accent-foreground: #1a0e14;
+  --destructive: #c04050;
+  --destructive-foreground: #f0dce4;
+  --border: rgba(216, 112, 144, 0.2);
+  --input: transparent;
+  --input-background: rgba(40, 22, 30, 0.7);
+  --switch-background: #3a1e2a;
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --ring: #d87090;
+  --chart-1: #d87090;
+  --chart-2: #d0a060;
+  --chart-3: #3a1e2a;
+  --chart-4: #e0a0b8;
+  --chart-5: #c04050;
+  --sidebar: #120a0e;
+  --sidebar-foreground: #d87090;
+  --sidebar-primary: #d87090;
+  --sidebar-primary-foreground: #120a0e;
+  --sidebar-accent: #28161e;
+  --sidebar-accent-foreground: #d87090;
+  --sidebar-border: rgba(216, 112, 144, 0.15);
+  --sidebar-ring: #d87090;
+}
+
+/* Тема: Полуночный звонъ */
+.midnight {
+  --background: #080a12;
+  --foreground: #c8d0e8;
+  --card: #10141e;
+  --card-foreground: #c8d0e8;
+  --popover: #10141e;
+  --popover-foreground: #c8d0e8;
+  --primary: #5a7acc;
+  --primary-foreground: #080a12;
+  --secondary: #1a2038;
+  --secondary-foreground: #c8d0e8;
+  --muted: #12182a;
+  --muted-foreground: #7888b8;
+  --accent: #d4af37;
+  --accent-foreground: #080a12;
+  --destructive: #b04860;
+  --destructive-foreground: #c8d0e8;
+  --border: rgba(90, 122, 204, 0.2);
+  --input: transparent;
+  --input-background: rgba(16, 20, 30, 0.8);
+  --switch-background: #1a2038;
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --ring: #5a7acc;
+  --chart-1: #5a7acc;
+  --chart-2: #d4af37;
+  --chart-3: #1a2038;
+  --chart-4: #8090d0;
+  --chart-5: #b04860;
+  --sidebar: #06080e;
+  --sidebar-foreground: #5a7acc;
+  --sidebar-primary: #5a7acc;
+  --sidebar-primary-foreground: #06080e;
+  --sidebar-accent: #10141e;
+  --sidebar-accent-foreground: #5a7acc;
+  --sidebar-border: rgba(90, 122, 204, 0.15);
+  --sidebar-ring: #5a7acc;
 }
 
 @theme inline {

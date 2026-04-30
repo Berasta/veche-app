@@ -18,6 +18,10 @@ const themes = [
   { id: 'amber', name: 'Янтарная палата', description: 'Медовый свѣтъ', colors: ['#e8a020', '#d48120', '#4a3a18', '#1a1408'] },
   { id: 'copper', name: 'Мѣдный градъ', description: 'Зелёная мѣдь', colors: ['#b8845e', '#6ba89a', '#283a34', '#0e1412'] },
   { id: 'wine', name: 'Вишнёвый садъ', description: 'Спѣлыя вишни', colors: ['#b84a6a', '#c08040', '#3a1e28', '#160c10'] },
+  { id: 'honey', name: 'Медовый спасъ', description: 'Златой медокъ', colors: ['#d4a040', '#b87830', '#4a3018', '#1a1408'] },
+  { id: 'silver', name: 'Серебряная гривна', description: 'Студёное сребро', colors: ['#a8b0b8', '#7890a8', '#2a2e34', '#101214'] },
+  { id: 'cherry', name: 'Черёмуховая весна', description: 'Цвѣтущій садъ', colors: ['#d87090', '#d0a060', '#3a1e2a', '#1a0e14'] },
+  { id: 'midnight', name: 'Полуночный звонъ', description: 'Глубокая лазурь', colors: ['#5a7acc', '#d4af37', '#1a2038', '#080a12'] },
 ];
 
 const gradients: Record<string, string> = {
@@ -33,6 +37,10 @@ const gradients: Record<string, string> = {
   amber: 'from-[#e8a020] via-[#4a3a18] to-[#1a1408]',
   copper: 'from-[#b8845e] via-[#283a34] to-[#0e1412]',
   wine: 'from-[#b84a6a] via-[#3a1e28] to-[#160c10]',
+  honey: 'from-[#d4a040] via-[#4a3018] to-[#1a1408]',
+  silver: 'from-[#a8b0b8] via-[#2a2e34] to-[#101214]',
+  cherry: 'from-[#d87090] via-[#3a1e2a] to-[#1a0e14]',
+  midnight: 'from-[#5a7acc] via-[#1a2038] to-[#080a12]',
 };
 
 function ThemeCard({ theme, isSelected, onClick }: {
