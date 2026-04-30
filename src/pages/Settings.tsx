@@ -140,17 +140,18 @@ export function Settings() {
 
               {/* Avatar & Name */}
               <div className="relative -mt-12 flex flex-col md:flex-row items-start md:items-end gap-3 md:gap-4">
-                <div className="w-20 md:w-24 h-20 md:h-24 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center ring-4 ring-background relative flex-shrink-0 overflow-hidden">
-                  {user?.avatar_url ? (
-                    <img src={user.avatar_url} alt="avatar" className="w-full h-full object-cover rounded-full" />
-                  ) : (
-                    <Crown className="w-10 md:w-12 h-10 md:h-12 text-primary" strokeWidth={2} />
-                  )}
+                <div className="relative group cursor-pointer" onClick={triggerFileSelect}>
+                  <div className="w-20 md:w-24 h-20 md:h-24 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center ring-4 ring-background overflow-hidden transition-opacity group-hover:opacity-80">
+                    {user?.avatar_url ? (
+                      <img src={user.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <Crown className="w-10 md:w-12 h-10 md:h-12 text-primary" strokeWidth={2} />
+                    )}
+                  </div>
+                  <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                    <Edit2 className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" strokeWidth={2} />
+                  </div>
                   <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-                  <button onClick={triggerFileSelect}
-                    className="absolute bottom-0 right-0 w-6 md:w-7 h-6 md:h-7 bg-primary text-primary-foreground rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors shadow-lg">
-                    <Edit2 className="w-3 md:w-3.5 h-3 md:h-3.5" />
-                  </button>
                 </div>
 
                 <div className="flex-1 pb-2 min-w-0 w-full md:w-auto">
