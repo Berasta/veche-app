@@ -1,3 +1,4 @@
+import { useEffect, useState, useRef } from "react";
 import { useAppSelector } from "@store/hooks";
 import { useNavigate, useParams } from "react-router";
 import { Palata } from "./Palata";
@@ -20,7 +21,6 @@ import {
 import { pb } from "@api/pb";
 import { fetchChannels } from "@store/slices/channelsSlice";
 import { useAppDispatch } from "@store/hooks";
-import { useState, useRef } from "react";
 import { Portal } from "@components/ui/Portal";
 import { InviteManager } from "@components/invite/InviteManager";
 import { CreateChannelModal } from "./CreateChannelModal";
