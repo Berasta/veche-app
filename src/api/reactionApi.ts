@@ -11,7 +11,7 @@ export interface Reaction {
 export async function fetchReactions(channelId: string): Promise<Reaction[]> {
   const result = await pb.collection("reactions").getFullList<Reaction>({
     filter: `message_id.channel_id = "${channelId}"`,
-  });
+  }, { $autoCancel: false });
   return result;
 }
 

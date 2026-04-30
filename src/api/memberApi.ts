@@ -11,7 +11,7 @@ export interface ServerMember {
 export async function addServerMember(serverId: string): Promise<void> {
   const existing = await pb.collection("server_members").getList(1, 1, {
     filter: `server_id = "${serverId}" && user_id = "${pb.authStore.record!.id}"`,
-  });
+  }, { $autoCancel: false });
   if (existing.items.length > 0) return;
   await pb.collection("server_members").create({
     server_id: serverId,

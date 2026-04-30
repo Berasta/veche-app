@@ -24,7 +24,7 @@ export async function listInvites(serverId: string): Promise<Invite[]> {
   const result = await pb.collection("invitations").getFullList<Invite>({
     filter: `server_id = "${serverId}"`,
     sort: "-created",
-  });
+  }, { $autoCancel: false });
   return result;
 }
 
@@ -51,7 +51,7 @@ export async function deleteInvite(id: string): Promise<void> {
 export async function getInviteByCode(code: string): Promise<Invite | null> {
   const result = await pb.collection("invitations").getList(1, 1, {
     filter: `code = "${code}"`,
-  });
+  }, { $autoCancel: false });
   return result.items.length > 0 ? (result.items[0] as unknown as Invite) : null;
 }
 
