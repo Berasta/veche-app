@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { ScrollText, Users, MessageSquare } from "lucide-react";
 import { groupMessages } from "../../utils/groupMessages";
+import { formatMessageTime } from "../../utils/formatTime";
 import { GramotaInput } from "../GramotaInput";
 import { PageHeader } from "../ui/PageHeader";
 import { IconButton } from "../ui/IconButton";
@@ -190,7 +191,7 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
               <GramotaMessage
                 author={msg.author_name}
                 avatar={showHeader ? (msg.author_avatar_url || undefined) : undefined}
-                time={new Date(msg.created).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+                time={formatMessageTime(msg.created)}
                 content={msg.content}
                 images={msg.images.length > 0 ? msg.images : undefined}
                 reactions={reactionMap[msg.id]}
