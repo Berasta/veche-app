@@ -84,7 +84,7 @@ export function GramotaInput({ onSend }: GramotaInputProps) {
           </div>
         )}
 
-        <div className="flex items-end gap-1.5 px-4 py-3">
+        <div className="flex items-center gap-1.5 px-4 py-3">
           <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileSelect} />
           <button type="button" onClick={() => fileInputRef.current?.click()}
             className="w-8 h-8 rounded-xl hover:bg-muted/50 flex items-center justify-center text-muted-foreground/60 hover:text-foreground transition-all flex-shrink-0"
