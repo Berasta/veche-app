@@ -1,0 +1,63 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "veche",
+  "version": "0.1.0",
+  "identifier": "com.veche.app",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "VITE_PB_URL=https://admin.weche.ru npm run build && VITE_PB_URL=https://admin.weche.ru npm run dev",
+    "beforeBuildCommand": "VITE_PB_URL=https://admin.weche.ru npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Вече",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 500,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "mobile": {
+    "iOS": {
+      "infoPlist": {
+        "UIBackgroundModes": ["audio"]
+      }
+    },
+    "android": {
+      "minSdkVersion": 24,
+      "targetSdkVersion": 34
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "macOS": {
+      "infoPlist": "Info.plist"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://api.veche.app/updates/{{target}}/{{current_version}}"
+      ],
+      "dialog": true,
+      "pubkey": ""
+    }
+  }
+}

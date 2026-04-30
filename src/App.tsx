@@ -1,0 +1,24 @@
+import { useAppDispatch } from "@store/hooks";
+import { fetchCurrentUser } from "@store/slices/authSlice";
+import { useEffect } from "react";
+import { RouterProvider } from "react-router";
+import { router } from "./router";
+
+export const App = () => {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        await dispatch(fetchCurrentUser());
+      } catch (error) {
+        console.error("Failed to fetch current user:", error);
+      } finally {
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  return <RouterProvider router={router} />;
+};

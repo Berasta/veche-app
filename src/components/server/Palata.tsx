@@ -1,0 +1,69 @@
+// src/components/VoiceChannel.tsx
+import { useAppDispatch, useAppSelector } from "@store/hooks";
+import {
+  selectActiveChannelId,
+  selectConnecting,
+} from "@store/selectors/roomSelectors";
+import { joinChannel } from "@store/thunks/roomThunk";
+import { Loader2, Volume2 } from "lucide-react";
+import { motion } from "motion/react";
+import { useParams } from "react-router";
+
+interface Props {
+  channelId: string;
+  channelName: string;
+  index: number;
+  participantCount?: number;
+}
+
+export function Palata({ channelId, channelName, index, participantCount = 0 }: Props) {
+  const dispatch = useAppDispatch();
+  const { serverId } = useParams();
+  const activeChannelId = useAppSelector(selectActiveChannelId);
+  const connecting = useAppSelector(selectConnecting);
+
+  const isActive = activeChannelId === channelId;
+  const isThisConnecting = connecting && activeChannelId === null;
+
+  const handleClick = () => {
+    // Request wake lock synchronously (iOS requires user gesture)
+    try { if ('wakeLock' in navigator) (navigator as any).wakeLock.request('screen'); } catch {}
+    dispatch(joinChannel({ channelId, channelName, serverId: serverId || "" }));
+  };
+
+  return (
+    <motion.button
+      onClick={handleClick}
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.03 }}
+      whileHover={{ y: -2 }}
+      className={`
+        cursor-pointer w-full px-2 py-1.5 rounded-md text-left
+        transition-all duration-100 flex items-center gap-2 group
+        ${
+          isActive
+            ? "bg-muted text-foreground"
+            : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+        }
+      `}
+    >
+      {isThisConnecting ? (
+        <Loader2 size={16} className="animate-spin" />
+      ) : (
+        <Volume2
+          size={16}
+          strokeWidth={2}
+          className={isActive ? "text-green-500" : ""}
+        />
+      )}
+      <span className="flex-1 min-w-0 truncate">{channelName}</span>
+      {participantCount > 0 && (
+        <span className="text-xs text-muted-foreground flex-shrink-0">{participantCount}</span>
+      )}
+      {isActive && (
+        <span className="text-xs text-green-500 flex-shrink-0 ml-1">●</span>
+      )}
+    </motion.button>
+  );
+}

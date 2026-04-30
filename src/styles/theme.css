@@ -1,0 +1,779 @@
+@custom-variant dark (&:is(.dark *));
+@custom-variant light (&:is(.light *));
+@custom-variant birch (&:is(.birch *));
+@custom-variant forest (&:is(.forest *));
+@custom-variant frost (&:is(.frost *));
+@custom-variant sunset (&:is(.sunset *));
+@custom-variant crimson (&:is(.crimson *));
+@custom-variant stone (&:is(.stone *));
+@custom-variant violet (&:is(.violet *));
+@custom-variant amber (&:is(.amber *));
+@custom-variant copper (&:is(.copper *));
+@custom-variant wine (&:is(.wine *));
+
+/* Тема: Древняя Русь (по умолчанию) */
+:root {
+  --font-size: 15px;
+  --background: #1a120c;
+  --foreground: #f5ede0;
+  --card: #2d2117;
+  --card-foreground: #f5ede0;
+  --popover: #2d2117;
+  --popover-foreground: #f5ede0;
+  --primary: #d4af37;
+  --primary-foreground: #1a120c;
+  --secondary: #4a3526;
+  --secondary-foreground: #f5ede0;
+  --muted: #3a2b1e;
+  --muted-foreground: #a89577;
+  --accent: #c1702a;
+  --accent-foreground: #f5ede0;
+  --destructive: #b33a1f;
+  --destructive-foreground: #f5ede0;
+  --border: rgba(212, 175, 55, 0.15);
+  --input: transparent;
+  --input-background: rgba(45, 33, 23, 0.6);
+  --switch-background: #4a3526;
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --ring: #d4af37;
+  --chart-1: #d4af37;
+  --chart-2: #c1702a;
+  --chart-3: #4a3526;
+  --chart-4: #e8c56a;
+  --chart-5: #b85450;
+  --radius: 0.375rem;
+  --sidebar: #150f0a;
+  --sidebar-foreground: #d4af37;
+  --sidebar-primary: #d4af37;
+  --sidebar-primary-foreground: #150f0a;
+  --sidebar-accent: #2d2117;
+  --sidebar-accent-foreground: #d4af37;
+  --sidebar-border: rgba(212, 175, 55, 0.12);
+  --sidebar-ring: #d4af37;
+}
+
+/* Тема: Тёмная Русь */
+.dark {
+  --background: #0f0a06;
+  --foreground: #e8dcc8;
+  --card: #1a130d;
+  --card-foreground: #e8dcc8;
+  --popover: #1a130d;
+  --popover-foreground: #e8dcc8;
+  --primary: #d4af37;
+  --primary-foreground: #0f0a06;
+  --secondary: #3a2a1a;
+  --secondary-foreground: #e8dcc8;
+  --muted: #2a1f15;
+  --muted-foreground: #9a8a70;
+  --accent: #c1702a;
+  --accent-foreground: #e8dcc8;
+  --destructive: #d32f2f;
+  --destructive-foreground: #e8dcc8;
+  --border: rgba(212, 175, 55, 0.2);
+  --input: transparent;
+  --input-background: rgba(26, 19, 13, 0.8);
+  --ring: #d4af37;
+  --font-weight-medium: 700;
+  --font-weight-normal: 400;
+  --chart-1: #d4af37;
+  --chart-2: #c1702a;
+  --chart-3: #3a2a1a;
+  --chart-4: #e8c56a;
+  --chart-5: #d32f2f;
+  --sidebar: #0a0705;
+  --sidebar-foreground: #d4af37;
+  --sidebar-primary: #d4af37;
+  --sidebar-primary-foreground: #0a0705;
+  --sidebar-accent: #1a130d;
+  --sidebar-accent-foreground: #d4af37;
+  --sidebar-border: rgba(212, 175, 55, 0.15);
+  --sidebar-ring: #d4af37;
+}
+
+/* Тема: Берёзовая грамота */
+.light {
+  --background: #f5f0e8;
+  --foreground: #2a1f15;
+  --card: #ffffff;
+  --card-foreground: #2a1f15;
+  --popover: #ffffff;
+  --popover-foreground: #2a1f15;
+  --primary: #8b6914;
+  --primary-foreground: #f5f0e8;
+  --secondary: #e8dcc8;
+  --secondary-foreground: #2a1f15;
+  --muted: #e8dcc8;
+  --muted-foreground: #6a5a45;
+  --accent: #a8552a;
+  --accent-foreground: #ffffff;
+  --destructive: #c62828;
+  --destructive-foreground: #ffffff;
+  --border: rgba(139, 105, 20, 0.2);
+  --input: transparent;
+  --input-background: rgba(232, 220, 200, 0.5);
+  --switch-background: #e8dcc8;
+  --ring: #8b6914;
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --chart-1: #8b6914;
+  --chart-2: #a8552a;
+  --chart-3: #6a5a45;
+  --chart-4: #d4af37;
+  --chart-5: #c62828;
+  --sidebar: #ebe3d5;
+  --sidebar-foreground: #2a1f15;
+  --sidebar-primary: #8b6914;
+  --sidebar-primary-foreground: #f5f0e8;
+  --sidebar-accent: #e8dcc8;
+  --sidebar-accent-foreground: #2a1f15;
+  --sidebar-border: rgba(139, 105, 20, 0.15);
+  --sidebar-ring: #8b6914;
+}
+
+/* Тема: Лесной хоромъ */
+.forest {
+  --background: #1a1f1a;
+  --foreground: #e0e8dc;
+  --card: #262d26;
+  --card-foreground: #e0e8dc;
+  --popover: #262d26;
+  --popover-foreground: #e0e8dc;
+  --primary: #7cb342;
+  --primary-foreground: #1a1f1a;
+  --secondary: #3e4a3e;
+  --secondary-foreground: #e0e8dc;
+  --muted: #2f362f;
+  --muted-foreground: #9fb599;
+  --accent: #8d6e63;
+  --accent-foreground: #e0e8dc;
+  --destructive: #c62828;
+  --destructive-foreground: #e0e8dc;
+  --border: rgba(124, 179, 66, 0.2);
+  --input: transparent;
+  --input-background: rgba(38, 45, 38, 0.6);
+  --switch-background: #3e4a3e;
+  --ring: #7cb342;
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --chart-1: #7cb342;
+  --chart-2: #8d6e63;
+  --chart-3: #3e4a3e;
+  --chart-4: #9ccc65;
+  --chart-5: #c62828;
+  --sidebar: #151a15;
+  --sidebar-foreground: #7cb342;
+  --sidebar-primary: #7cb342;
+  --sidebar-primary-foreground: #151a15;
+  --sidebar-accent: #262d26;
+  --sidebar-accent-foreground: #7cb342;
+  --sidebar-border: rgba(124, 179, 66, 0.15);
+  --sidebar-ring: #7cb342;
+}
+
+/* Тема: Морозная зима */
+.frost {
+  --background: #0f1419;
+  --foreground: #e2e8f0;
+  --card: #1a222c;
+  --card-foreground: #e2e8f0;
+  --popover: #1a222c;
+  --popover-foreground: #e2e8f0;
+  --primary: #67b8e3;
+  --primary-foreground: #0f1419;
+  --secondary: #2a3a4a;
+  --secondary-foreground: #e2e8f0;
+  --muted: #1f2a35;
+  --muted-foreground: #8ba1b8;
+  --accent: #a0c4e8;
+  --accent-foreground: #0f1419;
+  --destructive: #e05a5a;
+  --destructive-foreground: #e2e8f0;
+  --border: rgba(103, 184, 227, 0.18);
+  --input: transparent;
+  --input-background: rgba(26, 34, 44, 0.7);
+  --switch-background: #2a3a4a;
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --ring: #67b8e3;
+  --chart-1: #67b8e3;
+  --chart-2: #a0c4e8;
+  --chart-3: #2a3a4a;
+  --chart-4: #8fc9f0;
+  --chart-5: #e05a5a;
+  --sidebar: #0b0f13;
+  --sidebar-foreground: #67b8e3;
+  --sidebar-primary: #67b8e3;
+  --sidebar-primary-foreground: #0b0f13;
+  --sidebar-accent: #1a222c;
+  --sidebar-accent-foreground: #67b8e3;
+  --sidebar-border: rgba(103, 184, 227, 0.12);
+  --sidebar-ring: #67b8e3;
+}
+
+/* Тема: Закат надъ полем */
+.sunset {
+  --background: #1a0f14;
+  --foreground: #f0e2d8;
+  --card: #2d1a1e;
+  --card-foreground: #f0e2d8;
+  --popover: #2d1a1e;
+  --popover-foreground: #f0e2d8;
+  --primary: #e87a5d;
+  --primary-foreground: #1a0f14;
+  --secondary: #4a2828;
+  --secondary-foreground: #f0e2d8;
+  --muted: #3a2020;
+  --muted-foreground: #c8a898;
+  --accent: #d4a057;
+  --accent-foreground: #1a0f14;
+  --destructive: #d94a4a;
+  --destructive-foreground: #f0e2d8;
+  --border: rgba(232, 122, 93, 0.18);
+  --input: transparent;
+  --input-background: rgba(45, 26, 30, 0.7);
+  --switch-background: #4a2828;
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --ring: #e87a5d;
+  --chart-1: #e87a5d;
+  --chart-2: #d4a057;
+  --chart-3: #4a2828;
+  --chart-4: #f0a878;
+  --chart-5: #d94a4a;
+  --sidebar: #120a0d;
+  --sidebar-foreground: #e87a5d;
+  --sidebar-primary: #e87a5d;
+  --sidebar-primary-foreground: #120a0d;
+  --sidebar-accent: #2d1a1e;
+  --sidebar-accent-foreground: #e87a5d;
+  --sidebar-border: rgba(232, 122, 93, 0.12);
+  --sidebar-ring: #e87a5d;
+}
+
+/* Тема: Червлёная Русь */
+.crimson {
+  --background: #140a0a;
+  --foreground: #f0d8d8;
+  --card: #241414;
+  --card-foreground: #f0d8d8;
+  --popover: #241414;
+  --popover-foreground: #f0d8d8;
+  --primary: #c0392b;
+  --primary-foreground: #f0d8d8;
+  --secondary: #3a1a1a;
+  --secondary-foreground: #f0d8d8;
+  --muted: #2a1212;
+  --muted-foreground: #b88888;
+  --accent: #d4a057;
+  --accent-foreground: #140a0a;
+  --destructive: #e63946;
+  --destructive-foreground: #f0d8d8;
+  --border: rgba(192, 57, 43, 0.2);
+  --input: transparent;
+  --input-background: rgba(36, 20, 20, 0.7);
+  --switch-background: #3a1a1a;
+  --font-weight-medium: 700;
+  --font-weight-normal: 400;
+  --ring: #c0392b;
+  --chart-1: #c0392b;
+  --chart-2: #d4a057;
+  --chart-3: #3a1a1a;
+  --chart-4: #e05a5a;
+  --chart-5: #e63946;
+  --sidebar: #0e0707;
+  --sidebar-foreground: #c0392b;
+  --sidebar-primary: #c0392b;
+  --sidebar-primary-foreground: #f0d8d8;
+  --sidebar-accent: #241414;
+  --sidebar-accent-foreground: #c0392b;
+  --sidebar-border: rgba(192, 57, 43, 0.15);
+  --sidebar-ring: #c0392b;
+}
+
+/* Тема: Каменная палата */
+.stone {
+  --background: #111311;
+  --foreground: #d8dcd0;
+  --card: #1e201e;
+  --card-foreground: #d8dcd0;
+  --popover: #1e201e;
+  --popover-foreground: #d8dcd0;
+  --primary: #9e9e9e;
+  --primary-foreground: #111311;
+  --secondary: #2e302e;
+  --secondary-foreground: #d8dcd0;
+  --muted: #222422;
+  --muted-foreground: #888c80;
+  --accent: #6b8e6b;
+  --accent-foreground: #d8dcd0;
+  --destructive: #a05050;
+  --destructive-foreground: #d8dcd0;
+  --border: rgba(158, 158, 158, 0.15);
+  --input: transparent;
+  --input-background: rgba(30, 32, 30, 0.7);
+  --switch-background: #2e302e;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #9e9e9e;
+  --chart-1: #9e9e9e;
+  --chart-2: #6b8e6b;
+  --chart-3: #2e302e;
+  --chart-4: #b0b0a0;
+  --chart-5: #a05050;
+  --sidebar: #0d0e0d;
+  --sidebar-foreground: #9e9e9e;
+  --sidebar-primary: #9e9e9e;
+  --sidebar-primary-foreground: #0d0e0d;
+  --sidebar-accent: #1e201e;
+  --sidebar-accent-foreground: #9e9e9e;
+  --sidebar-border: rgba(158, 158, 158, 0.1);
+  --sidebar-ring: #9e9e9e;
+}
+
+/* Тема: Вечерній звонъ */
+.violet {
+  --background: #120f18;
+  --foreground: #e2daf0;
+  --card: #1f192b;
+  --card-foreground: #e2daf0;
+  --popover: #1f192b;
+  --popover-foreground: #e2daf0;
+  --primary: #a07dd6;
+  --primary-foreground: #120f18;
+  --secondary: #2e2440;
+  --secondary-foreground: #e2daf0;
+  --muted: #221a33;
+  --muted-foreground: #9a8ab8;
+  --accent: #c9a85c;
+  --accent-foreground: #120f18;
+  --destructive: #c05070;
+  --destructive-foreground: #e2daf0;
+  --border: rgba(160, 125, 214, 0.18);
+  --input: transparent;
+  --input-background: rgba(31, 25, 43, 0.7);
+  --switch-background: #2e2440;
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --ring: #a07dd6;
+  --chart-1: #a07dd6;
+  --chart-2: #c9a85c;
+  --chart-3: #2e2440;
+  --chart-4: #c49cd8;
+  --chart-5: #c05070;
+  --sidebar: #0d0a12;
+  --sidebar-foreground: #a07dd6;
+  --sidebar-primary: #a07dd6;
+  --sidebar-primary-foreground: #0d0a12;
+  --sidebar-accent: #1f192b;
+  --sidebar-accent-foreground: #a07dd6;
+  --sidebar-border: rgba(160, 125, 214, 0.12);
+  --sidebar-ring: #a07dd6;
+}
+
+/* Тема: Янтарная палата */
+.amber {
+  --background: #1a1408;
+  --foreground: #f0e6d0;
+  --card: #2a2210;
+  --card-foreground: #f0e6d0;
+  --popover: #2a2210;
+  --popover-foreground: #f0e6d0;
+  --primary: #e8a020;
+  --primary-foreground: #1a1408;
+  --secondary: #4a3a18;
+  --secondary-foreground: #f0e6d0;
+  --muted: #3a2e12;
+  --muted-foreground: #c8b890;
+  --accent: #d48120;
+  --accent-foreground: #1a1408;
+  --destructive: #c04830;
+  --destructive-foreground: #f0e6d0;
+  --border: rgba(232, 160, 32, 0.18);
+  --input: transparent;
+  --input-background: rgba(42, 34, 16, 0.7);
+  --switch-background: #4a3a18;
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --ring: #e8a020;
+  --chart-1: #e8a020;
+  --chart-2: #d48120;
+  --chart-3: #4a3a18;
+  --chart-4: #f0c060;
+  --chart-5: #c04830;
+  --sidebar: #120e06;
+  --sidebar-foreground: #e8a020;
+  --sidebar-primary: #e8a020;
+  --sidebar-primary-foreground: #120e06;
+  --sidebar-accent: #2a2210;
+  --sidebar-accent-foreground: #e8a020;
+  --sidebar-border: rgba(232, 160, 32, 0.12);
+  --sidebar-ring: #e8a020;
+}
+
+/* Тема: Мѣдный градъ */
+.copper {
+  --background: #0e1412;
+  --foreground: #d8e6e0;
+  --card: #182420;
+  --card-foreground: #d8e6e0;
+  --popover: #182420;
+  --popover-foreground: #d8e6e0;
+  --primary: #b8845e;
+  --primary-foreground: #0e1412;
+  --secondary: #283a34;
+  --secondary-foreground: #d8e6e0;
+  --muted: #1c2c26;
+  --muted-foreground: #88a89a;
+  --accent: #6ba89a;
+  --accent-foreground: #0e1412;
+  --destructive: #b06050;
+  --destructive-foreground: #d8e6e0;
+  --border: rgba(184, 132, 94, 0.18);
+  --input: transparent;
+  --input-background: rgba(24, 36, 32, 0.7);
+  --switch-background: #283a34;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #b8845e;
+  --chart-1: #b8845e;
+  --chart-2: #6ba89a;
+  --chart-3: #283a34;
+  --chart-4: #d0b898;
+  --chart-5: #b06050;
+  --sidebar: #0a100e;
+  --sidebar-foreground: #b8845e;
+  --sidebar-primary: #b8845e;
+  --sidebar-primary-foreground: #0a100e;
+  --sidebar-accent: #182420;
+  --sidebar-accent-foreground: #b8845e;
+  --sidebar-border: rgba(184, 132, 94, 0.12);
+  --sidebar-ring: #b8845e;
+}
+
+/* Тема: Вишнёвый садъ */
+.wine {
+  --background: #160c10;
+  --foreground: #e8d8dc;
+  --card: #241418;
+  --card-foreground: #e8d8dc;
+  --popover: #241418;
+  --popover-foreground: #e8d8dc;
+  --primary: #b84a6a;
+  --primary-foreground: #e8d8dc;
+  --secondary: #3a1e28;
+  --secondary-foreground: #e8d8dc;
+  --muted: #2a141c;
+  --muted-foreground: #b08890;
+  --accent: #c08040;
+  --accent-foreground: #160c10;
+  --destructive: #c04050;
+  --destructive-foreground: #e8d8dc;
+  --border: rgba(184, 74, 106, 0.2);
+  --input: transparent;
+  --input-background: rgba(36, 20, 24, 0.7);
+  --switch-background: #3a1e28;
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --ring: #b84a6a;
+  --chart-1: #b84a6a;
+  --chart-2: #c08040;
+  --chart-3: #3a1e28;
+  --chart-4: #d08090;
+  --chart-5: #c04050;
+  --sidebar: #10080a;
+  --sidebar-foreground: #b84a6a;
+  --sidebar-primary: #b84a6a;
+  --sidebar-primary-foreground: #e8d8dc;
+  --sidebar-accent: #241418;
+  --sidebar-accent-foreground: #b84a6a;
+  --sidebar-border: rgba(184, 74, 106, 0.15);
+  --sidebar-ring: #b84a6a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Old Standard TT', Georgia, serif;
+    font-feature-settings: "liga" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+  }
+
+  /**
+  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
+  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
+  */
+
+  html {
+    font-size: var(--font-size);
+    overflow: hidden;
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h4 {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  label {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  button {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  input {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+  }
+
+  /* Плавные переходы для всех интерактивных элементов */
+  * {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  /* Отключаем анимации для prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Кастомные анимации */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Utility классы для анимаций */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slideInFromLeft 0.3s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-bounce-slow {
+  animation: bounce 1s infinite;
+}
+
+/* Плавный скролл */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Стилизация скроллбара */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(var(--color-muted-foreground), 0.3);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--color-muted-foreground), 0.5);
+}
+
+/* Эффект фокуса для доступности */
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  transition: outline-offset 0.2s;
+}
+
+/* Hover эффекты */
+.hover-lift {
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.hover-glow {
+  transition: box-shadow 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(var(--color-primary), 0.3);
+}
