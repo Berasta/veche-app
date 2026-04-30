@@ -1045,5 +1045,5 @@ html {
 }
 
 .hover-glow:hover {
-  box-shadow: 0 0 20px rgba(var(--color-primary), 0.3);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary) 25%, transparent);
 }
