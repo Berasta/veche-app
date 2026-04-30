@@ -92,7 +92,7 @@ export async function getRoleMap(serverId: string): Promise<Record<string, { nam
   const assignments = await pb.collection("server_role_assignments").getFullList<RoleAssignment>({
     filter: `server_id = "${serverId}"`,
     expand: "role_id",
-  });
+  }, { $autoCancel: false });
   const map: Record<string, { name: string; color: string }> = {};
   for (const a of assignments) {
     const role = a.expand?.role_id;
@@ -108,7 +108,7 @@ export async function getUserPermissions(serverId: string, userId: string): Prom
     const assignments = await pb.collection("server_role_assignments").getFullList<RoleAssignment>({
       filter: `server_id = "${serverId}" && user_id = "${userId}"`,
       expand: "role_id",
-    });
+    }, { $autoCancel: false });
     console.log("[getUserPermissions] assignments:", assignments.length, assignments);
     const perms = new Set<string>();
     for (const a of assignments) {
