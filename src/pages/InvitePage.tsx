@@ -74,8 +74,11 @@ export function InvitePage() {
           <>
             <CheckCircle className="w-10 h-10 text-green-500 mx-auto mb-4" />
             <p className="text-sm text-foreground font-medium mb-1">Приглашенiе принято!</p>
+            {serverName && (
+              <p className="text-lg font-bold text-primary mb-1">«{serverName}»</p>
+            )}
             <p className="text-xs text-muted-foreground">
-              {serverName ? `Входъ въ "${serverName}"...` : "Перенаправляемъ въ градъ..."}
+              {serverName ? `Входъ въ градъ...` : "Перенаправляемъ..."}
             </p>
           </>
         )}
