@@ -20,7 +20,7 @@ export function GradList() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { serverId, channelId: activeChannelId } = useParams();
-  const { close: closeMobileMenu, isOpen: isMobileMenuOpen } = useMobileMenu();
+  const { close: closeMobileMenu, isOpen: isMobileMenuOpen, toggle: toggleMobileMenu } = useMobileMenu();
   const isMobile = useIsMobile();
 
   // Close drawer on navigation (channel/server switch)
@@ -78,11 +78,24 @@ export function GradList() {
     setShowDrawer(false);
   };
 
-  // ── MOBILE: drawer only (no bottom nav) ────────────────
+  // ── MOBILE: fixed top bar + drawer ─────────────────────
   if (isMobile) {
     return (
       <>
-        {/* Drawer accessible via hamburger in PageHeader */}
+        {/* Fixed top bar with hamburger */}
+        <div className="fixed top-0 left-0 right-0 h-12 z-30 bg-card/80 backdrop-blur-xl border-b border-border flex items-center px-3">
+          <button
+            onClick={() => { setShowDrawer(true); toggleMobileMenu(); }}
+            className="w-8 h-8 rounded-md hover:bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Menu size={20} strokeWidth={2} />
+          </button>
+          <span className="ml-2 text-sm font-medium text-foreground truncate flex-1">
+            {currentServer?.name || "Вече"}
+          </span>
+        </div>
+
+        {/* Drawer */}
         {showDrawer && (
           <>
             <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => { setShowDrawer(false); closeMobileMenu(); }} />
