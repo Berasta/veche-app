@@ -19,7 +19,7 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Meta server
 COPY server.js /app/server.js
-COPY --from=builder /app/node_modules /app/node_modules
+RUN cd /app && npm install express
 
 EXPOSE 80
 
