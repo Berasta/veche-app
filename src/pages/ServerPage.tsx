@@ -41,7 +41,7 @@ export const ServerPage = () => {
         serverId={serverId}
         onMenuClick={isMobile ? toggleMobileMenu : undefined}
         showMembers={showMembers}
-        onToggleMembers={() => setShowMembers(!showMembers)}
+        onToggleMembers={isMobile ? undefined : () => setShowMembers(!showMembers)}
       />
       {serverId && !isMobile && (
         <ServerMembers
