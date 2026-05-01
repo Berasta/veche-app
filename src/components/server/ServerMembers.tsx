@@ -201,11 +201,8 @@ export function ServerMembers({ serverId, isOpen, onClose, inline }: ServerMembe
   const panelRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
-  if (inline) {
-    return <ServerMembersContent serverId={serverId} onClose={onClose} showHeader={false} />;
-  }
-
   useEffect(() => {
+    if (inline) return;
     if (isOpen) {
       setAnimState("entering");
       requestAnimationFrame(() => {
@@ -216,7 +213,11 @@ export function ServerMembers({ serverId, isOpen, onClose, inline }: ServerMembe
       const timer = setTimeout(() => setAnimState("closed"), 200);
       return () => clearTimeout(timer);
     }
-  }, [isOpen]);
+  }, [isOpen, inline]);
+
+  if (inline) {
+    return <ServerMembersContent serverId={serverId} onClose={onClose} showHeader={false} />;
+  }
 
   if (animState === "closed") return null;
 
