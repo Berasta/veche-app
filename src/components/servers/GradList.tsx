@@ -5,7 +5,7 @@ import { ServerButton } from "./ServerButton";
 import { useAppDispatch, useAppSelector } from "@store/hooks";
 import { fetchServers } from "@store/slices/serversSlice";
 import { useAuth } from "@store/hooks/useAuth";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useLocation } from "react-router";
 import { AppRoutes } from "@routes/routes";
 import { PalataList } from "@components/server/PalataList";
 import { ServerMembers } from "@components/server/ServerMembers";
@@ -18,10 +18,14 @@ import { useIsMobile } from "@components/ui/use-mobile";
 export function GradList() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { serverId, channelId: activeChannelId } = useParams();
   const { close: closeMobileMenu, isOpen: isMobileMenuOpen, toggle: toggleMobileMenu } = useMobileMenu();
   const isMobile = useIsMobile();
+
+  // Hide top bar on onboarding page
+  if (location.pathname === AppRoutes.ONBOARDING) return null;
 
   // Close drawer on navigation (channel/server switch)
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router";
-import { LoginPage, RegisterPage, ServerPage, AppPage } from "@pages/index";
+import { LoginPage, RegisterPage, ServerPage, AppPage, OnboardingPage } from "@pages/index";
 import { AuthLayout } from "@components/layout/AuthLayout";
 import { AppLayout } from "@components/layout/AppLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
@@ -46,6 +46,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "", element: <AppPage /> },
           { path: AppRoutes.SERVER, element: <ServerPage /> },
+          { path: AppRoutes.ONBOARDING, element: <OnboardingPage /> },
           { path: AppRoutes.SERVER_SETTINGS, element: <Lazy><ServerSettingsPage /></Lazy> },
           { path: AppRoutes.TEXT_CHANNEL, element: <ServerPage /> },
           { path: AppRoutes.VOICE_CHAT, element: <Lazy><VoiceChat /></Lazy> },

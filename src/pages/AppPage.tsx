@@ -1,7 +1,14 @@
+import { Navigate } from "react-router";
 import { motion } from "motion/react";
 import { Castle } from "lucide-react";
 
 export const AppPage = () => {
+  const onboardingSeen = localStorage.getItem("onboarding_seen");
+
+  if (!onboardingSeen) {
+    return <Navigate to="/app/onboarding" replace />;
+  }
+
   return (
     <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20">
       {/* Декоративный фон */}
