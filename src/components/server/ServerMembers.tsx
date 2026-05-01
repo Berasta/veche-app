@@ -171,10 +171,10 @@ export function ServerMembers({ serverId, isOpen, onClose }: ServerMembersProps)
 
   return (
     <Portal>
-      <div className="fixed inset-0 z-50 bg-black/20 transition-opacity duration-200" onClick={onClose} />
+      <div className="fixed inset-0 z-[60] bg-black/20 transition-opacity duration-200" onClick={onClose} />
       <div
         ref={panelRef}
-        className={`fixed top-0 right-0 bottom-0 z-50 w-72 bg-card border-l border-border shadow-2xl flex flex-col transition-transform duration-200 ease-out ${translateX}`}
+        className={`fixed top-0 right-0 bottom-0 z-[60] w-80 md:w-72 bg-card border-l border-border shadow-2xl flex flex-col transition-transform duration-200 ease-out ${translateX}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="h-12 px-4 flex items-center border-b border-border bg-sidebar/30 flex-shrink-0">
