@@ -26,6 +26,7 @@ import {
 import { setScreenShareQuality } from "@store/slices/roomSlice";
 import { useVoiceData } from "@hooks/useVoiceData";
 import { getRoleMap } from "@api/rolesApi";
+import { useOverlay } from "@hooks/useOverlay";
 
 export function VoiceChat() {
   const dispatch = useAppDispatch();
