@@ -60,7 +60,7 @@ app.get("/invite/:code", async (req, res) => {
     console.error("Meta server error:", e.message);
   }
 
-  const ogImage = `${APP_URL}/api/og?title=${encodeURIComponent(serverName)}`;
+  const ogImage = `${APP_URL}/logo.svg`;
 
   const html = `<!DOCTYPE html>
 <html lang="ru">
