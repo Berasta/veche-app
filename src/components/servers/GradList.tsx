@@ -78,46 +78,11 @@ export function GradList() {
     setShowDrawer(false);
   };
 
-  // ── MOBILE: bottom nav + unified drawer ────────────────
+  // ── MOBILE: drawer only (no bottom nav) ────────────────
   if (isMobile) {
     return (
       <>
-        {/* Bottom Navigation Bar */}
-        <div className="fixed bottom-0 left-0 right-0 h-14 bg-sidebar/95 backdrop-blur-xl border-t border-sidebar-border z-50 flex items-center justify-around px-2">
-          <button
-            onClick={() => setShowDrawer(true)}
-            className="flex flex-col items-center gap-0.5 p-1 text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors min-w-0 flex-1"
-          >
-            <div className="relative">
-              <MessageSquare size={20} strokeWidth={1.5} />
-              {currentServer && (
-                <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-primary" />
-              )}
-            </div>
-            <span className="text-[9px] font-semibold uppercase tracking-wider">Грады</span>
-          </button>
-          <button
-            className="flex flex-col items-center gap-0.5 p-1 text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors min-w-0 flex-1"
-          >
-            <Volume2 size={20} strokeWidth={1.5} />
-            <span className="text-[9px] font-semibold uppercase tracking-wider">Гласъ</span>
-          </button>
-          <button
-            onClick={() => serverId && setShowDrawer(true)}
-            disabled={!serverId}
-            className="flex flex-col items-center gap-0.5 p-1 text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors min-w-0 flex-1 disabled:opacity-30"
-          >
-            <div className="relative">
-              <Users size={20} strokeWidth={1.5} />
-              {participants.length > 0 && (
-                <span className="absolute -top-1 -right-2 text-[9px] font-bold text-primary">{participants.length}</span>
-              )}
-            </div>
-            <span className="text-[9px] font-semibold uppercase tracking-wider">Люди</span>
-          </button>
-        </div>
-
-        {/* Unified Drawer (bottom sheet) — includes channels + members */}
+        {/* Drawer accessible via hamburger in PageHeader */}
         {showDrawer && (
           <>
             <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => { setShowDrawer(false); closeMobileMenu(); }} />
