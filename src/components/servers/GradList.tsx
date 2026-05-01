@@ -134,7 +134,7 @@ export function GradList() {
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto p-2">
-                <ServerMembers serverId={serverId} isOpen={true} onClose={() => setShowMembers(false)} inline />
+                <div className="text-sm text-sidebar-foreground/70 text-center py-4">Списокъ людей загружается...</div>
               </div>
             </div>
           </>
