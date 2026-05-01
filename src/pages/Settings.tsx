@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
-import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, Keyboard, User } from "lucide-react";
+import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, Keyboard, User, ArrowLeft } from "lucide-react";
 import { ThemeSwitcher } from "../components/ThemeSwitcher";
 import { VoiceSettings } from "../components/settings/VoiceSettings";
 import { HotkeySettings } from "../components/settings/HotkeySettings";
@@ -123,6 +123,16 @@ export function Settings() {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto md:border-t-0">
+        {/* Mobile back button */}
+        <div className="md:hidden flex items-center gap-2 px-4 h-12 border-b border-border bg-card/30">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-8 h-8 rounded-md hover:bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" strokeWidth={2} />
+          </button>
+          <span className="text-sm font-medium text-foreground">Настройки</span>
+        </div>
         <div className="max-w-2xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
 
           {/* Profile tab */}
