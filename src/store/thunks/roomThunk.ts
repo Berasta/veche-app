@@ -303,6 +303,7 @@ export const toggleScreenShare = createAsyncThunk(
             height: RESOLUTION_MAP[resolution].height,
             frameRate: fps,
           },
+          videoBitsPerSecond: 8_000_000, // 8 Mbps для лучшего качества
         });
       }
       dispatch(setScreenSharing(!isSharing));
