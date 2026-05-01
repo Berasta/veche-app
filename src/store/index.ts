@@ -5,6 +5,7 @@ import channelsReducer from "./slices/channelsSlice";
 import roomReducer from "./slices/roomSlice";
 import messagesReducer from "./slices/messagesSlice";
 import presenceReducer from "./slices/presenceSlice";
+import typingReducer from "./slices/typingSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     room: roomReducer,
     messages: messagesReducer,
     presence: presenceReducer,
+    typing: typingReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

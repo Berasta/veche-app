@@ -5,7 +5,7 @@ import { Menu } from 'lucide-react';
 export interface PageHeaderProps {
   icon?: LucideIcon;
   title: string;
-  subtitle?: string;
+  subtitle?: ReactNode;
   actions?: ReactNode;
   onMenuClick?: () => void;
   showMobileMenu?: boolean;

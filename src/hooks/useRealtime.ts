@@ -3,6 +3,7 @@ import { pb } from "@api/pb";
 import { useAppDispatch } from "@store/hooks";
 import { messageReceived, messageUpdated, messageDeleted } from "@store/slices/messagesSlice";
 import { markActive } from "@store/slices/presenceSlice";
+import { setTyping } from "@store/slices/typingSlice";
 import type { RecordSubscription } from "pocketbase";
 
 let subscribed = false;
@@ -40,6 +41,9 @@ export function useRealtime() {
       const msg = normalizeMessage(e.record);
       if (e.action === "create" || e.action === "update") {
         dispatch(markActive(msg.user_id));
+        if (e.action === "create") {
+          dispatch(setTyping({ channelId: msg.channel_id, userId: msg.user_id }));
+        }
       }
       switch (e.action) {
         case "create": dispatch(messageReceived(msg)); break;

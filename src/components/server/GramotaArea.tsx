@@ -7,6 +7,7 @@ import { PageHeader } from "../ui/PageHeader";
 import { IconButton } from "../ui/IconButton";
 import { MessageList } from "../message/MessageList";
 import { GramotaMessage } from "../message/GramotaMessage";
+import { TypingIndicator } from "../message/TypingIndicator";
 import { MessageSkeleton } from "../ui/Skeleton";
 import type { ReactionGroup } from "../message/ReactionsBar";
 import { useAppDispatch, useAppSelector } from "@store/hooks";
@@ -26,6 +27,7 @@ import { fetchReactions, addReaction, removeReaction } from "@api/reactionApi";
 import { getRoleMap } from "@api/rolesApi";
 import { pb } from "@api/pb";
 import { useAuth } from "@store/hooks/useAuth";
+import { useTypingBroadcast } from "@hooks/useTyping";
 interface GramotaAreaProps {
   channelId?: string;
   channelName?: string;
@@ -47,6 +49,7 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
   const [roleMap, setRoleMap] = useState<Record<string, { name: string; color: string }>>({});
   const [joinedAtMap, setJoinedAtMap] = useState<Record<string, string>>({});
   const [isDragging, setIsDragging] = useState(false);
+  const { startTyping, stopTyping } = useTypingBroadcast(channelId);
 
   // Drag-and-drop files
   useEffect(() => {
@@ -197,6 +200,7 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
       )}
       <PageHeader
         title={channelName || "Грамоты"}
+        subtitle={<TypingIndicator channelId={channelId} />}
         onMenuClick={onMenuClick}
         actions={
           onToggleMembers ? (
@@ -265,7 +269,7 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
       </MessageList>
 
       <div className="border-t border-border bg-card/30 backdrop-blur-xl">
-        <GramotaInput onSend={handleSend} />
+        <GramotaInput onSend={handleSend} onTyping={startTyping} onTypingEnd={stopTyping} />
       </div>
     </div>
   );

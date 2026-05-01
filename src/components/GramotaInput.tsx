@@ -4,9 +4,11 @@ import { Send, Image, Smile, X } from 'lucide-react';
 
 interface GramotaInputProps {
   onSend: (message: string, files?: File[]) => void;
+  onTyping?: () => void;
+  onTypingEnd?: () => void;
 }
 
-export function GramotaInput({ onSend }: GramotaInputProps) {
+export function GramotaInput({ onSend, onTyping, onTypingEnd }: GramotaInputProps) {
   const [message, setMessage] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -20,28 +22,13 @@ export function GramotaInput({ onSend }: GramotaInputProps) {
       setMessage('');
       setSelectedFiles([]);
       if (textareaRef.current) textareaRef.current.style.height = 'auto';
+      onTypingEnd?.();
     }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(e); }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const items = e.clipboardData.items;
-    const imageFiles: File[] = [];
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.type.startsWith("image/")) {
-        const blob = item.getAsFile();
-        if (blob) imageFiles.push(new File([blob], `screenshot.${blob.type.split("/")[1] || "png"}`, { type: blob.type }));
-      }
-    }
-    if (imageFiles.length > 0) { e.preventDefault(); setSelectedFiles((prev) => [...prev, ...imageFiles]); }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
+    onTyping?.();
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
@@ -92,7 +79,7 @@ export function GramotaInput({ onSend }: GramotaInputProps) {
             <Image className="w-3.5 h-3.5" strokeWidth={1.5} />
           </button>
 
-          <textarea ref={textareaRef} value={message} onChange={handleChange} onKeyDown={handleKeyDown} onPaste={handlePaste}
+          <textarea ref={textareaRef} value={message} onChange={handleChange} onKeyDown={handleKeyDown} onPaste={handlePaste} onBlur={() => onTypingEnd?.()}
             placeholder="Грамота..."
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/25 resize-none outline-none min-h-[1.75rem] max-h-[120px] py-1 px-0 leading-relaxed"
             rows={1} />
