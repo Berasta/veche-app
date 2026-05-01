@@ -15,6 +15,7 @@ import {
   selectIsScreenSharing,
   selectSpeakingCount,
   selectVolumes,
+  selectError,
 } from "@store/selectors/roomSelectors";
 import {
   leaveChannel,
