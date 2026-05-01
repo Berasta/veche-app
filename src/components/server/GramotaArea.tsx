@@ -13,6 +13,8 @@ import { useAppDispatch, useAppSelector } from "@store/hooks";
 import {
   fetchMessages,
   sendMessage,
+  editMessage,
+  deleteMessage,
   subscribeToChannel,
   clearMessages,
 } from "@store/slices/messagesSlice";
@@ -115,6 +117,14 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
     dispatch(sendMessage({ channelId, content, files }));
   }, [channelId, dispatch]);
 
+  const handleEdit = useCallback((msgId: string, newContent: string) => {
+    dispatch(editMessage({ id: msgId, content: newContent }));
+  }, [dispatch]);
+
+  const handleDelete = useCallback((msgId: string) => {
+    dispatch(deleteMessage(msgId));
+  }, [dispatch]);
+
   const handleReaction = useCallback(async (messageId: string, emoji: string) => {
     const existing = reactionMap[messageId]?.find((r) => r.emoji === emoji);
     if (existing?.hasMe) {
@@ -201,6 +211,10 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
                 authorRoleColor={roleMap[msg.user_id]?.color}
                 authorBanner={msg.author_banner}
                 authorJoinedAt={joinedAtMap[msg.user_id]}
+                isOwn={user?.id === msg.user_id}
+                edited={!!msg.edited_at}
+                onEdit={handleEdit}
+                onDelete={user?.id === msg.user_id ? handleDelete : undefined}
               />
             </div>
           ))}
