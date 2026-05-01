@@ -117,24 +117,24 @@ export function GradList() {
         </div>
 
         {/* Members bottom-sheet (same level as drawer) */}
-        {showMembers && serverId && (
+        {serverId && (
           <>
-            <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => setShowMembers(false)} />
-            <div className="fixed bottom-0 left-0 right-0 z-[70] bg-sidebar backdrop-blur-xl border-t border-sidebar-border rounded-t-2xl max-h-[85vh] flex flex-col animate-slide-up">
+            <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => setShowMembers(false)} style={{ display: showMembers ? 'block' : 'none' }} />
+            <div className="fixed bottom-0 left-0 right-0 z-[70] bg-red-500 border border-white rounded-t-2xl max-h-[85vh] flex flex-col" style={{ display: showMembers ? 'flex' : 'none', transform: showMembers ? 'translateY(0)' : 'translateY(100%)', transition: 'transform 0.3s ease-out' }}>
               <div className="flex justify-center pt-2 pb-1 flex-shrink-0">
-                <div className="w-10 h-1 rounded-full bg-sidebar-border/50" />
+                <div className="w-10 h-1 rounded-full bg-white/50" />
               </div>
-              <div className="h-11 px-4 flex items-center border-b border-sidebar-border flex-shrink-0">
-                <Users className="w-4 h-4 text-primary mr-2" strokeWidth={2} />
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex-1">
+              <div className="h-11 px-4 flex items-center border-b border-white/20 flex-shrink-0">
+                <Users className="w-4 h-4 text-white mr-2" strokeWidth={2} />
+                <span className="text-xs font-semibold text-white/80 uppercase tracking-wider flex-1">
                   Люди града
                 </span>
-                <button onClick={() => setShowMembers(false)} className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+                <button onClick={() => setShowMembers(false)} className="w-7 h-7 rounded-md hover:bg-white/10 flex items-center justify-center text-white/70 hover:text-white transition-colors">
                   <X className="w-3.5 h-3.5" strokeWidth={2} />
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto p-2">
-                <div className="text-sm text-sidebar-foreground/70 text-center py-4">Списокъ людей загружается...</div>
+              <div className="flex-1 overflow-y-auto p-2 text-white">
+                ТЕСТ — панель работает
               </div>
             </div>
           </>
