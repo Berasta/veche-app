@@ -409,31 +409,16 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
     </>
   );
 
-  if (isMobile && isMobileOpen) {
+  if (serverId) {
     return (
-      <>
-        <div
-          className="fixed inset-0 bg-black/50 z-40"
-          onClick={onMobileClose}
-        />
-        <div className="fixed inset-y-0 left-0 w-72 z-[60] bg-card/95 backdrop-blur-xl border-r border-border shadow-2xl flex flex-col animate-slide-in-left">
-          {content}
-        </div>
-        {modals}
-      </>
-    );
-  }
-
-  if (isMobile) {
-    return (
-      <div className="h-full w-full flex flex-col">
-        <div className="flex-1 overflow-y-auto">{content}</div>
+      <div className="h-full flex flex-col">
+        {content}
         {modals}
       </div>
     );
   }
 
-  // desktop — render inline + modals
+  // desktop without serverId — render inline + modals
 
   return (
     <div className="h-full w-60 bg-card/50 backdrop-blur-xl flex flex-col border-r border-border relative z-10">
