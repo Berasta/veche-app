@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { pb } from "@api/pb";
 import { useAppDispatch } from "@store/hooks";
 import { messageReceived, messageUpdated, messageDeleted } from "@store/slices/messagesSlice";
-import { markActive, setVoiceParticipants } from "@store/slices/presenceSlice";
+import { markActive } from "@store/slices/presenceSlice";
 import type { RecordSubscription } from "pocketbase";
 
 let subscribed = false;
@@ -54,15 +54,6 @@ export function useRealtime() {
       }
     }, { expand: "user_id" });
 
-    // Track voice participants as online
-    const voiceInterval = setInterval(async () => {
-      try {
-        const result = await pb.collection("channel_participants").getFullList();
-        const ids = (result as any[]).map((p: any) => p.user_id || p.identity).filter(Boolean);
-        dispatch(setVoiceParticipants(ids));
-      } catch {}
-    }, 10000);
-
     // Heartbeat: mark current user as active periodically
     heartbeatRef.current = setInterval(() => {
       const uid = pb.authStore.record?.id;
@@ -75,7 +66,6 @@ export function useRealtime() {
 
     return () => {
       pb.collection("messages").unsubscribe("*");
-      clearInterval(voiceInterval);
       if (heartbeatRef.current) clearInterval(heartbeatRef.current);
       subscribed = false;
     };
