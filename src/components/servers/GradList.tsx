@@ -19,9 +19,14 @@ export function GradList() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { serverId } = useParams();
+  const { serverId, channelId: activeChannelId } = useParams();
   const { close: closeMobileMenu } = useMobileMenu();
   const isMobile = useIsMobile();
+
+  // Close drawer on navigation (channel/server switch)
+  useEffect(() => {
+    setShowDrawer(false);
+  }, [activeChannelId, serverId]);
 
   const servers = useAppSelector((state) => state.servers.servers);
   const currentServer = servers.find((s) => s.id === serverId);

@@ -5,11 +5,9 @@ import { Palata } from "./Palata";
 import { TextPalata } from "./TextPalata";
 import { useAuth } from "@store/hooks/useAuth";
 import { AppRoutes } from "@routes/routes";
-import { useIsMobile } from "@components/ui/use-mobile";
 import { usePermissions } from "../../hooks/usePermissions";
 import { PERMISSIONS } from "@api/rolesApi";
 import {
-  X,
   Volume2,
   MessageSquare,
   Plus,
@@ -28,17 +26,14 @@ import { EditChannelModal } from "./EditChannelModal";
 import { ConfirmModal } from "@components/ui/ConfirmModal";
 
 interface PalataListProps {
-  isMobileOpen?: boolean;
-  onMobileClose?: () => void;
   onMobileItemClick?: () => void;
 }
 
-export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: PalataListProps) {
+export function PalataList({ onMobileItemClick }: PalataListProps) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { serverId } = useParams();
   const { user } = useAuth();
-  const isMobile = useIsMobile();
   const currentServer = useAppSelector((state) => state.servers.servers).find(
     (server) => server.id === serverId,
   );
@@ -143,25 +138,16 @@ export function PalataList({ isMobileOpen, onMobileClose, onMobileItemClick }: P
             </button>
           )}
 
-          {isOwner && serverId && (
-            <button
-              onClick={() => navigate(AppRoutes.SERVER_SETTINGS.replace(":serverId", serverId))}
-              className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
-              title="Настройки града"
-            >
-              <Settings className="w-3.5 h-3.5" strokeWidth={2} />
-            </button>
-          )}
-
-          {isMobile && onMobileClose && (
-            <button
-              onClick={onMobileClose}
-              className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
+            {isOwner && serverId && (
+              <button
+                onClick={() => navigate(AppRoutes.SERVER_SETTINGS.replace(":serverId", serverId))}
+                className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+                title="Настройки града"
+              >
+                <Settings className="w-3.5 h-3.5" strokeWidth={2} />
+              </button>
+            )}
+          </div>
       </div>
 
       {/* Список палат */}
