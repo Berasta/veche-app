@@ -34,6 +34,7 @@ const themeGroups: { group: string; themes: ThemeEntry[] }[] = [
     themes: [
       { id: 'frost', name: 'Морозная зима', description: 'Студёные небеса', colors: ['#67b8e3', '#a0c4e8', '#2a3a4a', '#0f1419'] },
       { id: 'silver', name: 'Серебряная гривна', description: 'Студёное сребро', colors: ['#a8b0b8', '#7890a8', '#2a2e34', '#101214'] },
+      { id: 'ice', name: 'Ледяная пустошь', description: 'Хладныя тона', colors: ['#67c8e8', '#4aa0c8', '#1e2838', '#0e1218'] },
     ],
   },
   {
@@ -43,6 +44,13 @@ const themeGroups: { group: string; themes: ThemeEntry[] }[] = [
       { id: 'moss', name: 'Мшистый камень', description: 'Мохъ и камень', colors: ['#6a8a6a', '#8a7a5a', '#2a3a2a', '#121812'] },
       { id: 'sunset', name: 'Закатъ надъ полемъ', description: 'Рдяныя облака', colors: ['#e87a5d', '#d4a057', '#4a2828', '#1a0f14'] },
       { id: 'cherry', name: 'Черёмуховая весна', description: 'Цвѣтущій садъ', colors: ['#d87090', '#d0a060', '#3a1e2a', '#1a0e14'] },
+      { id: 'emerald', name: 'Изумрудная долина', description: 'Зелень лѣсовъ', colors: ['#4cbf6a', '#6a8a4a', '#18302a', '#0a140e'] },
+    ],
+  },
+  {
+    group: 'Водныя',
+    themes: [
+      { id: 'ocean', name: 'Морская пучина', description: 'Глубины водныя', colors: ['#4088c8', '#d4af37', '#142838', '#060c14'] },
     ],
   },
   {
@@ -60,6 +68,7 @@ const themeGroups: { group: string; themes: ThemeEntry[] }[] = [
       { id: 'violet', name: 'Вечерній звонъ', description: 'Сумрачныя дали', colors: ['#a07dd6', '#c9a85c', '#2e2440', '#120f18'] },
       { id: 'wine', name: 'Вишнёвый садъ', description: 'Спѣлыя вишни', colors: ['#b84a6a', '#c08040', '#3a1e28', '#160c10'] },
       { id: 'heather', name: 'Вересковый мёдъ', description: 'Верескъ и медокъ', colors: ['#b080a0', '#c09060', '#2e1e2e', '#141014'] },
+      { id: 'royal', name: 'Царскiй багрянецъ', description: 'Благородный пурпуръ', colors: ['#b884d8', '#d4af37', '#2a1e38', '#100a14'] },
     ],
   },
   {
@@ -67,6 +76,12 @@ const themeGroups: { group: string; themes: ThemeEntry[] }[] = [
     themes: [
       { id: 'amber', name: 'Янтарная палата', description: 'Медовый свѣтъ', colors: ['#e8a020', '#d48120', '#4a3a18', '#1a1408'] },
       { id: 'honey', name: 'Медовый спасъ', description: 'Златой медокъ', colors: ['#d4a040', '#b87830', '#4a3018', '#1a1408'] },
+    ],
+  },
+  {
+    group: 'Пустынныя',
+    themes: [
+      { id: 'sand', name: 'Песчаный берегъ', description: 'Тёплый песокъ', colors: ['#d4a860', '#c08040', '#2a2418', '#12100a'] },
     ],
   },
 ];
@@ -93,6 +108,11 @@ const gradients: Record<string, string> = {
   clay: 'from-[#c07a5a] via-[#3a2820] to-[#18120e]',
   pearl: 'from-[#d4b8c0] via-[#e8d8e0] to-[#f0e8ec]',
   heather: 'from-[#b080a0] via-[#2e1e2e] to-[#141014]',
+  ice: 'from-[#67c8e8] via-[#1e2838] to-[#0e1218]',
+  emerald: 'from-[#4cbf6a] via-[#18302a] to-[#0a140e]',
+  ocean: 'from-[#4088c8] via-[#142838] to-[#060c14]',
+  royal: 'from-[#b884d8] via-[#2a1e38] to-[#100a14]',
+  sand: 'from-[#d4a860] via-[#2a2418] to-[#12100a]',
 };
 
 function ThemeCard({ theme, isSelected, onClick }: { theme: ThemeEntry; isSelected: boolean; onClick: () => void }) {
