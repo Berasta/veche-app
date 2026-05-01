@@ -1,6 +1,6 @@
 import { Menu, X, Users, Plus } from "lucide-react";
 import { Skeleton } from "@components/ui/Skeleton";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ServerButton } from "./ServerButton";
 import { useAppDispatch, useAppSelector } from "@store/hooks";
 import { fetchServers } from "@store/slices/serversSlice";
