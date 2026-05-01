@@ -6,6 +6,7 @@ import { getRoleMap } from "@api/rolesApi";
 import { pb, PB_URL } from "@api/pb";
 import { useAppSelector } from "@store/hooks";
 import { selectParticipants } from "@store/selectors/roomSelectors";
+import { useIsMobile } from "@components/ui/use-mobile";
 
 interface ServerMembersProps {
   serverId: string;
@@ -28,6 +29,7 @@ export function ServerMembers({ serverId, isOpen, onClose }: ServerMembersProps)
   const voiceParticipants = useAppSelector(selectParticipants);
   const [animState, setAnimState] = useState<"closed" | "entering" | "open" | "leaving">("closed");
   const panelRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   // Manage animation states
   useEffect(() => {
@@ -166,7 +168,65 @@ export function ServerMembers({ serverId, isOpen, onClose }: ServerMembersProps)
 
   if (animState === "closed") return null;
 
-  const translateX = animState === "open" ? "translate-x-0" : "translate-x-full";
+  const panelVisible = animState === "open";
+
+  if (isMobile) {
+    const translateY = panelVisible ? "translate-y-0" : "translate-y-full";
+    return (
+      <div className="fixed inset-0 z-[70]" onClick={onClose}>
+        <div className="absolute inset-0 bg-black/30 transition-opacity duration-200" />
+        <div
+          ref={panelRef}
+          className={`absolute bottom-0 left-0 right-0 max-h-[80vh] bg-card rounded-t-2xl shadow-2xl flex flex-col transition-transform duration-200 ease-out ${translateY}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex justify-center pt-2 pb-1 flex-shrink-0">
+            <div className="w-10 h-1 rounded-full bg-border/50" />
+          </div>
+          <div className="h-11 px-4 flex items-center border-b border-border flex-shrink-0">
+            <Users className="w-4 h-4 text-primary mr-2" strokeWidth={2} />
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex-1">
+              Люди града — {members.length}
+            </span>
+            <button onClick={onClose} className="w-7 h-7 rounded-md hover:bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+              <X className="w-3.5 h-3.5" strokeWidth={2} />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-2">
+            {loading ? <MembersSkeleton /> : members.length === 0 ? (
+              <div className="text-sm text-muted-foreground text-center py-8">Нѣтъ людей въ градѣ</div>
+            ) : (
+              <div className="space-y-3 pb-4">
+                {groupedMembers.map((group) => (
+                  <div key={group.roleName}>
+                    <div className="flex items-center gap-1.5 px-1 mb-1">
+                      {group.roleColor && <div className="w-2 h-2 rounded-full" style={{ backgroundColor: group.roleColor }} />}
+                      <span className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest">{group.roleName} — {group.members.length}</span>
+                    </div>
+                    <div className="space-y-0.5">
+                      {group.members.map((member) => (
+                        <div key={member.id} className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted/50 transition-colors">
+                          <UserPopover username={member.username} avatarUrl={member.avatarUrl} bannerId={member.banner} role={roleMap[member.id]?.name} roleColor={roleMap[member.id]?.color} joinedAt={member.joinedAt}>
+                            <div className="w-7 h-7 rounded-full overflow-hidden bg-muted flex-shrink-0 flex items-center justify-center cursor-pointer">
+                              {member.avatarUrl ? <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" /> : <User className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={2} />}
+                            </div>
+                          </UserPopover>
+                          <span className="text-sm truncate" style={roleMap[member.id]?.color ? { color: roleMap[member.id].color } : {}}>{member.username}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop: right-side panel
+  const translateX = panelVisible ? "translate-x-0" : "translate-x-full";
 
   return (
     <div className="fixed inset-0 z-[60] flex" onClick={onClose}>

@@ -14,7 +14,9 @@ const DEFAULTS = {
   toggleOverlay: "Ctrl+Shift+Space",
 };
 
-function migrateBindings(saved: Record<string, string>): Record<string, string> {
+function migrateBindings(
+  saved: Record<string, string>,
+): Record<string, string> {
   const result = { ...DEFAULTS };
   for (const [key, val] of Object.entries(saved)) {
     result[key] = val.replace(/^Ctrl\+/i, "Cmd+");
@@ -50,14 +52,22 @@ export const AppLayout = () => {
   };
 
   useTauriHotkeys([
-    { id: "toggleMute", shortcut: bindings.toggleMute, action: () => dispatch(toggleMute()) },
-    { id: "toggleOverlay", shortcut: bindings.toggleOverlay, action: toggleOverlay },
+    {
+      id: "toggleMute",
+      shortcut: bindings.toggleMute,
+      action: () => dispatch(toggleMute()),
+    },
+    {
+      id: "toggleOverlay",
+      shortcut: bindings.toggleOverlay,
+      action: toggleOverlay,
+    },
   ]);
 
   return (
     <MobileMenuProvider>
       <div className="h-screen w-screen overflow-hidden grid grid-rows-[1fr_auto]">
-        <div className="min-h-0 flex overflow-hidden pb-14 md:pb-0">
+        <div className="min-h-0 flex overflow-hidden">
           <GradList />
           <Outlet />
         </div>
