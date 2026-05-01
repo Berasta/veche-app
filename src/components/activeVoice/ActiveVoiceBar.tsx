@@ -100,8 +100,7 @@ export function ActiveVoiceBar() {
         </div>
       )}
       <div
-        className={`
-        max-h-7
+      className={`
       bottom-0 left-0 right-0 z-50
       bg-background border-t border-border
       px-3 py-2 md:px-4 md:py-2 flex items-center gap-2 md:gap-3 shadow-lg
