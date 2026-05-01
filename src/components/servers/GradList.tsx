@@ -27,20 +27,27 @@ export function GradList() {
   const [showMembers, setShowMembers] = useState(false);
   const [showCreateServer, setShowCreateServer] = useState(false);
   const [newServerName, setNewServerName] = useState("");
+  const [newServerAvatar, setNewServerAvatar] = useState<File | null>(null);
+  const [creating, setCreating] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const handleCreateServer = async () => {
-    if (!newServerName.trim() || !user?.id) return;
+    if (!newServerName.trim() || !user?.id || creating) return;
+    setCreating(true);
     try {
-      const record = await pb.collection("servers").create({
-        name: newServerName.trim(),
-        owner_id: user.id,
-        is_private: true,
-      });
+      const formData = new FormData();
+      formData.append("name", newServerName.trim());
+      formData.append("owner_id", user.id);
+      formData.append("is_private", "true");
+      if (newServerAvatar) formData.append("avatar", newServerAvatar);
+
+      const record = await pb.collection("servers").create(formData);
       dispatch(fetchServers(user.id));
       setNewServerName("");
+      setNewServerAvatar(null);
       setShowCreateServer(false);
       navigate(AppRoutes.SERVER.replace(":serverId", record.id));
-    } catch {}
+    } catch {} finally { setCreating(false); }
   };
 
   useEffect(() => {
@@ -94,15 +101,27 @@ export function GradList() {
               <div className="px-5 py-4 border-b border-border">
                 <h4 className="text-sm font-semibold text-foreground">Создати градъ</h4>
               </div>
-              <div className="p-5">
-                <input autoFocus value={newServerName} onChange={(e) => setNewServerName(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") handleCreateServer(); if (e.key === "Escape") setShowCreateServer(false); }}
-                  placeholder="Названіе новаго града"
-                  className="w-full bg-input-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/50" />
+              <div className="p-5 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="relative flex-shrink-0 cursor-pointer group" onClick={() => avatarInputRef.current?.click()}>
+                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted ring-2 ring-border/50 flex items-center justify-center group-hover:opacity-80 transition-opacity">
+                      {newServerAvatar ? (
+                        <img src={URL.createObjectURL(newServerAvatar)} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <Plus className="w-6 h-6 text-muted-foreground/50" strokeWidth={1.5} />
+                      )}
+                    </div>
+                    <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => setNewServerAvatar(e.target.files?.[0] || null)} />
+                  </div>
+                  <input autoFocus value={newServerName} onChange={(e) => setNewServerName(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleCreateServer(); if (e.key === "Escape") setShowCreateServer(false); }}
+                    placeholder="Названіе новаго града"
+                    className="flex-1 bg-input-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/50" />
+                </div>
               </div>
               <div className="px-5 py-4 border-t border-border flex items-center justify-end gap-2">
                 <button onClick={() => setShowCreateServer(false)} className="px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground text-sm font-medium transition-colors">Отмѣна</button>
-                <button onClick={handleCreateServer} disabled={!newServerName.trim()} className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium transition-colors disabled:opacity-50">Создати</button>
+                <button onClick={handleCreateServer} disabled={!newServerName.trim() || creating} className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium transition-colors disabled:opacity-50">{creating ? "Созданіе..." : "Создати"}</button>
               </div>
             </div>
           </div>
