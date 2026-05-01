@@ -286,17 +286,6 @@ export function GradList() {
             >
               <Plus className="w-5 h-5" strokeWidth={2} />
             </button>
-
-            <div className="mt-auto">
-              <button
-                onClick={() => serverId && setShowMembers(true)}
-                disabled={!serverId}
-                className="w-12 h-12 rounded-lg flex items-center justify-center text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all flex-shrink-0 disabled:opacity-30"
-                title="Люди града"
-              >
-                <Users className="w-5 h-5" strokeWidth={2} />
-              </button>
-            </div>
           </div>
 
           <div className="flex-1 min-w-0 overflow-hidden">
