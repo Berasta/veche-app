@@ -38,6 +38,7 @@ import { useNavigate } from "react-router";
 import { UserPopover } from "@components/ui/UserPopover";
 import { getUserById } from "@api/userApi";
 import { setParticipantVolume } from "@store/thunks/roomThunk";
+import { useVoiceSounds } from "@hooks/useVoiceSounds";
 
 export function ActiveVoiceBar() {
   const dispatch = useAppDispatch();
@@ -59,6 +60,8 @@ export function ActiveVoiceBar() {
   const [userDataMap, setUserDataMap] = useState<
     Record<string, { username: string; avatarUrl?: string }>
   >({});
+
+  useVoiceSounds();
 
   useEffect(() => {
     const ids = participants.map((p) => p.identity);
