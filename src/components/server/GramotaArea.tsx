@@ -234,10 +234,10 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
         {groupedMessages.map(({ msg, showHeader, dateLabel }) => (
             <div key={msg.id}>
               {dateLabel && (
-                <div className="flex items-center gap-3 py-3">
-                  <div className="h-px flex-1 bg-border" />
-                  <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider flex-shrink-0">{dateLabel}</span>
-                  <div className="h-px flex-1 bg-border" />
+                <div className="flex items-center gap-3 py-4">
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+                  <span className="text-[10px] font-semibold text-primary/60 uppercase tracking-[0.15em] flex-shrink-0 px-2">{dateLabel}</span>
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
                 </div>
               )}
               <GramotaMessage

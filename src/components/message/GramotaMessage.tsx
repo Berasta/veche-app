@@ -53,14 +53,14 @@ export function GramotaMessage({ author, avatar, time, content, images, reaction
 
   return (
     <motion.div
-      className="px-3 md:px-4 py-2 md:py-3 hover:bg-muted/30 rounded-lg transition-colors group relative"
+      className="px-3 md:px-5 py-2 md:py-2.5 hover:bg-gradient-to-r hover:from-muted/20 hover:to-transparent rounded-lg transition-all duration-150 group relative border-l-2 border-transparent hover:border-l-primary/20"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.15, ease: 'easeOut' }}
+      transition={{ duration: 0.12, ease: 'easeOut' }}
     >
       <MessageHeader author={author} avatar={avatar} time={time} role={authorRole} roleColor={authorRoleColor} bannerId={authorBanner} joinedAt={authorJoinedAt} />
       <MessageContent content={content} />
-      {edited && <span className="text-[10px] text-muted-foreground/50 ml-1">(измѣнено)</span>}
+      {edited && <span className="text-[10px] text-muted-foreground/40 ml-0.5">(измѣнено)</span>}
       {images && <MessageImages images={images} />}
       {onReaction && messageId && (
         <ReactionsBar reactions={reactions || []} onToggle={(emoji) => onReaction(messageId, emoji)} messageId={messageId} />
