@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { GramotaArea } from "@components/server/GramotaArea";
 import { ServerMembers } from "@components/server/ServerMembers";
 import { useIsMobile } from "@components/ui/use-mobile";
+import { useMobileMenu } from "@components/layout/MobileMenuContext";
 
 export const ServerPage = () => {
   const dispatch = useAppDispatch();
@@ -12,6 +13,7 @@ export const ServerPage = () => {
   const { serverId, channelId } = useParams();
   const isMobile = useIsMobile();
   const [showMembers, setShowMembers] = useState(false);
+  const { toggle: toggleMobileMenu } = useMobileMenu();
 
   const channels = useAppSelector((state) => state.channels.channels);
   const serverChannels = channels.filter((c) => c.server_id === serverId);
@@ -37,7 +39,7 @@ export const ServerPage = () => {
         channelId={channelId}
         channelName={currentChannel?.name}
         serverId={serverId}
-        onMenuClick={undefined}
+        onMenuClick={isMobile ? toggleMobileMenu : undefined}
         showMembers={isMobile ? false : showMembers}
         onToggleMembers={isMobile ? undefined : () => setShowMembers(!showMembers)}
       />

@@ -1,4 +1,4 @@
-import { MessageSquare, Volume2, Users, Plus, X } from "lucide-react";
+import { MessageSquare, Volume2, Users, Plus } from "lucide-react";
 import { Skeleton } from "@components/ui/Skeleton";
 import { useEffect, useState, useRef } from "react";
 import { ServerButton } from "./ServerButton";
@@ -20,13 +20,20 @@ export function GradList() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { serverId, channelId: activeChannelId } = useParams();
-  const { close: closeMobileMenu } = useMobileMenu();
+  const { close: closeMobileMenu, isOpen: isMobileMenuOpen } = useMobileMenu();
   const isMobile = useIsMobile();
 
   // Close drawer on navigation (channel/server switch)
   useEffect(() => {
     setShowDrawer(false);
   }, [activeChannelId, serverId]);
+
+  // Open drawer when mobile menu button is tapped (from PageHeader)
+  useEffect(() => {
+    if (isMobile && isMobileMenuOpen) {
+      setShowDrawer(true);
+    }
+  }, [isMobileMenuOpen, isMobile]);
 
   const servers = useAppSelector((state) => state.servers.servers);
   const currentServer = servers.find((s) => s.id === serverId);
@@ -79,7 +86,7 @@ export function GradList() {
         )}
 
         {/* Bottom Navigation Bar */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 h-14 bg-sidebar/95 backdrop-blur-xl border-t border-sidebar-border z-50 flex items-center justify-around px-2 safe-area-bottom">
+        <div className="fixed bottom-0 left-0 right-0 h-14 bg-sidebar/95 backdrop-blur-xl border-t border-sidebar-border z-50 flex items-center justify-around px-2">
           <button
             onClick={() => setShowDrawer(true)}
             className="flex flex-col items-center gap-0.5 p-1 text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors min-w-0 flex-1"
@@ -116,7 +123,7 @@ export function GradList() {
         {/* Unified Drawer (bottom sheet) */}
         {showDrawer && (
           <>
-            <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => setShowDrawer(false)} />
+            <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => { setShowDrawer(false); closeMobileMenu(); }} />
             <div className="fixed bottom-0 left-0 right-0 z-[70] bg-sidebar backdrop-blur-xl border-t border-sidebar-border rounded-t-2xl max-h-[85vh] flex flex-col animate-slide-up safe-area-bottom">
               {/* Handle */}
               <div className="flex justify-center pt-2 pb-1 flex-shrink-0">
