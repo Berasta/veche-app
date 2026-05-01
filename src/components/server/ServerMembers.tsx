@@ -63,9 +63,11 @@ function MembersPanel({
                   {group.members.map((member) => (
                     <div key={member.id} className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-sidebar-accent/50 transition-colors">
                       <UserPopover username={member.username} avatarUrl={member.avatarUrl} bannerId={member.banner} userId={member.id} role={roleMap[member.id]?.name} roleColor={roleMap[member.id]?.color} joinedAt={member.joinedAt}>
-                        <div className="w-7 h-7 rounded-full overflow-hidden bg-sidebar/50 flex-shrink-0 flex items-center justify-center cursor-pointer relative">
-                          {member.avatarUrl ? <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" /> : <User className="w-3.5 h-3.5 text-sidebar-foreground/50" strokeWidth={2} />}
-                          <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-sidebar ${onlineUsers[member.id] ? "bg-green-500" : "bg-muted-foreground/30"}`} />
+                        <div className="w-7 h-7 relative flex-shrink-0">
+                          <div className="w-full h-full rounded-full overflow-hidden bg-sidebar/50 flex items-center justify-center cursor-pointer">
+                            {member.avatarUrl ? <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" /> : <User className="w-3.5 h-3.5 text-sidebar-foreground/50" strokeWidth={2} />}
+                          </div>
+                          <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-[2.5px] border-sidebar ${onlineUsers[member.id] ? "bg-green-500" : "bg-muted-foreground/30"}`} />
                         </div>
                       </UserPopover>
                       <span className="text-sm truncate text-sidebar-foreground" style={roleMap[member.id]?.color ? { color: roleMap[member.id].color } : {}}>{member.username}</span>
