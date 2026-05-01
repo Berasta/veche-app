@@ -1,4 +1,4 @@
-import { MessageSquare, Volume2, Users, Plus } from "lucide-react";
+import { MessageSquare, Volume2, Users, Plus, X } from "lucide-react";
 import { Skeleton } from "@components/ui/Skeleton";
 import { useEffect, useState, useRef } from "react";
 import { ServerButton } from "./ServerButton";
@@ -124,7 +124,18 @@ export function GradList() {
               <div className="flex justify-center pt-2 pb-1 flex-shrink-0">
                 <div className="w-10 h-1 rounded-full bg-sidebar-border/50" />
               </div>
-              <ServerMembers serverId={serverId} isOpen={true} onClose={() => setShowMembers(false)} inline />
+              <div className="h-11 px-4 flex items-center border-b border-sidebar-border flex-shrink-0">
+                <Users className="w-4 h-4 text-primary mr-2" strokeWidth={2} />
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex-1">
+                  Люди града
+                </span>
+                <button onClick={() => setShowMembers(false)} className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+                  <X className="w-3.5 h-3.5" strokeWidth={2} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-2">
+                <ServerMembers serverId={serverId} isOpen={true} onClose={() => setShowMembers(false)} inline />
+              </div>
             </div>
           </>
         )}

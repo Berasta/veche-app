@@ -24,25 +24,28 @@ interface Member {
 }
 
 function MembersPanel({
-  members, loading, roleMap, groupedMembers, onClose,
+  members, loading, roleMap, groupedMembers, onClose, showHeader = true,
 }: {
   members: Member[];
   loading: boolean;
   roleMap: Record<string, { name: string; color: string }>;
   groupedMembers: { roleName: string; roleColor?: string; members: Member[] }[];
   onClose: () => void;
+  showHeader?: boolean;
 }) {
   return (
     <>
-      <div className="h-11 px-4 flex items-center border-b border-sidebar-border flex-shrink-0">
-        <Users className="w-4 h-4 text-primary mr-2" strokeWidth={2} />
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex-1">
-          Люди града — {members.length}
-        </span>
-        <button onClick={onClose} className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
-          <X className="w-3.5 h-3.5" strokeWidth={2} />
-        </button>
-      </div>
+      {showHeader && (
+        <div className="h-11 px-4 flex items-center border-b border-sidebar-border flex-shrink-0">
+          <Users className="w-4 h-4 text-primary mr-2" strokeWidth={2} />
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex-1">
+            Люди града — {members.length}
+          </span>
+          <button onClick={onClose} className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
+            <X className="w-3.5 h-3.5" strokeWidth={2} />
+          </button>
+        </div>
+      )}
       <div className="flex-1 overflow-y-auto p-2">
         {loading ? <MembersSkeleton /> : members.length === 0 ? (
           <div className="text-sm text-muted-foreground text-center py-8">Нѣтъ людей въ градѣ</div>
@@ -184,9 +187,9 @@ function useMembers(serverId: string) {
   return { members, loading, roleMap, groupedMembers };
 }
 
-function ServerMembersContent({ serverId, onClose }: { serverId: string; onClose: () => void }) {
+function ServerMembersContent({ serverId, onClose, showHeader }: { serverId: string; onClose: () => void; showHeader?: boolean }) {
   const { members, loading, roleMap, groupedMembers } = useMembers(serverId);
-  return <MembersPanel members={members} loading={loading} roleMap={roleMap} groupedMembers={groupedMembers} onClose={onClose} />;
+  return <MembersPanel members={members} loading={loading} roleMap={roleMap} groupedMembers={groupedMembers} onClose={onClose} showHeader={showHeader} />;
 }
 
 export function ServerMembers({ serverId, isOpen, onClose, inline }: ServerMembersProps) {
@@ -195,7 +198,7 @@ export function ServerMembers({ serverId, isOpen, onClose, inline }: ServerMembe
   const isMobile = useIsMobile();
 
   if (inline) {
-    return <ServerMembersContent serverId={serverId} onClose={onClose} />;
+    return <ServerMembersContent serverId={serverId} onClose={onClose} showHeader={false} />;
   }
 
   useEffect(() => {
