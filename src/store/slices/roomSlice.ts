@@ -22,6 +22,7 @@ interface RoomState {
     resolution: "1080p" | "720p" | "480p";
     fps: 15 | 30 | 60;
   };
+  isDeafened: boolean;
 }
 
 const initialState: RoomState = {
@@ -35,6 +36,7 @@ const initialState: RoomState = {
   volumes: {},
   isScreenSharing: false,
   screenShareQuality: { resolution: "1080p", fps: 30 },
+  isDeafened: false,
 };
 
 const roomSlice = createSlice({
@@ -98,6 +100,9 @@ const roomSlice = createSlice({
     ) {
       state.screenShareQuality = action.payload;
     },
+    setDeafened(state, action: PayloadAction<boolean>) {
+      state.isDeafened = action.payload;
+    },
   },
 });
 
@@ -112,6 +117,7 @@ export const {
   setVolume,
   setScreenSharing,
   setScreenShareQuality,
+  setDeafened,
 } = roomSlice.actions;
 
 export default roomSlice.reducer;

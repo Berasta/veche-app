@@ -7,6 +7,8 @@ import {
   PhoneOff,
   Volume2,
   Maximize2,
+  Ear,
+  EarOff,
 } from "lucide-react";
 
 import {
@@ -21,12 +23,14 @@ import {
   selectIsScreenSharing,
   selectError,
   selectVolumes,
+  selectIsDeafened,
 } from "../../store/selectors/roomSelectors";
 import { useAppDispatch, useAppSelector } from "@store/hooks";
 import {
   leaveChannel,
   toggleMute,
   toggleScreenShare,
+  toggleDeafen,
 } from "@store/thunks/roomThunk";
 import { useState, useEffect } from "react";
 import { ScreenShareModal } from "./ScreenShareModal";
@@ -44,6 +48,7 @@ export function ActiveVoiceBar() {
   const channelName = useAppSelector(selectActiveChannelName);
   const participants = useAppSelector(selectParticipants);
   const isMuted = useAppSelector(selectIsMuted);
+  const isDeafened = useAppSelector(selectIsDeafened);
   const speakingCount = useAppSelector(selectSpeakingCount);
   const activeChannelId = useAppSelector(selectActiveChannelId);
   const activeServerId = useAppSelector(selectActiveServerId);
@@ -203,6 +208,21 @@ export function ActiveVoiceBar() {
           `}
         >
           {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
+        </button>
+
+        <button
+          onClick={() => dispatch(toggleDeafen())}
+          title={isDeafened ? "Включить звукъ" : "Оглушити"}
+          className={`
+            p-2 md:p-2 rounded-md transition-colors
+            ${
+              isDeafened
+                ? "bg-red-500/20 text-red-500 hover:bg-red-500/30"
+                : "hover:bg-muted text-muted-foreground hover:text-foreground"
+            }
+          `}
+        >
+          {isDeafened ? <EarOff size={16} /> : <Ear size={16} />}
         </button>
 
         <button

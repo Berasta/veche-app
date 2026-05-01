@@ -12,6 +12,7 @@ import {
   Participant,
   setVolume,
   setScreenSharing,
+  setDeafened,
 } from "../slices/roomSlice";
 import { RootState } from "../../store";
 
@@ -259,6 +260,33 @@ export const toggleMute = createAsyncThunk(
     const enabled = activeRoom.localParticipant.isMicrophoneEnabled;
     await activeRoom.localParticipant.setMicrophoneEnabled(!enabled);
     dispatch(updateLocalMute(enabled)); // enabled → теперь muted, и наоборот
+  },
+);
+
+export const toggleDeafen = createAsyncThunk(
+  "room/toggleDeafen",
+  async (_, { dispatch, getState }) => {
+    if (!activeRoom) return;
+    const state = getState() as RootState;
+    const wasDeafened = state.room.isDeafened;
+
+    if (wasDeafened) {
+      // Выходим из оглушения — включаем микрофон, восстанавливаем громкости
+      await activeRoom.localParticipant.setMicrophoneEnabled(true);
+      dispatch(updateLocalMute(false));
+      dispatch(setDeafened(false));
+    } else {
+      // Оглушение — выключаем микрофон и глушим весь звук
+      await activeRoom.localParticipant.setMicrophoneEnabled(false);
+      dispatch(updateLocalMute(true));
+
+      for (const [identity, el] of Object.entries(audioElements)) {
+        el.volume = 0;
+        dispatch(setVolume({ identity, volume: 0 }));
+      }
+
+      dispatch(setDeafened(true));
+    }
   },
 );
 

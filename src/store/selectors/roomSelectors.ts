@@ -24,3 +24,4 @@ export const selectVolumes = (s: RootState) => s.room.volumes;
 export const selectIsScreenSharing = (s: RootState) => s.room.isScreenSharing;
 export const selectScreenShareQuality = (s: RootState) =>
   s.room.screenShareQuality;
+export const selectIsDeafened = (s: RootState) => s.room.isDeafened;
