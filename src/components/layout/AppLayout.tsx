@@ -66,7 +66,7 @@ export const AppLayout = () => {
 
   return (
     <MobileMenuProvider>
-      <div className="h-screen w-screen overflow-hidden grid grid-rows-[1fr_auto]">
+      <div className="h-dvh w-screen overflow-hidden grid grid-rows-[1fr_auto]">
         <div className="min-h-0 flex overflow-hidden pt-14 pb-14 md:pt-0 md:pb-0">
           <GradList />
           <Outlet />
