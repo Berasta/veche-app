@@ -75,7 +75,28 @@ export function ServerMembers({ serverId, isOpen, onClose }: ServerMembersProps)
           });
         }
 
-        // 2. Voice participants (might not be in server_members yet)
+        // 2. Server owner (might not be in server_members)
+        try {
+          const serverRecord = await pb.collection("servers").getOne(serverId);
+          const ownerId = (serverRecord as any).owner_id;
+          if (ownerId && !seen.has(ownerId)) {
+            try {
+              const ownerUser = await pb.collection("users").getOne(ownerId);
+              seen.add(ownerId);
+              result.push({
+                id: ownerId,
+                username: (ownerUser as any).username || (ownerUser as any).email || "Владыка",
+                avatarUrl: (ownerUser as any).avatar
+                  ? `${PB_URL}/api/files/${(ownerUser as any).collectionId}/${ownerId}/${(ownerUser as any).avatar}`
+                  : null,
+                banner: (ownerUser as any).banner || undefined,
+                joinedAt: undefined,
+              });
+            } catch {}
+          }
+        } catch {}
+
+        // 3. Voice participants (might not be in server_members yet)
         for (const p of voiceParticipants) {
           if (!seen.has(p.identity)) {
             seen.add(p.identity);
