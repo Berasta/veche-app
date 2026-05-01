@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from "@store/hooks";
-import { fetchChannels } from "@store/slices/channelsSlice";
+import { fetchChannels, clearChannels } from "@store/slices/channelsSlice";
 import { useParams, useNavigate } from "react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { GramotaArea } from "@components/server/GramotaArea";
 import { ServerMembers } from "@components/server/ServerMembers";
 import { useIsMobile } from "@components/ui/use-mobile";
@@ -13,27 +13,33 @@ export const ServerPage = () => {
   const { serverId, channelId } = useParams();
   const isMobile = useIsMobile();
   const [showMembers, setShowMembers] = useState(false);
+  const prevServerRef = useRef(serverId);
 
   const channels = useAppSelector((state) => state.channels.channels);
   const channelsLoading = useAppSelector((state) => state.channels.loading);
-  const currentChannel = channels.find((c) => c.id === channelId);
+  const serverChannels = channels.filter((c) => c.server_id === serverId);
+  const currentChannel = serverChannels.find((c) => c.id === channelId);
 
   useEffect(() => {
     if (serverId) {
+      if (prevServerRef.current !== serverId) {
+        dispatch(clearChannels());
+        prevServerRef.current = serverId;
+      }
       dispatch(fetchChannels(serverId));
     }
   }, [dispatch, serverId]);
 
   useEffect(() => {
     if (!serverId || channelId || isMobile) return;
-    const textChannels = channels.filter((c) => c.type === "text");
+    const textChannels = serverChannels.filter((c) => c.type === "text");
     if (textChannels.length > 0) {
       navigate(`/app/server/${serverId}/text/${textChannels[0].id}`, { replace: true });
     }
-  }, [serverId, channelId, channels, navigate, isMobile]);
+  }, [serverId, channelId, serverChannels, navigate, isMobile]);
 
   // Show loading state while switching servers
-  if (serverId && !channelId && channelsLoading && channels.length === 0) {
+  if (serverId && !channelId && (channelsLoading || serverChannels.length === 0)) {
     return (
       <div className="flex-1 flex items-center justify-center bg-background">
         <div className="text-center">
