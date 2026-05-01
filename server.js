@@ -1,14 +1,13 @@
 const express = require("express");
+const sharp = require("sharp");
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 const PB_URL = process.env.VITE_PB_URL || "https://admin.weche.ru";
 const APP_URL = process.env.APP_URL || "https://weche.ru";
 
-// SVG preview card for OG image
-app.get("/api/og", (req, res) => {
-  const name = req.query.title || "Вече";
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+function generateSvg(name) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#1a120c"/>
@@ -21,24 +20,30 @@ app.get("/api/og", (req, res) => {
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
   <rect x="40" y="40" width="1120" height="550" rx="20" fill="none" stroke="url(#gold)" stroke-width="2" opacity="0.3"/>
-  <circle cx="600" cy="240" r="80" fill="none" stroke="url(#gold)" stroke-width="3" opacity="0.4"/>
-  <!-- Background glow -->
   <ellipse cx="600" cy="370" rx="350" ry="60" fill="#d4af37" opacity="0.06"/>
-  <!-- Castle icon -->
-  <text x="600" y="210" text-anchor="middle" font-size="72" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🏰</text>
-  <!-- Subtitle -->
-  <text x="600" y="300" text-anchor="middle" fill="#d4af37" font-size="32" font-family="'Old Standard TT','Times New Roman',Georgia,serif" font-weight="600">Приглашенiе въ градъ</text>
-  <!-- Server name -->
-  <text x="600" y="380" text-anchor="middle" fill="#f5ede0" font-size="56" font-family="'Old Standard TT','Times New Roman',Georgia,serif" font-weight="700">${escapeXml(name)}</text>
-  <!-- Separator -->
+  <text x="600" y="210" text-anchor="middle" font-size="72" font-family="Apple Color Emoji,sans-serif">🏰</text>
+  <text x="600" y="300" text-anchor="middle" fill="#d4af37" font-size="32" font-family="Georgia,serif" font-weight="600">Приглашенiе въ градъ</text>
+  <text x="600" y="380" text-anchor="middle" fill="#f5ede0" font-size="56" font-family="Georgia,serif" font-weight="700">${escapeXml(name)}</text>
   <line x1="500" y1="410" x2="700" y2="410" stroke="#d4af37" stroke-width="2" opacity="0.4"/>
-  <!-- Description -->
   <text x="600" y="450" text-anchor="middle" fill="#a89577" font-size="20" font-family="Georgia,serif">Вече — древнерусскiй голосовой мессенджеръ</text>
 </svg>`;
+}
 
-  res.setHeader("Content-Type", "image/svg+xml");
-  res.setHeader("Cache-Control", "public, max-age=3600");
-  res.send(svg);
+// PNG preview card for OG image (converted from SVG via sharp)
+app.get("/api/og", async (req, res) => {
+  const name = req.query.title || "Вече";
+  try {
+    const svg = generateSvg(name);
+    const png = await sharp(Buffer.from(svg)).png().toBuffer();
+    res.setHeader("Content-Type", "image/png");
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.setHeader("Content-Length", png.length);
+    res.send(png);
+  } catch (e) {
+    // fallback: return SVG if sharp fails
+    res.setHeader("Content-Type", "image/svg+xml");
+    res.send(generateSvg(name));
+  }
 });
 
 function escapeXml(s) {
@@ -86,7 +91,7 @@ app.get("/invite/:code", async (req, res) => {
   <meta property="og:image" content="${ogImage}" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:type" content="image/svg+xml" />
+  <meta property="og:image:type" content="image/png" />
   <meta property="og:site_name" content="Вече" />
 
   <meta name="twitter:card" content="summary_large_image" />
