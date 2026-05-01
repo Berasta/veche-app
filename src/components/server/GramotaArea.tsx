@@ -61,14 +61,13 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
 
   useEffect(() => {
     if (!serverId) return;
-    getRoleMap(serverId).then(setRoleMap).catch(() => {});
-    pb.collection("server_members").getFullList({
-      filter: `server_id = "${serverId}"`,
-    }).then((list) => {
+    Promise.all([
+      getRoleMap(serverId),
+      pb.collection("server_members").getFullList({ filter: `server_id = "${serverId}"` }, { $autoCancel: false }),
+    ]).then(([roles, members]) => {
+      setRoleMap(roles);
       const map: Record<string, string> = {};
-      for (const entry of list as any[]) {
-        map[entry.user_id] = entry.created;
-      }
+      (members as any[]).forEach((entry: any) => { map[entry.user_id] = entry.created; });
       setJoinedAtMap(map);
     }).catch(() => {});
   }, [serverId]);
