@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { pb } from "@api/pb";
 import { useAppDispatch } from "@store/hooks";
 import { messageReceived, messageUpdated, messageDeleted } from "@store/slices/messagesSlice";
+import { markActive, setVoiceParticipants } from "@store/slices/presenceSlice";
 import type { RecordSubscription } from "pocketbase";
 
 let subscribed = false;
@@ -28,14 +29,18 @@ function normalizeMessage(record: any) {
 
 export function useRealtime() {
   const dispatch = useAppDispatch();
+  const heartbeatRef = useRef<ReturnType<typeof setInterval>>();
 
   useEffect(() => {
     if (subscribed) return;
     subscribed = true;
 
-    // Subscribe to ALL messages (filtered by Redux reducers)
+    // Mark message authors as active
     pb.collection("messages").subscribe("*", (e: RecordSubscription) => {
       const msg = normalizeMessage(e.record);
+      if (e.action === "create" || e.action === "update") {
+        dispatch(markActive(msg.user_id));
+      }
       switch (e.action) {
         case "create": dispatch(messageReceived(msg)); break;
         case "update":
@@ -49,8 +54,29 @@ export function useRealtime() {
       }
     }, { expand: "user_id" });
 
+    // Track voice participants as online
+    const voiceInterval = setInterval(async () => {
+      try {
+        const result = await pb.collection("channel_participants").getFullList();
+        const ids = (result as any[]).map((p: any) => p.user_id || p.identity).filter(Boolean);
+        dispatch(setVoiceParticipants(ids));
+      } catch {}
+    }, 10000);
+
+    // Heartbeat: mark current user as active periodically
+    heartbeatRef.current = setInterval(() => {
+      const uid = pb.authStore.record?.id;
+      if (uid) dispatch(markActive(uid));
+    }, 30000);
+
+    // Mark user active on mount
+    const uid = pb.authStore.record?.id;
+    if (uid) dispatch(markActive(uid));
+
     return () => {
       pb.collection("messages").unsubscribe("*");
+      clearInterval(voiceInterval);
+      if (heartbeatRef.current) clearInterval(heartbeatRef.current);
       subscribed = false;
     };
   }, [dispatch]);

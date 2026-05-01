@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect, ReactNode, useCallback, useMemo } from "react";
 import { Portal } from "./Portal";
-import { Volume2, Crown, Calendar } from "lucide-react";
+import { Volume2, Crown, Calendar, Circle } from "lucide-react";
 import { banners } from "../BannerSelector";
+import { useAppSelector } from "@store/hooks";
+import { selectIsOnline } from "@store/selectors/presenceSelectors";
 
 interface UserPopoverProps {
   username: string;
@@ -12,6 +14,7 @@ interface UserPopoverProps {
   joinedAt?: string;
   volume?: number;
   onVolumeChange?: (volume: number) => void;
+  userId?: string;
   children: ReactNode;
 }
 
@@ -36,12 +39,13 @@ function getBanner(bannerId?: string | null, username?: string) {
   return banners[hashString(username || "") % banners.length];
 }
 
-export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, joinedAt, volume, onVolumeChange, children }: UserPopoverProps) {
+export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, joinedAt, volume, onVolumeChange, userId, children }: UserPopoverProps) {
   const banner = useMemo(() => getBanner(bannerId, username), [username, bannerId]);
   const [show, setShow] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ top: 0, left: 0 });
+  const isOnline = useAppSelector((state) => userId ? selectIsOnline(userId)(state) : false);
 
   useEffect(() => {
     if (!show || !triggerRef.current) return;
@@ -98,8 +102,13 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
                   )}
                 </div>
                 <div className="min-w-0 pb-0.5">
-                  <p className="text-sm font-bold text-foreground drop-shadow-sm truncate leading-tight">{username}</p>
-                  <p className="text-[10px] text-foreground/70 drop-shadow-sm">Бояринъ града</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-sm font-bold text-foreground drop-shadow-sm truncate leading-tight">{username}</p>
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${isOnline ? "bg-green-500" : "bg-muted-foreground/30"}`} />
+                  </div>
+                  <p className="text-[10px] text-foreground/70 drop-shadow-sm">
+                    {isOnline ? "Въ сети" : "Не въ сети"}
+                  </p>
                 </div>
               </div>
             </div>

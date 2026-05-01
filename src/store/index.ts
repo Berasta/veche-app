@@ -4,6 +4,7 @@ import serversReducer from "./slices/serversSlice";
 import channelsReducer from "./slices/channelsSlice";
 import roomReducer from "./slices/roomSlice";
 import messagesReducer from "./slices/messagesSlice";
+import presenceReducer from "./slices/presenceSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     channels: channelsReducer,
     room: roomReducer,
     messages: messagesReducer,
+    presence: presenceReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

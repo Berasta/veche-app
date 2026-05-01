@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useMemo } from "react";
-import { X, Users, User } from "lucide-react";
+import { X, Users, User, Circle } from "lucide-react";
 import { UserPopover } from "@components/ui/UserPopover";
 import { MembersSkeleton } from "@components/ui/Skeleton";
 import { getRoleMap } from "@api/rolesApi";
@@ -7,6 +7,7 @@ import { pb, PB_URL } from "@api/pb";
 import { useAppSelector } from "@store/hooks";
 import { selectParticipants } from "@store/selectors/roomSelectors";
 import { useIsMobile } from "@components/ui/use-mobile";
+import { selectOnlineUsers } from "@store/selectors/presenceSelectors";
 
 interface ServerMembersProps {
   serverId: string;
@@ -24,7 +25,7 @@ interface Member {
 }
 
 function MembersPanel({
-  members, loading, roleMap, groupedMembers, onClose, showHeader = true,
+  members, loading, roleMap, groupedMembers, onClose, showHeader = true, onlineUsers = {},
 }: {
   members: Member[];
   loading: boolean;
@@ -32,6 +33,7 @@ function MembersPanel({
   groupedMembers: { roleName: string; roleColor?: string; members: Member[] }[];
   onClose: () => void;
   showHeader?: boolean;
+  onlineUsers?: Record<string, number>;
 }) {
   return (
     <>
@@ -60,9 +62,10 @@ function MembersPanel({
                 <div className="space-y-0.5">
                   {group.members.map((member) => (
                     <div key={member.id} className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-sidebar-accent/50 transition-colors">
-                      <UserPopover username={member.username} avatarUrl={member.avatarUrl} bannerId={member.banner} role={roleMap[member.id]?.name} roleColor={roleMap[member.id]?.color} joinedAt={member.joinedAt}>
-                        <div className="w-7 h-7 rounded-full overflow-hidden bg-sidebar/50 flex-shrink-0 flex items-center justify-center cursor-pointer">
+                      <UserPopover username={member.username} avatarUrl={member.avatarUrl} bannerId={member.banner} userId={member.id} role={roleMap[member.id]?.name} roleColor={roleMap[member.id]?.color} joinedAt={member.joinedAt}>
+                        <div className="w-7 h-7 rounded-full overflow-hidden bg-sidebar/50 flex-shrink-0 flex items-center justify-center cursor-pointer relative">
                           {member.avatarUrl ? <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" /> : <User className="w-3.5 h-3.5 text-sidebar-foreground/50" strokeWidth={2} />}
+                          <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-sidebar ${onlineUsers[member.id] ? "bg-green-500" : "bg-muted-foreground/30"}`} />
                         </div>
                       </UserPopover>
                       <span className="text-sm truncate text-sidebar-foreground" style={roleMap[member.id]?.color ? { color: roleMap[member.id].color } : {}}>{member.username}</span>
@@ -189,7 +192,8 @@ function useMembers(serverId: string) {
 
 function ServerMembersContent({ serverId, onClose, showHeader }: { serverId: string; onClose: () => void; showHeader?: boolean }) {
   const { members, loading, roleMap, groupedMembers } = useMembers(serverId);
-  return <MembersPanel members={members} loading={loading} roleMap={roleMap} groupedMembers={groupedMembers} onClose={onClose} showHeader={showHeader} />;
+  const onlineUsers = useAppSelector(selectOnlineUsers);
+  return <MembersPanel members={members} loading={loading} roleMap={roleMap} groupedMembers={groupedMembers} onClose={onClose} showHeader={showHeader} onlineUsers={onlineUsers} />;
 }
 
 export function ServerMembers({ serverId, isOpen, onClose, inline }: ServerMembersProps) {

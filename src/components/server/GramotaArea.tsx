@@ -249,6 +249,7 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
                 reactions={reactionMap[msg.id]}
                 onReaction={handleReaction}
                 messageId={msg.id}
+                authorId={msg.user_id}
                 authorRole={roleMap[msg.user_id]?.name}
                 authorRoleColor={roleMap[msg.user_id]?.color}
                 authorBanner={msg.author_banner}
