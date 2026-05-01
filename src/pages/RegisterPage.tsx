@@ -45,6 +45,17 @@ export const RegisterPage = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
       <div className="bg-card/40 backdrop-blur-xl border border-border rounded-lg p-4 md:p-6 shadow-xl">
+        {/* Logo */}
+        <div className="flex items-center gap-3 mb-5 pb-4 border-b border-border/50">
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center ring-1 ring-primary/20 flex-shrink-0">
+            <img src="/logo.svg" alt="Вече" className="w-7 h-7" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Вступити въ градъ</h3>
+            <p className="text-[11px] text-muted-foreground">Создайте своё имя боярина</p>
+          </div>
+        </div>
+
         <div className="space-y-4">
           {/* Username */}
           <div>
