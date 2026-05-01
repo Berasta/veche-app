@@ -15,7 +15,6 @@ import {
   sendMessage,
   editMessage,
   deleteMessage,
-  subscribeToChannel,
   clearMessages,
 } from "@store/slices/messagesSlice";
 import {
@@ -51,10 +50,8 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
     if (!channelId) return;
 
     dispatch(fetchMessages(channelId));
-    const unsubscribe = subscribeToChannel(channelId, dispatch);
 
     return () => {
-      unsubscribe();
       dispatch(clearMessages());
     };
   }, [channelId, dispatch]);

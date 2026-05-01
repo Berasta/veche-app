@@ -6,6 +6,7 @@ import { MobileMenuProvider } from "./MobileMenuContext";
 import { useAppDispatch } from "@store/hooks";
 import { toggleMute } from "@store/thunks/roomThunk";
 import { useTauriHotkeys } from "@hooks/useTauriHotkeys";
+import { useRealtime } from "@hooks/useRealtime";
 import { isTauri } from "@lib/tauri";
 
 const DEFAULTS = {
@@ -34,6 +35,8 @@ export const AppLayout = () => {
   const dispatch = useAppDispatch();
   const isVoiceChat = location.pathname.includes("/voice/");
   const [bindings, setBindings] = useState(readBindings);
+
+  useRealtime();
 
   useEffect(() => {
     const interval = setInterval(() => setBindings(readBindings()), 1000);
