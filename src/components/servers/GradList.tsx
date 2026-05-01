@@ -23,6 +23,17 @@ export function GradList() {
   const { serverId, channelId: activeChannelId } = useParams();
   const { close: closeMobileMenu, isOpen: isMobileMenuOpen, toggle: toggleMobileMenu } = useMobileMenu();
   const isMobile = useIsMobile();
+  const servers = useAppSelector((state) => state.servers.servers);
+  const currentServer = servers.find((s) => s.id === serverId);
+  const participants = useAppSelector(selectParticipants);
+  const [showDrawer, setShowDrawer] = useState(false);
+  const [drawerTab, setDrawerTab] = useState<"channels" | "members">("channels");
+  const [showMembers, setShowMembers] = useState(false);
+  const [showCreateServer, setShowCreateServer] = useState(false);
+  const [newServerName, setNewServerName] = useState("");
+  const [newServerAvatar, setNewServerAvatar] = useState<File | null>(null);
+  const [creating, setCreating] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   // Hide top bar on onboarding page
   if (location.pathname === AppRoutes.ONBOARDING) return null;
@@ -38,18 +49,6 @@ export function GradList() {
       setShowDrawer(true);
     }
   }, [isMobileMenuOpen, isMobile]);
-
-  const servers = useAppSelector((state) => state.servers.servers);
-  const currentServer = servers.find((s) => s.id === serverId);
-  const participants = useAppSelector(selectParticipants);
-  const [showDrawer, setShowDrawer] = useState(false);
-  const [drawerTab, setDrawerTab] = useState<"channels" | "members">("channels");
-  const [showMembers, setShowMembers] = useState(false);
-  const [showCreateServer, setShowCreateServer] = useState(false);
-  const [newServerName, setNewServerName] = useState("");
-  const [newServerAvatar, setNewServerAvatar] = useState<File | null>(null);
-  const [creating, setCreating] = useState(false);
-  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const handleCreateServer = async () => {
     if (!newServerName.trim() || !user?.id || creating) return;
