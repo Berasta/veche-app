@@ -211,21 +211,6 @@ export function ActiveVoiceBar() {
         </button>
 
         <button
-          onClick={() => dispatch(toggleDeafen())}
-          title={isDeafened ? "Включить звукъ" : "Оглушити"}
-          className={`
-            p-2 md:p-2 rounded-md transition-colors
-            ${
-              isDeafened
-                ? "bg-red-500/20 text-red-500 hover:bg-red-500/30"
-                : "hover:bg-muted text-muted-foreground hover:text-foreground"
-            }
-          `}
-        >
-          {isDeafened ? <EarOff size={16} /> : <Ear size={16} />}
-        </button>
-
-        <button
           onClick={() => dispatch(leaveChannel())}
           title="Выйти из канала"
           className="p-2 md:p-2 rounded-md bg-red-500/20 text-red-500 hover:bg-red-500/30 transition-colors"

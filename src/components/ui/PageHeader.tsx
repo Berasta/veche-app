@@ -20,7 +20,7 @@ export function PageHeader({
   showMobileMenu = true
 }: PageHeaderProps) {
   return (
-    <div className="sticky top-0 z-10 h-12 border-b border-border bg-card/30 backdrop-blur-xl flex items-center px-2 md:px-4 shadow-sm">
+    <div className="fixed md:sticky top-0 z-30 md:z-10 h-12 w-full border-b border-border bg-card/80 md:bg-card/30 backdrop-blur-xl flex items-center px-2 md:px-4 shadow-sm">
       {/* Кнопка меню для мобильных */}
       {showMobileMenu && onMenuClick && (
         <button
