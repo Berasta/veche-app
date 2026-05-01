@@ -1,4 +1,4 @@
-import { MessageSquare, Volume2, Users, Plus, X } from "lucide-react";
+import { MessageSquare, Volume2, Users, Plus, X, Menu } from "lucide-react";
 import { Skeleton } from "@components/ui/Skeleton";
 import { useEffect, useState, useRef } from "react";
 import { ServerButton } from "./ServerButton";
