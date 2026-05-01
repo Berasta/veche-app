@@ -1,11 +1,11 @@
-import { createBrowserRouter, Suspense } from "react-router";
+import { createBrowserRouter } from "react-router";
 import { LoginPage, RegisterPage, ServerPage, AppPage } from "@pages/index";
 import { AuthLayout } from "@components/layout/AuthLayout";
 import { AppLayout } from "@components/layout/AppLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { AppRoutes } from "./routes";
 import { OverlayPage } from "@pages/OverlayPage";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
 const Settings = lazy(() => import("@pages/Settings").then((m) => ({ default: m.Settings })));
