@@ -35,9 +35,6 @@ export function GradList() {
   const [creating, setCreating] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
-  // Hide top bar on onboarding page
-  if (location.pathname === AppRoutes.ONBOARDING) return null;
-
   // Close drawer on navigation (channel/server switch)
   useEffect(() => {
     setShowDrawer(false);
@@ -49,6 +46,15 @@ export function GradList() {
       setShowDrawer(true);
     }
   }, [isMobileMenuOpen, isMobile]);
+
+  useEffect(() => {
+    if (user?.id) {
+      dispatch(fetchServers(user.id));
+    }
+  }, [dispatch, user?.id]);
+
+  // Hide top bar on onboarding page
+  if (location.pathname === AppRoutes.ONBOARDING) return null;
 
   const handleCreateServer = async () => {
     if (!newServerName.trim() || !user?.id || creating) return;
@@ -68,12 +74,6 @@ export function GradList() {
       navigate(AppRoutes.SERVER.replace(":serverId", record.id));
     } catch {} finally { setCreating(false); }
   };
-
-  useEffect(() => {
-    if (user?.id) {
-      dispatch(fetchServers(user.id));
-    }
-  }, [dispatch, user?.id]);
 
   const onClickServer = (serverId: string) => {
     navigate(AppRoutes.SERVER.replace(":serverId", serverId));
