@@ -39,6 +39,7 @@ export function GradList() {
   const currentServer = servers.find((s) => s.id === serverId);
   const participants = useAppSelector(selectParticipants);
   const [showDrawer, setShowDrawer] = useState(false);
+  const [drawerTab, setDrawerTab] = useState<"channels" | "members">("channels");
   const [showMembers, setShowMembers] = useState(false);
   const [showCreateServer, setShowCreateServer] = useState(false);
   const [newServerName, setNewServerName] = useState("");
@@ -160,28 +161,44 @@ export function GradList() {
                 </button>
               </div>
 
-              {/* Channel list + Members list in one scrollable area */}
+              {/* Tab switcher: Палаты | Люди */}
+              {serverId && (
+                <div className="flex border-b border-sidebar-border/50 flex-shrink-0">
+                  <button
+                    onClick={() => setDrawerTab("channels")}
+                    className={`flex-1 py-2 text-[10px] font-semibold uppercase tracking-widest transition-colors ${
+                      drawerTab === "channels"
+                        ? "text-sidebar-foreground border-b-2 border-primary"
+                        : "text-sidebar-foreground/40 hover:text-sidebar-foreground/70"
+                    }`}
+                  >
+                    Палаты
+                  </button>
+                  <button
+                    onClick={() => setDrawerTab("members")}
+                    className={`flex-1 py-2 text-[10px] font-semibold uppercase tracking-widest transition-colors ${
+                      drawerTab === "members"
+                        ? "text-sidebar-foreground border-b-2 border-primary"
+                        : "text-sidebar-foreground/40 hover:text-sidebar-foreground/70"
+                    }`}
+                  >
+                    Люди
+                  </button>
+                </div>
+              )}
+
+              {/* Content: channels or members */}
               <div className="flex-1 overflow-y-auto">
-                {serverId ? (
-                  <PalataList onMobileItemClick={() => setShowDrawer(false)} />
-                ) : (
+                {!serverId ? (
                   <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">
                     Изберите градъ
                   </div>
-                )}
-                {serverId && (
-                  <div className="border-t border-sidebar-border/50 mx-3" />
-                )}
-                {serverId && (
-                  <div className="px-2 pb-4">
-                    <div className="flex items-center gap-1.5 px-1 mb-1.5 mt-2">
-                      <Users size={12} className="text-sidebar-foreground/50" strokeWidth={2} />
-                      <span className="text-[10px] font-semibold text-sidebar-foreground/50 uppercase tracking-widest flex-1">
-                        Люди
-                      </span>
-                    </div>
+                ) : drawerTab === "members" ? (
+                  <div className="p-2">
                     <ServerMembers serverId={serverId} isOpen={true} onClose={() => setShowDrawer(false)} inline />
                   </div>
+                ) : (
+                  <PalataList onMobileItemClick={() => setShowDrawer(false)} />
                 )}
               </div>
             </div>
