@@ -26,9 +26,9 @@ export function Palata({ channelId, channelName, index, participantCount = 0 }: 
   const isThisConnecting = connecting && activeChannelId === null;
 
   const handleClick = () => {
-    // Request wake lock synchronously (iOS requires user gesture)
+    if (!serverId) return;
     try { if ('wakeLock' in navigator) (navigator as any).wakeLock.request('screen'); } catch {}
-    dispatch(joinChannel({ channelId, channelName, serverId: serverId || "" }));
+    dispatch(joinChannel({ channelId, channelName, serverId }));
   };
 
   return (
