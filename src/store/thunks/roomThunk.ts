@@ -274,6 +274,14 @@ export const toggleDeafen = createAsyncThunk(
       // Выходим из оглушения — включаем микрофон, восстанавливаем громкости
       await activeRoom.localParticipant.setMicrophoneEnabled(true);
       dispatch(updateLocalMute(false));
+
+      const previousVolumes = state.room.volumes;
+      for (const [identity, el] of Object.entries(audioElements)) {
+        const saved = previousVolumes[identity];
+        el.volume = saved != null ? saved / 100 : 1;
+        dispatch(setVolume({ identity, volume: saved ?? 100 }));
+      }
+
       dispatch(setDeafened(false));
     } else {
       // Оглушение — выключаем микрофон и глушим весь звук
