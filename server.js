@@ -45,17 +45,22 @@ app.get("/invite/:code", async (req, res) => {
   let serverName = "Вече";
 
   try {
-    const resp = await fetch(`${PB_URL}/api/collections/invitations/records?filter=code=%22${code}%22`);
+    const filter = `code = "${code}"`;
+    const resp = await fetch(`${PB_URL}/api/collections/invitations/records?filter=${encodeURIComponent(filter)}`);
     const data = await resp.json();
     const invite = data?.items?.[0];
     if (invite) {
       const serverResp = await fetch(`${PB_URL}/api/collections/servers/records/${invite.server_id}`);
-      const server = await serverResp.json();
-      serverName = server.name;
-      title = `Приглашенiе въ градъ "${server.name}"`;
-      desc = `Васъ приглашаютъ въ "${server.name}" на Вече — древнерусскiй голосовой мессенджеръ.`;
+      if (serverResp.ok) {
+        const server = await serverResp.json();
+        serverName = server.name || "Градъ";
+        title = `Приглашенiе въ градъ "${serverName}"`;
+        desc = `Васъ приглашаютъ въ "${serverName}" на Вече — древнерусскiй голосовой мессенджеръ.`;
+      }
     }
-  } catch {}
+  } catch (e) {
+    console.error("Meta server error:", e.message);
+  }
 
   const ogImage = `${APP_URL}/api/og?title=${encodeURIComponent(serverName)}`;
 
