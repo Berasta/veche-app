@@ -81,10 +81,6 @@ export function GradList() {
   if (isMobile) {
     return (
       <>
-        {serverId && (
-          <ServerMembers serverId={serverId} isOpen={showMembers} onClose={() => setShowMembers(false)} />
-        )}
-
         {/* Bottom Navigation Bar */}
         <div className="fixed bottom-0 left-0 right-0 h-14 bg-sidebar/95 backdrop-blur-xl border-t border-sidebar-border z-50 flex items-center justify-around px-2">
           <button
@@ -119,6 +115,19 @@ export function GradList() {
             <span className="text-[9px] font-semibold uppercase tracking-wider">Люди</span>
           </button>
         </div>
+
+        {/* Members bottom-sheet (same level as drawer) */}
+        {showMembers && serverId && (
+          <>
+            <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => setShowMembers(false)} />
+            <div className="fixed bottom-0 left-0 right-0 z-[70] bg-sidebar backdrop-blur-xl border-t border-sidebar-border rounded-t-2xl max-h-[85vh] flex flex-col animate-slide-up">
+              <div className="flex justify-center pt-2 pb-1 flex-shrink-0">
+                <div className="w-10 h-1 rounded-full bg-sidebar-border/50" />
+              </div>
+              <ServerMembers serverId={serverId} isOpen={true} onClose={() => setShowMembers(false)} inline />
+            </div>
+          </>
+        )}
 
         {/* Unified Drawer (bottom sheet) */}
         {showDrawer && (
