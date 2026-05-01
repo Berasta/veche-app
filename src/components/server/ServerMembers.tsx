@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { X, Users, User } from "lucide-react";
 import { Portal } from "@components/ui/Portal";
 import { UserPopover } from "@components/ui/UserPopover";
@@ -140,6 +140,31 @@ export function ServerMembers({ serverId, isOpen, onClose }: ServerMembersProps)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animState, serverId]);
 
+  // Group members by role
+  const groupedMembers = useMemo(() => {
+    const groups: { roleName: string; roleColor?: string; members: Member[] }[] = [];
+    const roleOrder: Record<string, number> = {};
+
+    for (const member of members) {
+      const r = roleMap[member.id];
+      const key = r?.name || "__none__";
+      if (!(key in roleOrder)) {
+        roleOrder[key] = groups.length;
+        groups.push({ roleName: r?.name || "Участники", roleColor: r?.color, members: [] });
+      }
+      groups[roleOrder[key]].members.push(member);
+    }
+
+    // Sort: owner first, then by role
+    groups.sort((a, b) => {
+      if (a.roleName === "Участники") return 1;
+      if (b.roleName === "Участники") return -1;
+      return 0;
+    });
+
+    return groups;
+  }, [members, roleMap]);
+
   if (animState === "closed") return null;
 
   const translateX = animState === "open" ? "translate-x-0" : "translate-x-full";
@@ -171,24 +196,33 @@ export function ServerMembers({ serverId, isOpen, onClose }: ServerMembersProps)
           ) : members.length === 0 ? (
             <div className="text-sm text-muted-foreground text-center py-8">Нѣтъ людей въ градѣ</div>
           ) : (
-            <div className="space-y-0.5">
-                  {members.map((member) => (
-                    <div
-                      key={member.id}
-                      className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted/50 transition-colors"
-                    >
-                      <UserPopover username={member.username} avatarUrl={member.avatarUrl} bannerId={member.banner} role={roleMap[member.id]?.name} roleColor={roleMap[member.id]?.color} joinedAt={member.joinedAt}>
-                        <div className="w-7 h-7 rounded-full overflow-hidden bg-muted flex-shrink-0 flex items-center justify-center cursor-pointer">
-                          {member.avatarUrl ? (
-                            <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <User className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={2} />
-                          )}
-                        </div>
-                      </UserPopover>
-                      <span className="text-sm truncate" style={roleMap[member.id]?.color ? { color: roleMap[member.id].color } : {}}>{member.username}</span>
-                    </div>
-                  ))}
+            <div className="space-y-3">
+              {groupedMembers.map((group) => (
+                <div key={group.roleName}>
+                  <div className="flex items-center gap-1.5 px-1 mb-1">
+                    {group.roleColor && <div className="w-2 h-2 rounded-full" style={{ backgroundColor: group.roleColor }} />}
+                    <span className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest">
+                      {group.roleName} — {group.members.length}
+                    </span>
+                  </div>
+                  <div className="space-y-0.5">
+                    {group.members.map((member) => (
+                      <div key={member.id} className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted/50 transition-colors">
+                        <UserPopover username={member.username} avatarUrl={member.avatarUrl} bannerId={member.banner} role={roleMap[member.id]?.name} roleColor={roleMap[member.id]?.color} joinedAt={member.joinedAt}>
+                          <div className="w-7 h-7 rounded-full overflow-hidden bg-muted flex-shrink-0 flex items-center justify-center cursor-pointer">
+                            {member.avatarUrl ? (
+                              <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <User className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={2} />
+                            )}
+                          </div>
+                        </UserPopover>
+                        <span className="text-sm truncate" style={roleMap[member.id]?.color ? { color: roleMap[member.id].color } : {}}>{member.username}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
