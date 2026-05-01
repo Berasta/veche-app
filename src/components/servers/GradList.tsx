@@ -102,7 +102,7 @@ export function GradList() {
             <span className="text-[9px] font-semibold uppercase tracking-wider">Гласъ</span>
           </button>
           <button
-            onClick={() => serverId && setShowMembers(true)}
+            onClick={() => serverId && setShowDrawer(true)}
             disabled={!serverId}
             className="flex flex-col items-center gap-0.5 p-1 text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors min-w-0 flex-1 disabled:opacity-30"
           >
@@ -116,35 +116,11 @@ export function GradList() {
           </button>
         </div>
 
-        {/* Members bottom-sheet (same level as drawer) */}
-        {serverId && (
-          <>
-            <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => setShowMembers(false)} style={{ display: showMembers ? 'block' : 'none' }} />
-            <div className="fixed bottom-0 left-0 right-0 z-[70] bg-red-500 border border-white rounded-t-2xl max-h-[85vh] flex flex-col" style={{ display: showMembers ? 'flex' : 'none', transform: showMembers ? 'translateY(0)' : 'translateY(100%)', transition: 'transform 0.3s ease-out' }}>
-              <div className="flex justify-center pt-2 pb-1 flex-shrink-0">
-                <div className="w-10 h-1 rounded-full bg-white/50" />
-              </div>
-              <div className="h-11 px-4 flex items-center border-b border-white/20 flex-shrink-0">
-                <Users className="w-4 h-4 text-white mr-2" strokeWidth={2} />
-                <span className="text-xs font-semibold text-white/80 uppercase tracking-wider flex-1">
-                  Люди града
-                </span>
-                <button onClick={() => setShowMembers(false)} className="w-7 h-7 rounded-md hover:bg-white/10 flex items-center justify-center text-white/70 hover:text-white transition-colors">
-                  <X className="w-3.5 h-3.5" strokeWidth={2} />
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto p-2 text-white">
-                ТЕСТ — панель работает
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* Unified Drawer (bottom sheet) */}
+        {/* Unified Drawer (bottom sheet) — includes channels + members */}
         {showDrawer && (
           <>
             <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => { setShowDrawer(false); closeMobileMenu(); }} />
-            <div className="fixed bottom-0 left-0 right-0 z-[70] bg-sidebar backdrop-blur-xl border-t border-sidebar-border rounded-t-2xl max-h-[85vh] flex flex-col animate-slide-up safe-area-bottom">
+            <div className="fixed bottom-0 left-0 right-0 z-[70] bg-sidebar backdrop-blur-xl border-t border-sidebar-border rounded-t-2xl max-h-[85vh] flex flex-col animate-slide-up">
               {/* Handle */}
               <div className="flex justify-center pt-2 pb-1 flex-shrink-0">
                 <div className="w-10 h-1 rounded-full bg-sidebar-border/50" />
@@ -184,7 +160,7 @@ export function GradList() {
                 </button>
               </div>
 
-              {/* Channel list */}
+              {/* Channel list + Members list in one scrollable area */}
               <div className="flex-1 overflow-y-auto">
                 {serverId ? (
                   <PalataList onMobileItemClick={() => setShowDrawer(false)} />
@@ -193,11 +169,19 @@ export function GradList() {
                     Изберите градъ
                   </div>
                 )}
-              </div>
-            </div>
-          </>
-        )}
-
+                {serverId && (
+                  <div className="border-t border-sidebar-border/50 mx-3" />
+                )}
+                {serverId && (
+                  <div className="px-2 pb-4">
+                    <div className="flex items-center gap-1.5 px-1 mb-1.5 mt-2">
+                      <Users size={12} className="text-sidebar-foreground/50" strokeWidth={2} />
+                      <span className="text-[10px] font-semibold text-sidebar-foreground/50 uppercase tracking-widest flex-1">
+                        Люди
+                      </span>
+                    </div>
+                    <ServerMembers serverId={serverId} isOpen={true} onClose={() => setShowDrawer(false)} inline />
+                  </div>
         {showCreateServer && (
           <Portal>
             <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center" onClick={() => setShowCreateServer(false)}>
