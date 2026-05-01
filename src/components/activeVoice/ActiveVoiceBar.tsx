@@ -94,7 +94,7 @@ export function ActiveVoiceBar() {
       className={`
       bottom-0 left-0 right-0 z-50
       bg-background border-t border-border
-      px-4 py-3 md:px-4 md:py-2 flex items-center gap-3 md:gap-3 shadow-lg
+      px-3 py-2 md:px-4 md:py-2 flex items-center gap-2 md:gap-3 shadow-lg
     `}
     >
       <button
@@ -124,7 +124,7 @@ export function ActiveVoiceBar() {
           )}
         </div>
         <div className="min-w-0">
-          <p className="text-base md:text-sm font-medium truncate">{channelName}</p>
+          <p className="text-sm md:text-base font-medium truncate">{channelName}</p>
           <p className="text-xs text-muted-foreground">
             {connecting
               ? "Подключение..."
