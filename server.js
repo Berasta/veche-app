@@ -22,11 +22,18 @@ app.get("/api/og", (req, res) => {
   <rect width="1200" height="630" fill="url(#bg)"/>
   <rect x="40" y="40" width="1120" height="550" rx="20" fill="none" stroke="url(#gold)" stroke-width="2" opacity="0.3"/>
   <circle cx="600" cy="240" r="80" fill="none" stroke="url(#gold)" stroke-width="3" opacity="0.4"/>
-  <text x="600" y="230" text-anchor="middle" fill="url(#gold)" font-size="64" font-family="Georgia,serif">🏰</text>
-  <text x="600" y="330" text-anchor="middle" fill="#d4af37" font-size="36" font-family="Georgia,serif" font-weight="600">Приглашенiе въ градъ</text>
-  <text x="600" y="390" text-anchor="middle" fill="#f5ede0" font-size="48" font-family="Georgia,serif" font-weight="bold">${escapeXml(name)}</text>
-  <text x="600" y="450" text-anchor="middle" fill="#a89577" font-size="22" font-family="Georgia,serif">Вече — древнерусскiй голосовой мессенджеръ</text>
-  <line x1="450" y1="480" x2="750" y2="480" stroke="#d4af37" stroke-width="1" opacity="0.3"/>
+  <!-- Background glow -->
+  <ellipse cx="600" cy="370" rx="350" ry="60" fill="#d4af37" opacity="0.06"/>
+  <!-- Castle icon -->
+  <text x="600" y="210" text-anchor="middle" font-size="72" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🏰</text>
+  <!-- Subtitle -->
+  <text x="600" y="300" text-anchor="middle" fill="#d4af37" font-size="32" font-family="'Old Standard TT','Times New Roman',Georgia,serif" font-weight="600">Приглашенiе въ градъ</text>
+  <!-- Server name -->
+  <text x="600" y="380" text-anchor="middle" fill="#f5ede0" font-size="56" font-family="'Old Standard TT','Times New Roman',Georgia,serif" font-weight="700">${escapeXml(name)}</text>
+  <!-- Separator -->
+  <line x1="500" y1="410" x2="700" y2="410" stroke="#d4af37" stroke-width="2" opacity="0.4"/>
+  <!-- Description -->
+  <text x="600" y="450" text-anchor="middle" fill="#a89577" font-size="20" font-family="Georgia,serif">Вече — древнерусскiй голосовой мессенджеръ</text>
 </svg>`;
 
   res.setHeader("Content-Type", "image/svg+xml");
