@@ -81,7 +81,7 @@ export function GradList() {
   if (isMobile) {
     return (
       <>
-        {showMembers && serverId && (
+        {serverId && (
           <ServerMembers serverId={serverId} isOpen={showMembers} onClose={() => setShowMembers(false)} />
         )}
 
@@ -218,7 +218,7 @@ export function GradList() {
   // ── DESKTOP ────────────────────────────────────────────
   return (
     <>
-      {showMembers && serverId && (
+      {serverId && (
         <ServerMembers serverId={serverId} isOpen={showMembers} onClose={() => setShowMembers(false)} />
       )}
 
