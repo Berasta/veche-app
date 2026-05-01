@@ -42,9 +42,50 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
   const loading = useAppSelector(selectMessagesLoading);
   const error = useAppSelector(selectMessagesError);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<HTMLDivElement>(null);
   const [reactionMap, setReactionMap] = useState<Record<string, ReactionGroup[]>>({});
   const [roleMap, setRoleMap] = useState<Record<string, { name: string; color: string }>>({});
   const [joinedAtMap, setJoinedAtMap] = useState<Record<string, string>>({});
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Drag-and-drop files
+  useEffect(() => {
+    const el = dragRef.current;
+    if (!el) return;
+
+    const handleDragOver = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.dataTransfer?.types.includes("Files")) {
+        setIsDragging(true);
+      }
+    };
+
+    const handleDragLeave = (e: DragEvent) => {
+      if (!el.contains(e.relatedTarget as Node)) {
+        setIsDragging(false);
+      }
+    };
+
+    const handleDrop = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+      const files = Array.from(e.dataTransfer?.files || []).filter((f) => f.type.startsWith("image/"));
+      if (files.length > 0 && channelId) {
+        dispatch(sendMessage({ channelId, content: "", files }));
+      }
+    };
+
+    el.addEventListener("dragover", handleDragOver);
+    el.addEventListener("dragleave", handleDragLeave);
+    el.addEventListener("drop", handleDrop);
+    return () => {
+      el.removeEventListener("dragover", handleDragOver);
+      el.removeEventListener("dragleave", handleDragLeave);
+      el.removeEventListener("drop", handleDrop);
+    };
+  }, [channelId, dispatch]);
 
   useEffect(() => {
     if (!channelId) return;
@@ -148,7 +189,12 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-background relative z-10 min-w-0">
+    <div ref={dragRef} className="flex-1 flex flex-col bg-background relative z-10 min-w-0">
+      {isDragging && (
+        <div className="absolute inset-0 z-50 bg-primary/5 border-2 border-dashed border-primary/40 rounded-lg flex items-center justify-center pointer-events-none">
+          <p className="text-sm font-medium text-primary">Перетащите изображенія сюда</p>
+        </div>
+      )}
       <PageHeader
         title={channelName || "Грамоты"}
         onMenuClick={onMenuClick}
