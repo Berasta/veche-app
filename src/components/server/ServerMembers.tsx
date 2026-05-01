@@ -173,7 +173,7 @@ export function ServerMembers({ serverId, isOpen, onClose }: ServerMembersProps)
       <div className="flex-1 bg-black/20 transition-opacity duration-200" />
       <div
         ref={panelRef}
-        className={`w-80 md:w-72 bg-card border-l border-border shadow-2xl flex flex-col transition-transform duration-200 ease-out ${translateX}`}
+        className={`w-[85vw] md:w-72 bg-card border-l border-border shadow-2xl flex flex-col transition-transform duration-200 ease-out ${translateX}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="h-12 px-4 flex items-center border-b border-border bg-sidebar/30 flex-shrink-0">
