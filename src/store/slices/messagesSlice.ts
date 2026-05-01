@@ -131,7 +131,11 @@ export const subscribeToChannel = (channelId: string, dispatch: any) => {
           dispatch(messageReceived(msg));
           break;
         case "update":
-          dispatch(messageUpdated(msg));
+          if (msg.is_deleted) {
+            dispatch(messageDeleted(msg.id));
+          } else {
+            dispatch(messageUpdated(msg));
+          }
           break;
         case "delete":
           dispatch(messageDeleted(msg.id));

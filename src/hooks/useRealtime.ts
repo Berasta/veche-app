@@ -38,7 +38,13 @@ export function useRealtime() {
       const msg = normalizeMessage(e.record);
       switch (e.action) {
         case "create": dispatch(messageReceived(msg)); break;
-        case "update": dispatch(messageUpdated(msg)); break;
+        case "update":
+          if (msg.is_deleted) {
+            dispatch(messageDeleted(msg.id));
+          } else {
+            dispatch(messageUpdated(msg));
+          }
+          break;
         case "delete": dispatch(messageDeleted(msg.id)); break;
       }
     }, { expand: "user_id" });
