@@ -173,22 +173,22 @@ export function ServerMembers({ serverId, isOpen, onClose }: ServerMembersProps)
   if (isMobile) {
     const translateY = panelVisible ? "translate-y-0" : "translate-y-full";
     return (
-      <div className="fixed inset-0 z-[70]" onClick={onClose}>
-        <div className="absolute inset-0 bg-black/30 transition-opacity duration-200" />
+      <>
+        <div className="fixed inset-0 bg-black/50 z-[60]" onClick={onClose} />
         <div
           ref={panelRef}
-          className={`absolute bottom-0 left-0 right-0 max-h-[80vh] bg-card rounded-t-2xl shadow-2xl flex flex-col transition-transform duration-200 ease-out ${translateY}`}
+          className={`fixed bottom-0 left-0 right-0 z-[70] bg-sidebar backdrop-blur-xl border-t border-sidebar-border rounded-t-2xl max-h-[85vh] flex flex-col transition-transform duration-300 ease-out ${translateY}`}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex justify-center pt-2 pb-1 flex-shrink-0">
-            <div className="w-10 h-1 rounded-full bg-border/50" />
+            <div className="w-10 h-1 rounded-full bg-sidebar-border/50" />
           </div>
-          <div className="h-11 px-4 flex items-center border-b border-border flex-shrink-0">
+          <div className="h-11 px-4 flex items-center border-b border-sidebar-border flex-shrink-0">
             <Users className="w-4 h-4 text-primary mr-2" strokeWidth={2} />
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex-1">
               Люди града — {members.length}
             </span>
-            <button onClick={onClose} className="w-7 h-7 rounded-md hover:bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+            <button onClick={onClose} className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
               <X className="w-3.5 h-3.5" strokeWidth={2} />
             </button>
           </div>
@@ -205,13 +205,13 @@ export function ServerMembers({ serverId, isOpen, onClose }: ServerMembersProps)
                     </div>
                     <div className="space-y-0.5">
                       {group.members.map((member) => (
-                        <div key={member.id} className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted/50 transition-colors">
+                        <div key={member.id} className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-sidebar-accent/50 transition-colors">
                           <UserPopover username={member.username} avatarUrl={member.avatarUrl} bannerId={member.banner} role={roleMap[member.id]?.name} roleColor={roleMap[member.id]?.color} joinedAt={member.joinedAt}>
-                            <div className="w-7 h-7 rounded-full overflow-hidden bg-muted flex-shrink-0 flex items-center justify-center cursor-pointer">
-                              {member.avatarUrl ? <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" /> : <User className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={2} />}
+                            <div className="w-7 h-7 rounded-full overflow-hidden bg-sidebar/50 flex-shrink-0 flex items-center justify-center cursor-pointer">
+                              {member.avatarUrl ? <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" /> : <User className="w-3.5 h-3.5 text-sidebar-foreground/50" strokeWidth={2} />}
                             </div>
                           </UserPopover>
-                          <span className="text-sm truncate" style={roleMap[member.id]?.color ? { color: roleMap[member.id].color } : {}}>{member.username}</span>
+                          <span className="text-sm truncate text-sidebar-foreground" style={roleMap[member.id]?.color ? { color: roleMap[member.id].color } : {}}>{member.username}</span>
                         </div>
                       ))}
                     </div>
@@ -221,7 +221,7 @@ export function ServerMembers({ serverId, isOpen, onClose }: ServerMembersProps)
             )}
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
