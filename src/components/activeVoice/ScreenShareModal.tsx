@@ -17,12 +17,31 @@ interface Props {
   onClose: () => void;
 }
 
+const LS_KEY = "screenShareQuality";
+
+function loadSavedQuality(): { quality: Quality; fps: Fps } {
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch { /* ignore */ }
+  return { quality: "medium", fps: 30 };
+}
+
+function saveQuality(quality: Quality, fps: Fps) {
+  localStorage.setItem(LS_KEY, JSON.stringify({ quality, fps }));
+}
+
 export function ScreenShareModal({ onClose }: Props) {
   const dispatch = useAppDispatch();
 
+  const saved = loadSavedQuality();
   const [shareAudio, setShareAudio] = useState(false);
-  const [quality, setQuality] = useState<Quality>("medium");
-  const [fps, setFps] = useState<Fps>(30);
+  const [quality, setQuality] = useState<Quality>(saved.quality);
+  const [fps, setFps] = useState<Fps>(saved.fps);
+
+  // Сохраняем настройки при каждом изменении
+  const handleQuality = (q: Quality) => { setQuality(q); saveQuality(q, fps); };
+  const handleFps = (f: Fps) => { setFps(f); saveQuality(quality, f); };
 
   const handleStart = async () => {
     // Сохраняем выбранное качество в Redux
@@ -102,7 +121,7 @@ export function ScreenShareModal({ onClose }: Props) {
               {(["low", "medium", "high"] as const).map((q) => (
                 <button
                   key={q}
-                  onClick={() => setQuality(q)}
+                  onClick={() => handleQuality(q)}
                   className={`
                     px-3 py-2 rounded-md text-xs font-medium transition-all
                     ${
@@ -132,7 +151,7 @@ export function ScreenShareModal({ onClose }: Props) {
               {([15, 30, 60] as const).map((f) => (
                 <button
                   key={f}
-                  onClick={() => setFps(f)}
+                  onClick={() => handleFps(f)}
                   className={`
                     px-3 py-2 rounded-md text-xs font-medium transition-all
                     ${

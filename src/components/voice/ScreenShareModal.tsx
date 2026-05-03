@@ -12,10 +12,28 @@ interface ScreenShareModalProps {
   onStart: (options: ShareOptions) => void;
 }
 
+const LS_KEY = "screenShareQuality";
+
+function loadSavedQuality(): { quality: ShareOptions["quality"]; fps: ShareOptions["fps"] } {
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch { /* ignore */ }
+  return { quality: "medium", fps: 30 };
+}
+
+function saveQuality(quality: ShareOptions["quality"], fps: ShareOptions["fps"]) {
+  localStorage.setItem(LS_KEY, JSON.stringify({ quality, fps }));
+}
+
 export function ScreenShareModal({ onClose, onStart }: ScreenShareModalProps) {
+  const saved = loadSavedQuality();
   const [shareAudio, setShareAudio] = useState(false);
-  const [quality, setQuality] = useState<ShareOptions["quality"]>("medium");
-  const [fps, setFps] = useState<ShareOptions["fps"]>(30);
+  const [quality, setQuality] = useState<ShareOptions["quality"]>(saved.quality);
+  const [fps, setFps] = useState<ShareOptions["fps"]>(saved.fps);
+
+  const handleQuality = (q: ShareOptions["quality"]) => { setQuality(q); saveQuality(q, fps); };
+  const handleFps = (f: ShareOptions["fps"]) => { setFps(f); saveQuality(quality, f); }; 
 
   const handleStart = () => {
     onStart({ audio: shareAudio, quality, fps });
@@ -72,7 +90,7 @@ export function ScreenShareModal({ onClose, onStart }: ScreenShareModalProps) {
               {(["low", "medium", "high"] as const).map((q) => (
                 <button
                   key={q}
-                  onClick={() => setQuality(q)}
+                  onClick={() => handleQuality(q)}
                   className={`
                     px-3 py-2 rounded-md text-xs font-medium transition-all
                     ${
@@ -101,7 +119,7 @@ export function ScreenShareModal({ onClose, onStart }: ScreenShareModalProps) {
               {([15, 30, 60] as const).map((f) => (
                 <button
                   key={f}
-                  onClick={() => setFps(f)}
+                  onClick={() => handleFps(f)}
                   className={`
                     px-3 py-2 rounded-md text-xs font-medium transition-all
                     ${
