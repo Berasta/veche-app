@@ -124,8 +124,6 @@ export const subscribeToChannel = (channelId: string, dispatch: any) => {
     "*",
     (e: RecordSubscription) => {
       const msg = normalizeMessage(e.record);
-      if (msg.channel_id !== channelId) return;
-
       switch (e.action) {
         case "create":
           dispatch(messageReceived(msg));
@@ -142,10 +140,9 @@ export const subscribeToChannel = (channelId: string, dispatch: any) => {
           break;
       }
     },
-    { expand: "user_id" },
+    { filter: `channel_id = "${channelId}"`, expand: "user_id" },
   );
 
-  // Возвращаем функцию отписки
   return () => pb.collection("messages").unsubscribe("*");
 };
 
