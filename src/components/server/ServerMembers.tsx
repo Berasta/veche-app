@@ -6,7 +6,6 @@ import { MembersSkeleton } from "@components/ui/Skeleton";
 import { getRoleMap } from "@api/rolesApi";
 import { pb, PB_URL } from "@api/pb";
 import { useAppSelector } from "@store/hooks";
-import { selectParticipants } from "@store/selectors/roomSelectors";
 import { useIsMobile } from "@components/ui/use-mobile";
 import { selectOnlineUsers } from "@store/selectors/presenceSelectors";
 
@@ -88,8 +87,7 @@ function useMembers(serverId: string) {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(false);
   const [roleMap, setRoleMap] = useState<Record<string, { name: string; color: string }>>({});
-  const voiceParticipants = useAppSelector(selectParticipants);
-
+  // Загрузка участников сервера (только при смене сервера)
   useEffect(() => {
     setLoading(true);
     getRoleMap(serverId).then(setRoleMap).catch((err) => {
@@ -141,13 +139,6 @@ function useMembers(serverId: string) {
           toast.error("Не удалось загрузить свѣдѣнiя о градѣ");
         }
 
-        for (const p of voiceParticipants) {
-          if (!seen.has(p.identity)) {
-            seen.add(p.identity);
-            result.push({ id: p.identity, username: p.name, avatarUrl: null });
-          }
-        }
-
         const channels = await pb.collection("channels").getFullList({ filter: `server_id = "${serverId}"` });
         const channelIds = channels.map((c: any) => c.id);
         if (channelIds.length > 0) {
@@ -177,7 +168,7 @@ function useMembers(serverId: string) {
         setLoading(false);
       }
     })();
-  }, [serverId, voiceParticipants]);
+  }, [serverId]);
 
   const groupedMembers = useMemo(() => {
     const groups: { roleName: string; roleColor?: string; members: Member[] }[] = [];
