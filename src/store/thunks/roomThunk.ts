@@ -59,13 +59,17 @@ async function requestWakeLock() {
       wakeLock = await (navigator as any).wakeLock.request('screen');
       wakeLock.addEventListener('release', () => { wakeLock = null; });
     }
-  } catch {}
+  } catch (err) {
+    console.error("wakeLock request error", err);
+  }
 }
 
 function releaseWakeLock() {
   try {
     if (wakeLock) { wakeLock.release(); wakeLock = null; }
-  } catch {}
+  } catch (err) {
+    console.error("wakeLock release error", err);
+  }
 }
 
 function cleanupScreenShare() {

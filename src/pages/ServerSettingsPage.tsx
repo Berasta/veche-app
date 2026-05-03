@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
+import { toast } from "sonner";
 import { ArrowLeft, Crown, Image, Shield } from "lucide-react";
 import { pb, PB_URL } from "@api/pb";
 import { useAppSelector } from "@store/hooks";
@@ -33,7 +34,10 @@ export function ServerSettingsPage() {
       await pb.collection("servers").update(serverId, formData);
       const updated = await pb.collection("servers").getOne(serverId);
       setAvatarUrl(updated.avatar ? `${PB_URL}/api/files/${updated.collectionId}/${updated.id}/${updated.avatar}` : null);
-    } catch {}
+    } catch (err) {
+      console.error("Ошибка загрузки аватара града", err);
+      toast.error("Не удалось загрузить аватарку града");
+    }
   };
 
   const handleSave = async () => {
@@ -42,7 +46,10 @@ export function ServerSettingsPage() {
     try {
       await pb.collection("servers").update(serverId, { name: name.trim() });
       navigate(`/app/server/${serverId}`);
-    } catch {} finally { setSaving(false); }
+    } catch (err) {
+      console.error("Ошибка сохраненiя града", err);
+      toast.error("Не удалось сохранить настройки града");
+    } finally { setSaving(false); }
   };
 
   return (

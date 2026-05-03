@@ -28,7 +28,9 @@ function readBindings(): Record<string, string> {
   try {
     const saved = localStorage.getItem("hotkeyBindings");
     if (saved) return migrateBindings(JSON.parse(saved));
-  } catch {}
+  } catch (err) {
+    console.error("Ошибка чтенiя горячихъ клавишъ", err);
+  }
   return DEFAULTS;
 }
 

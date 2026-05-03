@@ -7,6 +7,7 @@ import { useAuth } from "@store/hooks/useAuth";
 import { AppRoutes } from "@routes/routes";
 import { usePermissions } from "../../hooks/usePermissions";
 import { PERMISSIONS } from "@api/rolesApi";
+import { toast } from "sonner";
 import {
   Volume2,
   MessageSquare,
@@ -77,8 +78,8 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
           counts[p.channel_id] = (counts[p.channel_id] || 0) + 1;
         }
         setParticipantCounts(counts);
-      } catch {
-        // ignore
+      } catch (err) {
+        console.error("Ошибка загрузки участников голосовых палат", err);
       }
     })();
   }, [serverId, channels]);
@@ -89,7 +90,10 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
       await pb.collection("channels").update(editingChannel.id, { name: editingChannel.name.trim() });
       if (serverId) dispatch(fetchChannels(serverId));
       setEditingChannel(null);
-    } catch {}
+    } catch (err) {
+      console.error("Ошибка переименованiя палаты", err);
+      toast.error("Не удалось переименовать палату");
+    }
   };
 
   const handleDeleteChannel = async () => {
@@ -98,7 +102,10 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
       await pb.collection("channels").delete(deletingChannelId);
       if (serverId) dispatch(fetchChannels(serverId));
       setDeletingChannelId(null);
-    } catch {}
+    } catch (err) {
+      console.error("Ошибка удаленiя палаты", err);
+      toast.error("Не удалось удалить палату");
+    }
   };
 
   const handleCreateChannel = async () => {

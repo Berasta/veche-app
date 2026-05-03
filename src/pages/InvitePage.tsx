@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { getInviteByCode, incrementInviteUse } from "@api/inviteApi";
@@ -47,7 +48,10 @@ export function InvitePage() {
             `Васъ приглашаютъ въ градъ "${name}" на Вече. Присоединяйтесь къ бесѣдѣ!`,
             undefined,
           );
-        } catch {}
+        } catch (err) {
+          console.error("Ошибка загрузки названiя града", err);
+          toast.error("Не удалось загрузить названiе града");
+        }
 
         await addServerMember(invite.server_id);
         await incrementInviteUse(invite.id);

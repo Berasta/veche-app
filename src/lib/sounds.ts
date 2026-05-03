@@ -18,7 +18,9 @@ function playTone(frequency: number, duration: number, type: OscillatorType = "s
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + duration);
-  } catch {}
+  } catch (err) {
+    console.error("AudioContext error", err);
+  }
 }
 
 export function playJoinSound() {

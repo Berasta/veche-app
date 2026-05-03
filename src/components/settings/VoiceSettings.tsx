@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { Mic, Volume2, Headphones } from "lucide-react";
 
@@ -19,7 +20,10 @@ export function VoiceSettings() {
         const spk = d.find((x) => x.kind === "audiooutput");
         if (spk) setOutputDevice(spk.deviceId);
       }
-    }).catch(() => {});
+    }).catch((err) => {
+      console.error("Ошибка полученiя устройствъ", err);
+      toast.error("Не удалось получить список аудио-устройствъ");
+    });
   }, []);
 
   const handleInputChange = (deviceId: string) => {

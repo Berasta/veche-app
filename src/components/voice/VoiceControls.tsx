@@ -1,8 +1,8 @@
 import {
   Mic,
   MicOff,
-  Volume2,
-  VolumeX,
+  Headphones,
+  HeadphoneOff,
   Monitor,
   MonitorOff,
   PhoneOff,
@@ -46,7 +46,7 @@ export function VoiceControls({
           {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
         </button>
 
-        {/* Оглушение */}
+        {/* Оглушение (наушники) */}
         <button
           onClick={onToggleDeafen}
           title={isDeafened ? "Включити звукъ" : "Оглушити"}
@@ -59,7 +59,7 @@ export function VoiceControls({
             }
           `}
         >
-          {isDeafened ? <VolumeX size={20} /> : <Volume2 size={20} />}
+          {isDeafened ? <HeadphoneOff size={20} /> : <Headphones size={20} />}
         </button>
 
         {/* Демонстрация экрана */}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, Keyboard, User, ArrowLeft } from "lucide-react";
 import { ThemeSwitcher } from "../components/ThemeSwitcher";
 import { VoiceSettings } from "../components/settings/VoiceSettings";
@@ -61,7 +62,10 @@ export function Settings() {
     setSelectedBanner(bannerId);
     localStorage.setItem("profileBanner", bannerId);
     if (user) {
-      try { await pb.collection("users").update(user.id, { banner: bannerId }); dispatch(fetchCurrentUser()); } catch {}
+      try { await pb.collection("users").update(user.id, { banner: bannerId }); dispatch(fetchCurrentUser()); } catch (err) {
+        console.error("Ошибка обновленiя хоругви", err);
+        toast.error("Не удалось сохранить хоругвь");
+      }
     }
   };
 

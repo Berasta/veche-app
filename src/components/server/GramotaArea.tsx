@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { toast } from "sonner";
 import { ScrollText, Users, MessageSquare } from "lucide-react";
 import { groupMessages } from "../../utils/groupMessages";
 import { formatMessageTime } from "../../utils/formatTime";
@@ -13,6 +14,7 @@ import type { ReactionGroup } from "../message/ReactionsBar";
 import { useAppDispatch, useAppSelector } from "@store/hooks";
 import {
   fetchMessages,
+  fetchMoreMessages,
   sendMessage,
   editMessage,
   deleteMessage,
@@ -22,6 +24,7 @@ import {
   selectMessages,
   selectMessagesLoading,
   selectMessagesError,
+  selectHasMore,
 } from "@store/selectors/messagesSelectors";
 import { fetchReactions, addReaction, removeReaction } from "@api/reactionApi";
 import { getRoleMap } from "@api/rolesApi";
@@ -43,6 +46,8 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
   const messages = useAppSelector(selectMessages);
   const loading = useAppSelector(selectMessagesLoading);
   const error = useAppSelector(selectMessagesError);
+  const hasMore = useAppSelector(selectHasMore);
+  const [loadingMore, setLoadingMore] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<HTMLDivElement>(null);
   const [reactionMap, setReactionMap] = useState<Record<string, ReactionGroup[]>>({});
@@ -110,7 +115,10 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
       const map: Record<string, string> = {};
       (members as any[]).forEach((entry: any) => { map[entry.user_id] = entry.created; });
       setJoinedAtMap(map);
-    }).catch(() => {});
+    }).catch((err) => {
+      console.error("Ошибка загрузки ролей/участников града", err);
+      toast.error("Не удалось загрузить людей града");
+    });
   }, [serverId]);
 
   const buildReactionMap = useCallback(async (chId: string) => {
@@ -177,6 +185,16 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
     }
   }, [reactionMap, channelId, buildReactionMap]);
 
+  const handleLoadMore = useCallback(() => {
+    if (!channelId || loadingMore || !hasMore) return;
+    const oldest = messages[0];
+    if (!oldest) return;
+    setLoadingMore(true);
+    dispatch(fetchMoreMessages({ channelId, before: oldest.created })).finally(() => {
+      setLoadingMore(false);
+    });
+  }, [channelId, loadingMore, hasMore, messages, dispatch]);
+
   if (!channelId) {
     return (
       <div className="flex-1 flex flex-col bg-background relative z-10 min-w-0">
@@ -214,7 +232,11 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
         }
       />
 
-      <MessageList>
+      <MessageList
+        onLoadMore={handleLoadMore}
+        hasMore={hasMore}
+        loadingMore={loadingMore}
+      >
         {loading && messages.length === 0 && (
           <div className="space-y-1 py-4">
             {Array.from({ length: 5 }).map((_, i) => (

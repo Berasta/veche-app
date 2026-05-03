@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { getUserById } from "@api/userApi";
 import { getRoleMap } from "@api/rolesApi";
@@ -17,7 +18,8 @@ export function useVoiceData(serverId?: string, participantIds?: string[]) {
       try {
         const user = await getUserById(id);
         return { id, data: { username: user.username, avatarUrl: user.avatar_url, banner: user.banner } };
-      } catch {
+      } catch (err) {
+        console.error("Ошибка загрузки пользователя голосовой палаты", err);
         return { id, data: { username: id, avatarUrl: undefined, banner: undefined } };
       }
     })).then((results) => {
@@ -41,7 +43,10 @@ export function useVoiceData(serverId?: string, participantIds?: string[]) {
       const map: Record<string, string> = {};
       (members as any[]).forEach((entry: any) => { map[entry.user_id] = entry.created; });
       setJoinedAtMap(map);
-    }).catch(() => {});
+    }).catch((err) => {
+      console.error("Ошибка загрузки голосовых данных", err);
+      toast.error("Не удалось загрузить данные голосовой палаты");
+    });
   }, [serverId]);
 
   return { userDataMap, roleMap, joinedAtMap };

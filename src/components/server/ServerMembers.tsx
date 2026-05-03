@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useMemo } from "react";
+import { toast } from "sonner";
 import { X, Users, User, Circle } from "lucide-react";
 import { UserPopover } from "@components/ui/UserPopover";
 import { MembersSkeleton } from "@components/ui/Skeleton";
@@ -91,7 +92,10 @@ function useMembers(serverId: string) {
 
   useEffect(() => {
     setLoading(true);
-    getRoleMap(serverId).then(setRoleMap).catch(() => {});
+    getRoleMap(serverId).then(setRoleMap).catch((err) => {
+      console.error("Ошибка загрузки ролей", err);
+      toast.error("Не удалось загрузить роли града");
+    });
     (async () => {
       try {
         const seen = new Set<string>();
@@ -128,9 +132,14 @@ function useMembers(serverId: string) {
                 banner: (ownerUser as any).banner || undefined,
                 joinedAt: undefined,
               });
-            } catch {}
+            } catch (err) {
+              console.error("Ошибка загрузки владыки града", err);
+            }
           }
-        } catch {}
+        } catch (err) {
+          console.error("Ошибка загрузки града", err);
+          toast.error("Не удалось загрузить свѣдѣнiя о градѣ");
+        }
 
         for (const p of voiceParticipants) {
           if (!seen.has(p.identity)) {
@@ -161,7 +170,8 @@ function useMembers(serverId: string) {
         }
 
         setMembers(result);
-      } catch {
+      } catch (err) {
+        console.error("Ошибка загрузки людей града", err);
         setMembers([]);
       } finally {
         setLoading(false);

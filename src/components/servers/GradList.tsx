@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { MessageSquare, Volume2, Users, Plus, X, Menu } from "lucide-react";
 import { Skeleton } from "@components/ui/Skeleton";
 import { useEffect, useState, useRef } from "react";
@@ -72,7 +73,10 @@ export function GradList() {
       setNewServerAvatar(null);
       setShowCreateServer(false);
       navigate(AppRoutes.SERVER.replace(":serverId", record.id));
-    } catch {} finally { setCreating(false); }
+    } catch (err) {
+      console.error("Ошибка созданiя града", err);
+      toast.error("Не удалось создать градъ");
+    } finally { setCreating(false); }
   };
 
   const onClickServer = (serverId: string) => {

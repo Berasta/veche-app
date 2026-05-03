@@ -27,7 +27,7 @@ export function Palata({ channelId, channelName, index, participantCount = 0 }: 
 
   const handleClick = () => {
     if (!serverId) return;
-    try { if ('wakeLock' in navigator) (navigator as any).wakeLock.request('screen'); } catch {}
+    try { if ('wakeLock' in navigator) (navigator as any).wakeLock.request('screen'); } catch (err) { console.error("wakeLock error in Palata", err); }
     dispatch(joinChannel({ channelId, channelName, serverId }));
   };
 

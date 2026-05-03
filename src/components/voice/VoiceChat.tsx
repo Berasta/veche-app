@@ -12,6 +12,7 @@ import {
   selectActiveChannelName,
   selectParticipants,
   selectIsMuted,
+  selectIsDeafened,
   selectIsScreenSharing,
   selectSpeakingCount,
   selectVolumes,
@@ -20,6 +21,7 @@ import {
 import {
   leaveChannel,
   toggleMute,
+  toggleDeafen,
   toggleScreenShare,
   setParticipantVolume,
   screenShareElements,
@@ -41,11 +43,11 @@ export function VoiceChat() {
   const channelName = useAppSelector(selectActiveChannelName);
   const participants = useAppSelector(selectParticipants);
   const isMuted = useAppSelector(selectIsMuted);
+  const isDeafened = useAppSelector(selectIsDeafened);
   const isScreenSharing = useAppSelector(selectIsScreenSharing);
   const speakingCount = useAppSelector(selectSpeakingCount);
   const volumes = useAppSelector(selectVolumes);
 
-  const [isDeafened, setIsDeafened] = useState(false);
   const [showScreenShareModal, setShowScreenShareModal] = useState(false);
   const { userDataMap, roleMap, joinedAtMap } = useVoiceData(serverId, participants.map((p) => p.identity));
 
@@ -149,7 +151,7 @@ export function VoiceChat() {
         isDeafened={isDeafened}
         isScreenSharing={isScreenSharing}
         onToggleMute={() => dispatch(toggleMute())}
-        onToggleDeafen={() => setIsDeafened(!isDeafened)}
+        onToggleDeafen={() => dispatch(toggleDeafen())}
         onToggleScreenShare={() => {
           if (isScreenSharing) {
             dispatch(toggleScreenShare());

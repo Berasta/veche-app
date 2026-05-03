@@ -38,7 +38,9 @@ async function reregisterShortcut(oldShortcut: string | undefined, newShortcut: 
   if (!isTauri()) return;
   const { register, unregister } = await import("@tauri-apps/plugin-global-shortcut");
   if (oldShortcut && oldShortcut !== newShortcut) {
-    try { await unregister(oldShortcut); } catch {}
+    try { await unregister(oldShortcut); } catch (e) {
+      console.error("Failed to unregister shortcut", oldShortcut, e);
+    }
   }
   try { await register(newShortcut, () => {}); } catch (e) {
     console.error("Failed to register", newShortcut, e);
@@ -51,7 +53,9 @@ export function HotkeySettings() {
     try {
       const saved = localStorage.getItem("hotkeyBindings");
       if (saved) return { ...defaults, ...JSON.parse(saved) };
-    } catch {}
+    } catch (err) {
+      console.error("Ошибка чтенiя сохраненныхъ горячихъ клавишъ", err);
+    }
     return defaults;
   });
   const [recording, setRecording] = useState<string | null>(null);

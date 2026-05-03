@@ -1,3 +1,4 @@
+import { Toaster } from "sonner";
 import { useAppDispatch } from "@store/hooks";
 import { fetchCurrentUser } from "@store/slices/authSlice";
 import { useEffect } from "react";
@@ -13,12 +14,16 @@ export const App = () => {
         await dispatch(fetchCurrentUser());
       } catch (error) {
         console.error("Failed to fetch current user:", error);
-      } finally {
       }
     };
 
     fetchUser();
   }, []);
 
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <Toaster position="top-center" richColors closeButton />
+      <RouterProvider router={router} />
+    </>
+  );
 };
