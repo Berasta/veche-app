@@ -84,6 +84,26 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
     })();
   }, [serverId, channels]);
 
+  // Realtime: обновляем счётчик при входе/выходе из голосовых палат
+  useEffect(() => {
+    if (!serverId) return;
+
+    pb.collection("channel_participants").subscribe("*", (e) => {
+      const channelId = e.record.channel_id;
+      setParticipantCounts((prev) => {
+        const next = { ...prev };
+        if (e.action === "create") {
+          next[channelId] = (next[channelId] || 0) + 1;
+        } else if (e.action === "delete") {
+          next[channelId] = Math.max(0, (next[channelId] || 0) - 1);
+        }
+        return next;
+      });
+    });
+
+    return () => { pb.collection("channel_participants").unsubscribe("*"); };
+  }, [serverId]);
+
   const handleRenameChannel = async () => {
     if (!editingChannel || !editingChannel.name.trim()) return;
     try {
