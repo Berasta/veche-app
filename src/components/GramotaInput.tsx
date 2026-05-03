@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { EmojiPicker } from './ui/EmojiPicker';
 import { Send, Image, Smile, X } from 'lucide-react';
 
@@ -8,12 +8,21 @@ interface GramotaInputProps {
   onTypingEnd?: () => void;
 }
 
-export function GramotaInput({ onSend, onTyping, onTypingEnd }: GramotaInputProps) {
+export interface GramotaInputHandle {
+  addFiles: (files: File[]) => void;
+}
+
+export const GramotaInput = forwardRef<GramotaInputHandle, GramotaInputProps>(
+  function GramotaInput({ onSend, onTyping, onTypingEnd }, ref) {
   const [message, setMessage] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  useImperativeHandle(ref, () => ({
+    addFiles: (files: File[]) => setSelectedFiles((prev) => [...prev, ...files]),
+  }));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,4 +136,4 @@ export function GramotaInput({ onSend, onTyping, onTypingEnd }: GramotaInputProp
       </form>
     </div>
   );
-}
+});

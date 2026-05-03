@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { ScrollText, Users, MessageSquare } from "lucide-react";
 import { groupMessages } from "../../utils/groupMessages";
 import { formatMessageTime } from "../../utils/formatTime";
-import { GramotaInput } from "../GramotaInput";
+import { GramotaInput, type GramotaInputHandle } from "../GramotaInput";
 import { PageHeader } from "../ui/PageHeader";
 import { IconButton } from "../ui/IconButton";
 import { MessageList } from "../message/MessageList";
@@ -51,6 +51,7 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
   const [loadingMore, setLoadingMore] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<GramotaInputHandle>(null);
   const [reactionMap, setReactionMap] = useState<Record<string, ReactionGroup[]>>({});
   const [roleMap, setRoleMap] = useState<Record<string, { name: string; color: string }>>({});
   const [joinedAtMap, setJoinedAtMap] = useState<Record<string, string>>({});
@@ -81,8 +82,8 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
       e.stopPropagation();
       setIsDragging(false);
       const files = Array.from(e.dataTransfer?.files || []).filter((f) => f.type.startsWith("image/"));
-      if (files.length > 0 && channelId) {
-        dispatch(sendMessage({ channelId, content: "", files }));
+      if (files.length > 0) {
+        inputRef.current?.addFiles(files);
       }
     };
 
@@ -295,7 +296,7 @@ export function GramotaArea({ channelId, channelName, serverId, onMenuClick, sho
       </MessageList>
 
       <div className="border-t border-border bg-card/30 backdrop-blur-xl">
-        <GramotaInput onSend={handleSend} onTyping={startTyping} onTypingEnd={stopTyping} />
+        <GramotaInput ref={inputRef} onSend={handleSend} onTyping={startTyping} onTypingEnd={stopTyping} />
       </div>
     </div>
   );
