@@ -19,11 +19,18 @@ export function ScreenShareDisplay({
 
   useEffect(() => {
     if (!videoRef.current || !sharerIdentity) return;
+    const container = videoRef.current;
     const el = screenShareElements[sharerIdentity];
     if (el) {
-      videoRef.current.appendChild(el);
+      container.appendChild(el);
       el.style.cssText = "width:100%;height:100%;object-fit:contain";
+      el.play().catch(() => {});
     }
+    return () => {
+      if (el && container.contains(el)) {
+        container.removeChild(el);
+      }
+    };
   }, [sharerIdentity]);
 
   const handleFullscreen = useCallback(async () => {
