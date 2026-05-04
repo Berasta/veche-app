@@ -106,7 +106,9 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
                   )}
                 </div>
                 <div className="min-w-0 pb-0.5">
-                  <p className="text-sm font-bold text-foreground truncate leading-tight">{username}</p>
+                  <div className="inline-block px-2 py-0.5 rounded-md bg-black/30 backdrop-blur-sm">
+                    <p className="text-sm font-bold text-white drop-shadow-sm truncate leading-tight">{username}</p>
+                  </div>
                 </div>
               </div>
 
@@ -189,7 +191,9 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
                   </div>
                 </div>
 
-                <h2 className="text-lg font-bold text-foreground">{username}</h2>
+                <div className="inline-block px-2.5 py-0.5 rounded-md bg-black/20 backdrop-blur-sm mb-1">
+                  <h2 className="text-lg font-bold text-white drop-shadow-sm">{username}</h2>
+                </div>
 
                 {role && (
                   <div className="flex items-center gap-1.5 mt-1.5">
