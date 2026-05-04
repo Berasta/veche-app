@@ -86,24 +86,27 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
               className="fixed z-[100] w-64 bg-card border border-border/50 rounded-2xl shadow-2xl shadow-black/20 overflow-hidden backdrop-blur-xl"
               style={{ top: pos.top, left: pos.left }}
             >
-              {/* Banner with avatar on the left */}
-              <div className="relative w-full aspect-[3.2/1] overflow-hidden bg-black/10">
+              {/* Banner */}
+              <div className="relative w-full aspect-[3.2/1] bg-black/10">
                 {bannerUrl ? (
                   <img src={bannerUrl} alt="" className="absolute inset-0 w-full h-full object-cover"
                     style={bannerPos ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` } : undefined} />
                 ) : null}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 flex items-end gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center ring-[3px] ring-card shadow-lg shadow-black/20 overflow-hidden flex-shrink-0">
-                    {avatarUrl ? (
-                      <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-                    ) : (
+              </div>
+
+              {/* Avatar + Name (overlapping banner) */}
+              <div className="flex items-end gap-3 px-4 -mt-6 pb-3">
+                <div className="w-12 h-12 rounded-full bg-card ring-[3px] ring-card shadow-lg shadow-black/30 flex-shrink-0 overflow-hidden">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
                       <Crown className="w-6 h-6 text-primary/70" strokeWidth={1.5} />
-                    )}
-                  </div>
-                  <div className="min-w-0 pb-0.5">
-                    <p className="text-sm font-bold text-foreground drop-shadow-sm truncate leading-tight">{username}</p>
-                  </div>
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 pb-0.5">
+                  <p className="text-sm font-bold text-foreground truncate leading-tight">{username}</p>
                 </div>
               </div>
 
@@ -172,14 +175,16 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
                 </button>
               </div>
 
-              {/* Avatar + Name */}
+              {/* Avatar + Name (overlapping banner) */}
               <div className="px-5 pb-5">
                 <div className="flex items-end -mt-8 mb-4">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center ring-[3px] ring-card shadow-lg overflow-hidden flex-shrink-0">
+                  <div className="w-16 h-16 rounded-full bg-card ring-[3px] ring-card shadow-xl shadow-black/30 overflow-hidden flex-shrink-0">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                     ) : (
-                      <Crown className="w-7 h-7 text-primary/60" strokeWidth={1.5} />
+                      <div className="w-full h-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center">
+                        <Crown className="w-7 h-7 text-primary/60" strokeWidth={1.5} />
+                      </div>
                     )}
                   </div>
                 </div>
