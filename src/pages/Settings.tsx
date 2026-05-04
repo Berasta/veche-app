@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, Keyboard, User, ArrowLeft } from "lucide-react";
+import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, Keyboard, User, ArrowLeft, Trash2, Crop } from "lucide-react";
 import { ThemeSwitcher } from "../components/ThemeSwitcher";
 import { VoiceSettings } from "../components/settings/VoiceSettings";
 import { HotkeySettings } from "../components/settings/HotkeySettings";
-import { BannerSelector } from "../components/BannerSelector";
 import { BannerRepositionDialog } from "../components/BannerRepositionDialog";
 import { useAuth } from "@store/hooks/useAuth";
 import { pb, PB_URL } from "@api/pb";
@@ -29,9 +28,9 @@ export function Settings() {
   const [saving, setSaving] = useState(false);
   const [customBannerUrl, setCustomBannerUrl] = useState<string | null>(null);
   const [bannerPosition, setBannerPosition] = useState({ x: 50, y: 50 });
-  const [showBannerSelector, setShowBannerSelector] = useState(false);
   const [repositionFile, setRepositionFile] = useState<{ url: string; filename: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const bannerInputRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -157,20 +156,45 @@ export function Settings() {
           {activeTab === "profile" && (
             <>
               {/* Banner */}
-              <div className="relative w-full aspect-[3.2/1] rounded-lg overflow-hidden border border-primary/20 group bg-black/10">
+              <div
+                onClick={() => bannerInputRef.current?.click()}
+                className="relative w-full aspect-[3.2/1] rounded-lg overflow-hidden border border-primary/20 group bg-black/10 cursor-pointer hover:border-primary/50 transition-colors"
+              >
                 {customBannerUrl ? (
                   <img src={customBannerUrl} alt="" className="absolute inset-0 w-full h-full object-cover"
                     style={{ objectPosition: `${bannerPosition.x}% ${bannerPosition.y}%` }} />
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/30">
-                    <Image className="w-10 h-10" strokeWidth={1} />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-muted-foreground/40 group-hover:text-muted-foreground/70 transition-colors">
+                    <Image className="w-8 h-8" strokeWidth={1} />
+                    <span className="text-xs font-medium">Нажмите, чтобы загрузить хоругвь</span>
                   </div>
                 )}
-                <button onClick={() => setShowBannerSelector(true)}
-                  className="absolute top-3 right-3 px-3 py-1.5 bg-background/80 backdrop-blur-sm hover:bg-background/95 text-foreground rounded-lg transition-all opacity-0 group-hover:opacity-100 flex items-center gap-2 text-sm border border-border shadow-lg">
-                  <Image className="w-3.5 h-3.5" strokeWidth={2} />
-                  <span className="hidden md:inline">Измѣнити хоругвь</span>
-                </button>
+                <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  await handleCustomUpload(file);
+                }} />
+                {customBannerUrl && (
+                  <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={(e) => { e.stopPropagation(); bannerInputRef.current?.click(); }}
+                      className="w-7 h-7 rounded-md bg-background/80 backdrop-blur-sm hover:bg-background text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors shadow-sm border border-border"
+                      title="Замѣнити хоругвь">
+                      <Image className="w-3.5 h-3.5" strokeWidth={2} />
+                    </button>
+                    <button onClick={async (e) => { e.stopPropagation(); if (!user) return; await pb.collection("users").update(user.id, { banner: "" }); setCustomBannerUrl(null); dispatch(fetchCurrentUser()); }}
+                      className="w-7 h-7 rounded-md bg-background/80 backdrop-blur-sm hover:bg-background text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors shadow-sm border border-border"
+                      title="Удалити хоругвь">
+                      <Trash2 className="w-3.5 h-3.5" strokeWidth={2} />
+                    </button>
+                    {customBannerUrl && (
+                      <button onClick={(e) => { e.stopPropagation(); const filename = customBannerUrl.split("/").pop() || ""; setRepositionFile({ url: customBannerUrl, filename }); }}
+                        className="w-7 h-7 rounded-md bg-background/80 backdrop-blur-sm hover:bg-background text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors shadow-sm border border-border"
+                        title="Настроить область">
+                        <Crop className="w-3.5 h-3.5" strokeWidth={2} />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Avatar & Name */}
@@ -261,24 +285,6 @@ export function Settings() {
       </div>
 
       {/* Banner Selector Modal */}
-      {showBannerSelector && (
-        <BannerSelector
-          customBannerUrl={customBannerUrl}
-          onCustomUpload={handleCustomUpload}
-          onReposition={customBannerUrl ? () => {
-            const filename = customBannerUrl.split("/").pop() || "";
-            setRepositionFile({ url: customBannerUrl, filename });
-          } : undefined}
-          onRemove={async () => {
-            if (!user) return;
-            await pb.collection("users").update(user.id, { banner: "" });
-            setCustomBannerUrl(null);
-            dispatch(fetchCurrentUser());
-          }}
-          onClose={() => setShowBannerSelector(false)}
-        />
-      )}
-
       {repositionFile && (
         <BannerRepositionDialog
           bannerUrl={repositionFile.url}
