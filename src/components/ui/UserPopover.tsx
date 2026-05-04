@@ -26,6 +26,15 @@ function getBannerUrl(bannerId?: string | null, userId?: string): string | null 
   return `${PB_URL}/api/files/${colId}/${userId}/${bannerId}`;
 }
 
+function loadBannerPosition(bannerId?: string | null): { x: number; y: number } {
+  if (!bannerId) return { x: 50, y: 50 };
+  try {
+    const saved = localStorage.getItem(`bannerPosition_${bannerId}`);
+    if (saved) return JSON.parse(saved);
+  } catch { /* ignore */ }
+  return { x: 50, y: 50 };
+}
+
 export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, joinedAt, volume, onVolumeChange, userId, children }: UserPopoverProps) {
   const bannerUrl = useMemo(() => getBannerUrl(bannerId, userId), [bannerId, userId]);
   const bannerPos = useMemo(() => bannerUrl ? loadBannerPosition(bannerId) : null, [bannerId]);
