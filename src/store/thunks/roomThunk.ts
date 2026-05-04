@@ -26,6 +26,7 @@ let activeChannelIdForCleanup: string | null = null;
 let wakeLock: any = null;
 export const audioElements: Record<string, HTMLAudioElement> = {};
 export const screenShareElements: Record<string, HTMLVideoElement> = {};
+let savedVolumesBeforeDeafen: Record<string, number> = {};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function buildParticipants(room: Room): Participant[] {
@@ -275,20 +276,22 @@ export const toggleDeafen = createAsyncThunk(
     const wasDeafened = state.room.isDeafened;
 
     if (wasDeafened) {
-      // Выходим из оглушения — включаем микрофон, восстанавливаем громкости
+      // Выходим из оглушения — восстанавливаем громкости
       await activeRoom.localParticipant.setMicrophoneEnabled(true);
       dispatch(updateLocalMute(false));
 
-      const previousVolumes = state.room.volumes;
       for (const [identity, el] of Object.entries(audioElements)) {
-        const saved = previousVolumes[identity];
+        const saved = savedVolumesBeforeDeafen[identity];
         el.volume = saved != null ? saved / 100 : 1;
         dispatch(setVolume({ identity, volume: saved ?? 100 }));
       }
+      savedVolumesBeforeDeafen = {};
 
       dispatch(setDeafened(false));
     } else {
-      // Оглушение — выключаем микрофон и глушим весь звук
+      // Оглушение — запоминаем громкости, выключаем микрофон и глушим звук
+      savedVolumesBeforeDeafen = { ...state.room.volumes };
+
       await activeRoom.localParticipant.setMicrophoneEnabled(false);
       dispatch(updateLocalMute(true));
 
