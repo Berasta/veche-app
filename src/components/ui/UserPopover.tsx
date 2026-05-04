@@ -17,7 +17,7 @@ interface UserPopoverProps {
 }
 
 const POPOVER_WIDTH = 256;
-const POPOVER_HEIGHT = 200;
+const POPOVER_HEIGHT = 220;
 const GAP = 8;
 
 function getBannerUrl(bannerId?: string | null, userId?: string): string | null {
@@ -87,25 +87,23 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
               style={{ top: pos.top, left: pos.left }}
             >
               {/* Banner + Avatar + Name */}
-              <div className="relative w-full aspect-[3.2/1] rounded-t-2xl overflow-hidden bg-black/10">
+              <div className="relative w-full aspect-[2.5/1] rounded-t-2xl overflow-hidden bg-black/10">
                 {bannerUrl ? (
                   <img src={bannerUrl} alt="" className="absolute inset-0 w-full h-full object-cover"
                     style={bannerPos ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` } : undefined} />
                 ) : null}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end gap-2.5">
-                  <div className="w-10 h-10 rounded-full bg-card ring-[2px] ring-card shadow-lg shadow-black/30 flex-shrink-0 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/10" />
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-3">
+                  <div className="w-12 h-12 rounded-full bg-card ring-[2px] ring-card shadow-lg shadow-black/30 overflow-hidden flex-shrink-0">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                        <Crown className="w-5 h-5 text-primary/70" strokeWidth={1.5} />
+                        <Crown className="w-6 h-6 text-primary/70" strokeWidth={1.5} />
                       </div>
                     )}
                   </div>
-                  <div className="pb-0.5">
-                    <p className="text-sm font-bold text-white drop-shadow-lg truncate leading-tight">{username}</p>
-                  </div>
+                  <p className="text-sm font-bold text-white drop-shadow-lg truncate leading-tight max-w-[90%] text-center">{username}</p>
                 </div>
               </div>
 
