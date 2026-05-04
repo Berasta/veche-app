@@ -14,6 +14,7 @@ import {
 import {
   selectConnected,
   selectConnecting,
+  selectReconnecting,
   selectActiveChannelName,
   selectActiveChannelId,
   selectActiveServerId,
@@ -45,6 +46,7 @@ export function ActiveVoiceBar() {
   const navigate = useNavigate();
   const connected = useAppSelector(selectConnected);
   const connecting = useAppSelector(selectConnecting);
+  const reconnecting = useAppSelector(selectReconnecting);
   const isScreenSharing = useAppSelector(selectIsScreenSharing);
   const channelName = useAppSelector(selectActiveChannelName);
   const participants = useAppSelector(selectParticipants);
@@ -144,16 +146,20 @@ export function ActiveVoiceBar() {
             <p className="text-sm md:text-base font-medium truncate">
               {channelName}
             </p>
-            <p className="text-xs text-muted-foreground">
-              {connecting
-                ? "Подключение..."
-                : `${participants.length} участник${
-                    participants.length === 1
-                      ? ""
-                      : participants.length < 5
-                        ? "а"
-                        : "ов"
-                  }`}
+            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+              {reconnecting ? (
+                <span className="flex items-center gap-1 text-yellow-500">
+                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+                  Переподключение...
+                </span>
+              ) : connecting ? (
+                <span>Подключение...</span>
+              ) : (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  {participants.length} участник{participants.length === 1 ? "" : participants.length < 5 ? "а" : "ов"}
+                </>
+              )}
             </p>
           </div>
         </div>

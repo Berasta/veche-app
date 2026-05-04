@@ -11,6 +11,7 @@ export interface Participant {
 interface RoomState {
   connected: boolean;
   connecting: boolean;
+  reconnecting: boolean;
   error: string | null;
   activeChannelId: string | null;
   activeChannelName: string | null;
@@ -29,6 +30,7 @@ interface RoomState {
 const initialState: RoomState = {
   connected: false,
   connecting: false,
+  reconnecting: false,
   error: null,
   activeChannelId: null,
   activeChannelName: null,
@@ -53,14 +55,19 @@ const roomSlice = createSlice({
     ) {
       state.connected = true;
       state.connecting = false;
+      state.reconnecting = false;
       state.error = null;
       state.activeChannelId = action.payload.channelId;
       state.activeChannelName = action.payload.channelName;
       state.activeServerId = action.payload.serverId;
     },
+    setReconnecting(state, action: PayloadAction<boolean>) {
+      state.reconnecting = action.payload;
+    },
     setDisconnected(state) {
       state.connected = false;
       state.connecting = false;
+      state.reconnecting = false;
       state.activeChannelId = null;
       state.activeChannelName = null;
       state.activeServerId = null;
@@ -112,6 +119,7 @@ export const {
   setConnecting,
   setConnected,
   setDisconnected,
+  setReconnecting,
   setError,
   setParticipants,
   updateSpeakers,

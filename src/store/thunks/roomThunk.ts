@@ -5,6 +5,7 @@ import {
   setConnecting,
   setConnected,
   setDisconnected,
+  setReconnecting,
   setError,
   setParticipants,
   updateSpeakers,
@@ -227,6 +228,14 @@ export const joinChannel = createAsyncThunk(
         activeRoom = null;
         activeChannelIdForCleanup = null;
         dispatch(setDisconnected());
+      });
+
+      room.on(RoomEvent.Reconnecting, () => {
+        dispatch(setReconnecting(true));
+      });
+
+      room.on(RoomEvent.Reconnected, () => {
+        dispatch(setReconnecting(false));
       });
 
       // 4. Подключаемся
