@@ -62,4 +62,11 @@ export const router = createBrowserRouter([
       { path: "", element: <Lazy><InvitePage /></Lazy> },
     ],
   },
+  {
+    path: "/invite/:code",
+    element: <ProtectedRoute />,
+    children: [
+      { path: "", element: <Lazy><InvitePage /></Lazy> },
+    ],
+  },
 ]);
