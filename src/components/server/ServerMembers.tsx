@@ -7,7 +7,6 @@ import { getRoleMap } from "@api/rolesApi";
 import { pb, PB_URL } from "@api/pb";
 import { useAppSelector, useAppDispatch } from "@store/hooks";
 import { useIsMobile } from "@components/ui/use-mobile";
-import { selectOnlineUsers } from "@store/selectors/presenceSelectors";
 import { selectVolumes } from "@store/selectors/roomSelectors";
 import { setParticipantVolume } from "@store/thunks/roomThunk";
 
@@ -27,7 +26,7 @@ interface Member {
 }
 
 function MembersPanel({
-  members, loading, roleMap, groupedMembers, onClose, showHeader = true, onlineUsers = {}, volumes = {}, onVolumeChange,
+  members, loading, roleMap, groupedMembers, onClose, showHeader = true, volumes = {}, onVolumeChange,
 }: {
   members: Member[];
   loading: boolean;
@@ -35,7 +34,6 @@ function MembersPanel({
   groupedMembers: { roleName: string; roleColor?: string; members: Member[] }[];
   onClose: () => void;
   showHeader?: boolean;
-  onlineUsers?: Record<string, number>;
   volumes?: Record<string, number>;
   onVolumeChange?: (identity: string, volume: number) => void;
 }) {
@@ -67,11 +65,10 @@ function MembersPanel({
                   {group.members.map((member) => (
                     <div key={member.id} className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-sidebar-accent/50 transition-colors">
                       <UserPopover username={member.username} avatarUrl={member.avatarUrl} bannerId={member.banner} userId={member.id} role={roleMap[member.id]?.name} roleColor={roleMap[member.id]?.color} joinedAt={member.joinedAt} volume={volumes[member.id]} onVolumeChange={(v) => onVolumeChange?.(member.id, v)}>
-                        <div className="w-7 h-7 relative flex-shrink-0">
+                        <div className="w-7 h-7 flex-shrink-0">
                           <div className="w-full h-full rounded-full overflow-hidden bg-sidebar/50 flex items-center justify-center cursor-pointer">
                             {member.avatarUrl ? <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" /> : <User className="w-3.5 h-3.5 text-sidebar-foreground/50" strokeWidth={2} />}
                           </div>
-                          <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-[2.5px] border-sidebar ${onlineUsers[member.id] ? "bg-green-500" : "bg-muted-foreground/30"}`} />
                         </div>
                       </UserPopover>
                       <span className="text-sm truncate text-sidebar-foreground" style={roleMap[member.id]?.color ? { color: roleMap[member.id].color } : {}}>{member.username}</span>
@@ -200,7 +197,6 @@ function useMembers(serverId: string) {
 function ServerMembersContent({ serverId, onClose, showHeader }: { serverId: string; onClose: () => void; showHeader?: boolean }) {
   const dispatch = useAppDispatch();
   const { members, loading, roleMap, groupedMembers } = useMembers(serverId);
-  const onlineUsers = useAppSelector(selectOnlineUsers);
   const volumes = useAppSelector(selectVolumes);
   return (
     <MembersPanel
@@ -210,7 +206,6 @@ function ServerMembersContent({ serverId, onClose, showHeader }: { serverId: str
       groupedMembers={groupedMembers}
       onClose={onClose}
       showHeader={showHeader}
-      onlineUsers={onlineUsers}
       volumes={volumes}
       onVolumeChange={(identity, v) => dispatch(setParticipantVolume({ identity, volume: v }))}
     />
