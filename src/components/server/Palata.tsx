@@ -1,13 +1,13 @@
-// src/components/VoiceChannel.tsx
 import { useAppDispatch, useAppSelector } from "@store/hooks";
 import {
   selectActiveChannelId,
+  selectConnected,
   selectConnecting,
 } from "@store/selectors/roomSelectors";
 import { joinChannel } from "@store/thunks/roomThunk";
 import { Loader2, Volume2 } from "lucide-react";
 import { motion } from "motion/react";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 
 interface Props {
   channelId: string;
@@ -18,8 +18,10 @@ interface Props {
 
 export function Palata({ channelId, channelName, index, participantCount = 0 }: Props) {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { serverId } = useParams();
   const activeChannelId = useAppSelector(selectActiveChannelId);
+  const connected = useAppSelector(selectConnected);
   const connecting = useAppSelector(selectConnecting);
 
   const isActive = activeChannelId === channelId;
@@ -27,6 +29,11 @@ export function Palata({ channelId, channelName, index, participantCount = 0 }: 
 
   const handleClick = () => {
     if (!serverId) return;
+    // Если уже активен звонок — открываем раскрытый вид
+    if (connected && activeChannelId) {
+      navigate(`/app/server/${serverId}/voice/${activeChannelId}`);
+      return;
+    }
     try { if ('wakeLock' in navigator) (navigator as any).wakeLock.request('screen'); } catch (err) { console.error("wakeLock error in Palata", err); }
     dispatch(joinChannel({ channelId, channelName, serverId }));
   };
