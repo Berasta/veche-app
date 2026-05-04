@@ -122,19 +122,25 @@ export function BannerSelector({
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!customBannerUrl) return;
-    dragRef.current = { startX: e.clientX, startY: e.clientY, posX: bannerPos.x, posY: bannerPos.y, dragging: true };
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startPosX = bannerPos.x;
+    const startPosY = bannerPos.y;
+    dragRef.current.dragging = true;
     const onMove = (ev: MouseEvent) => {
       if (!dragRef.current.dragging) return;
-      const dx = ev.clientX - dragRef.current.startX;
-      const dy = ev.clientY - dragRef.current.startY;
-      const newX = Math.max(0, Math.min(100, dragRef.current.posX - dx / 3));
-      const newY = Math.max(0, Math.min(100, dragRef.current.posY - dy / 3));
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      const newX = Math.max(0, Math.min(100, startPosX - dx / 3));
+      const newY = Math.max(0, Math.min(100, startPosY - dy / 3));
+      dragRef.current.posX = newX;
+      dragRef.current.posY = newY;
       setBannerPos({ x: newX, y: newY });
     };
     const onUp = () => {
       dragRef.current.dragging = false;
       const filename = customBannerUrl?.split("/").pop();
-      if (filename) savePosition(filename, bannerPos.x, bannerPos.y);
+      if (filename) savePosition(filename, dragRef.current.posX, dragRef.current.posY);
       document.removeEventListener("mousemove", onMove);
       document.removeEventListener("mouseup", onUp);
     };
