@@ -20,7 +20,8 @@ interface RoomState {
   isScreenSharing: boolean;
   screenShareQuality: {
     resolution: "1080p" | "720p" | "480p";
-    fps: 15 | 30 | 60;
+    fps: 15 | 30 | 60 | 120;
+    bitrate: number;
   };
   isDeafened: boolean;
 }
@@ -35,7 +36,7 @@ const initialState: RoomState = {
   participants: [],
   volumes: {},
   isScreenSharing: false,
-  screenShareQuality: { resolution: "1080p", fps: 30 },
+  screenShareQuality: { resolution: "1080p", fps: 30, bitrate: 8 },
   isDeafened: false,
 };
 
@@ -95,7 +96,8 @@ const roomSlice = createSlice({
       state,
       action: PayloadAction<{
         resolution: "1080p" | "720p" | "480p";
-        fps: 15 | 30 | 60;
+        fps: 15 | 30 | 60 | 120;
+        bitrate: number;
       }>,
     ) {
       state.screenShareQuality = action.payload;

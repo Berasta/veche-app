@@ -71,7 +71,7 @@ export function VoiceChat() {
       medium: "720p" as const,
       high: "1080p" as const,
     };
-    dispatch(setScreenShareQuality({ resolution: qualityMap[options.quality], fps: options.fps }));
+    dispatch(setScreenShareQuality({ resolution: qualityMap[options.quality], fps: options.fps, bitrate: (options as any).bitrate || 8 }));
     dispatch(toggleScreenShare());
     setShowScreenShareModal(false);
   }, [dispatch]);

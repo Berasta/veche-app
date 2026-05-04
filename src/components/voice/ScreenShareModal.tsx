@@ -4,7 +4,7 @@ import { useState } from "react";
 export interface ShareOptions {
   audio: boolean;
   quality: "low" | "medium" | "high";
-  fps: 15 | 30 | 60;
+  fps: 15 | 30 | 60 | 120;
 }
 
 interface ScreenShareModalProps {
@@ -14,26 +14,30 @@ interface ScreenShareModalProps {
 
 const LS_KEY = "screenShareQuality";
 
-function loadSavedQuality(): { quality: ShareOptions["quality"]; fps: ShareOptions["fps"] } {
+function loadSavedQuality(): { quality: ShareOptions["quality"]; fps: ShareOptions["fps"]; bitrate: number } {
   try {
     const saved = localStorage.getItem(LS_KEY);
     if (saved) return JSON.parse(saved);
   } catch { /* ignore */ }
-  return { quality: "medium", fps: 30 };
+  return { quality: "medium", fps: 30, bitrate: 8 };
 }
 
-function saveQuality(quality: ShareOptions["quality"], fps: ShareOptions["fps"]) {
-  localStorage.setItem(LS_KEY, JSON.stringify({ quality, fps }));
+function saveQuality(quality: ShareOptions["quality"], fps: ShareOptions["fps"], bitrate: number) {
+  localStorage.setItem(LS_KEY, JSON.stringify({ quality, fps, bitrate }));
 }
+
+const BITRATES = [4, 8, 16, 32, 64];
 
 export function ScreenShareModal({ onClose, onStart }: ScreenShareModalProps) {
   const saved = loadSavedQuality();
   const [shareAudio, setShareAudio] = useState(false);
   const [quality, setQuality] = useState<ShareOptions["quality"]>(saved.quality);
   const [fps, setFps] = useState<ShareOptions["fps"]>(saved.fps);
+  const [bitrate, setBitrate] = useState(saved.bitrate);
 
-  const handleQuality = (q: ShareOptions["quality"]) => { setQuality(q); saveQuality(q, fps); };
-  const handleFps = (f: ShareOptions["fps"]) => { setFps(f); saveQuality(quality, f); }; 
+  const handleQuality = (q: ShareOptions["quality"]) => { setQuality(q); saveQuality(q, fps, bitrate); };
+  const handleFps = (f: ShareOptions["fps"]) => { setFps(f); saveQuality(quality, f, bitrate); };
+  const handleBitrate = (b: number) => { setBitrate(b); saveQuality(quality, fps, b); };
 
   const handleStart = () => {
     onStart({ audio: shareAudio, quality, fps });
@@ -115,8 +119,8 @@ export function ScreenShareModal({ onClose, onStart }: ScreenShareModalProps) {
                 Частота кадровъ
               </span>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              {([15, 30, 60] as const).map((f) => (
+            <div className="grid grid-cols-4 gap-2">
+              {([15, 30, 60, 120] as const).map((f) => (
                 <button
                   key={f}
                   onClick={() => handleFps(f)}
@@ -130,6 +134,33 @@ export function ScreenShareModal({ onClose, onStart }: ScreenShareModalProps) {
                   `}
                 >
                   {f} FPS
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Bitrate */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Settings className="w-4 h-4 text-primary" strokeWidth={2} />
+              <span className="text-sm font-semibold text-foreground">
+                Битрейт
+              </span>
+            </div>
+            <div className="grid grid-cols-5 gap-2">
+              {BITRATES.map((b) => (
+                <button
+                  key={b}
+                  onClick={() => handleBitrate(b)}
+                  className={`
+                    px-2 py-2 rounded-md text-xs font-medium transition-all
+                    ${bitrate === b
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }
+                  `}
+                >
+                  {b} Мбит
                 </button>
               ))}
             </div>

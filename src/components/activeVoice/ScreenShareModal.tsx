@@ -1,4 +1,4 @@
-import { X, Monitor, MonitorPlay, Settings, Check } from "lucide-react";
+import { X, MonitorPlay, Settings } from "lucide-react";
 import { useState } from "react";
 import { useAppDispatch } from "@store/hooks";
 import { toggleScreenShare } from "@store/thunks/roomThunk";
@@ -11,7 +11,7 @@ const QUALITY_MAP = {
 } as const;
 
 type Quality = keyof typeof QUALITY_MAP;
-type Fps = 15 | 30 | 60;
+type Fps = 15 | 30 | 60 | 120;
 
 interface Props {
   onClose: () => void;
@@ -19,17 +19,19 @@ interface Props {
 
 const LS_KEY = "screenShareQuality";
 
-function loadSavedQuality(): { quality: Quality; fps: Fps } {
+function loadSavedQuality(): { quality: Quality; fps: Fps; bitrate: number } {
   try {
     const saved = localStorage.getItem(LS_KEY);
     if (saved) return JSON.parse(saved);
   } catch { /* ignore */ }
-  return { quality: "medium", fps: 30 };
+  return { quality: "medium", fps: 30, bitrate: 8 };
 }
 
-function saveQuality(quality: Quality, fps: Fps) {
-  localStorage.setItem(LS_KEY, JSON.stringify({ quality, fps }));
+function saveQuality(quality: Quality, fps: Fps, bitrate: number) {
+  localStorage.setItem(LS_KEY, JSON.stringify({ quality, fps, bitrate }));
 }
+
+const BITRATES = [4, 8, 16, 32, 64];
 
 export function ScreenShareModal({ onClose }: Props) {
   const dispatch = useAppDispatch();
@@ -38,32 +40,27 @@ export function ScreenShareModal({ onClose }: Props) {
   const [shareAudio, setShareAudio] = useState(false);
   const [quality, setQuality] = useState<Quality>(saved.quality);
   const [fps, setFps] = useState<Fps>(saved.fps);
+  const [bitrate, setBitrate] = useState(saved.bitrate);
 
-  // Сохраняем настройки при каждом изменении
-  const handleQuality = (q: Quality) => { setQuality(q); saveQuality(q, fps); };
-  const handleFps = (f: Fps) => { setFps(f); saveQuality(quality, f); };
+  const handleQuality = (q: Quality) => { setQuality(q); saveQuality(q, fps, bitrate); };
+  const handleFps = (f: Fps) => { setFps(f); saveQuality(quality, f, bitrate); };
+  const handleBitrate = (b: number) => { setBitrate(b); saveQuality(quality, fps, b); };
 
   const handleStart = async () => {
-    // Сохраняем выбранное качество в Redux
-    dispatch(
-      setScreenShareQuality({
-        resolution:
-          quality === "low" ? "480p" : quality === "medium" ? "720p" : "1080p",
-        fps,
-      }),
-    );
+    dispatch(setScreenShareQuality({
+      resolution: quality === "low" ? "480p" : quality === "medium" ? "720p" : "1080p",
+      fps,
+      bitrate,
+    }));
 
-    // Запускаем демонстрацию с нужными параметрами
-    dispatch(
-      toggleScreenShare({
-        audio: shareAudio,
-        resolution: {
-          width: QUALITY_MAP[quality].width,
-          height: QUALITY_MAP[quality].height,
-          frameRate: fps,
-        },
-      } as any),
-    );
+    dispatch(toggleScreenShare({
+      audio: shareAudio,
+      resolution: {
+        width: QUALITY_MAP[quality].width,
+        height: QUALITY_MAP[quality].height,
+        frameRate: fps,
+      },
+    } as any));
 
     onClose();
   };
@@ -147,8 +144,8 @@ export function ScreenShareModal({ onClose }: Props) {
                 Частота кадровъ
               </span>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              {([15, 30, 60] as const).map((f) => (
+            <div className="grid grid-cols-4 gap-2">
+              {([15, 30, 60, 120] as const).map((f) => (
                 <button
                   key={f}
                   onClick={() => handleFps(f)}
@@ -162,6 +159,33 @@ export function ScreenShareModal({ onClose }: Props) {
                   `}
                 >
                   {f} FPS
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Bitrate */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Settings className="w-4 h-4 text-primary" strokeWidth={2} />
+              <span className="text-sm font-semibold text-foreground">
+                Битрейт
+              </span>
+            </div>
+            <div className="grid grid-cols-5 gap-2">
+              {BITRATES.map((b) => (
+                <button
+                  key={b}
+                  onClick={() => handleBitrate(b)}
+                  className={`
+                    px-2 py-2 rounded-md text-xs font-medium transition-all
+                    ${bitrate === b
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }
+                  `}
+                >
+                  {b} Мбит
                 </button>
               ))}
             </div>

@@ -330,7 +330,7 @@ export const toggleScreenShare = createAsyncThunk(
     if (!activeRoom) return;
 
     const isSharing = activeRoom.localParticipant.isScreenShareEnabled;
-    const { resolution, fps } = (getState() as RootState).room
+    const { resolution, fps, bitrate } = (getState() as RootState).room
       .screenShareQuality;
 
     try {
@@ -347,7 +347,7 @@ export const toggleScreenShare = createAsyncThunk(
             height: RESOLUTION_MAP[resolution].height,
             frameRate: fps,
           },
-          videoBitsPerSecond: 8_000_000, // 8 Mbps для лучшего качества
+          videoBitsPerSecond: bitrate * 1_000_000,
         });
       }
       dispatch(setScreenSharing(!isSharing));
