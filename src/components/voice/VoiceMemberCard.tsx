@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { MicOff, Monitor } from "lucide-react";
 import { motion } from "motion/react";
 import { UserPopover } from "@components/ui/UserPopover";
 
@@ -41,7 +42,7 @@ export function VoiceMemberCard({ member, index, volume, onVolumeChange, role, r
         }
       `}
     >
-      {/* Аватар */}
+      {/* Аватар с иконками статуса */}
       <UserPopover
         username={member.name}
         avatarUrl={member.avatarUrl}
@@ -52,30 +53,37 @@ export function VoiceMemberCard({ member, index, volume, onVolumeChange, role, r
         volume={volume}
         onVolumeChange={onVolumeChange}
       >
-        <div
-          className={`
-            w-14 h-14 rounded-full flex items-center justify-center overflow-hidden
-            transition-all duration-200 flex-shrink-0 cursor-pointer
-            ${
-              member.isSpeaking
-                ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
-                : ""
-            }
-          `}
-        >
-          {member.avatarUrl ? (
-            <img
-              src={member.avatarUrl}
-              alt={member.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div
-              className={`w-full h-full flex items-center justify-center text-sm font-bold
+        <div className="relative flex-shrink-0">
+          <div
+            className={`
+              w-14 h-14 rounded-full flex items-center justify-center overflow-hidden
+              transition-all duration-200 cursor-pointer
+              ${member.isSpeaking ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}
+              ${member.isMuted ? "opacity-60" : ""}
+            `}
+          >
+            {member.avatarUrl ? (
+              <img src={member.avatarUrl} alt={member.name} className="w-full h-full object-cover" />
+            ) : (
+              <div className={`w-full h-full flex items-center justify-center text-sm font-bold
                 ${member.isSpeaking ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}
-              `}
-            >
-              {initials}
+              `}>
+                {initials}
+              </div>
+            )}
+          </div>
+
+          {/* Muted icon */}
+          {member.isMuted && (
+            <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center ring-[2px] ring-background">
+              <MicOff className="w-2.5 h-2.5 text-white" />
+            </div>
+          )}
+
+          {/* Screen share icon */}
+          {member.isScreenSharing && (
+            <div className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center ring-[2px] ring-background">
+              <Monitor className="w-2.5 h-2.5 text-white" />
             </div>
           )}
         </div>
@@ -92,12 +100,6 @@ export function VoiceMemberCard({ member, index, volume, onVolumeChange, role, r
       <div className="flex items-center gap-2">
         {member.isSpeaking && (
           <span className="text-xs text-green-500 font-medium">Говоритъ</span>
-        )}
-        {member.isMuted && (
-          <span className="text-xs text-muted-foreground">Приглушёнъ</span>
-        )}
-        {member.isScreenSharing && (
-          <span className="text-xs text-blue-500">Показъ экрана</span>
         )}
       </div>
 
