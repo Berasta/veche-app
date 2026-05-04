@@ -33,7 +33,7 @@ export function UserContextMenu({ serverId, userId, username, isVoiceParticipant
       <ContextMenu.Trigger>{children}</ContextMenu.Trigger>
       <ContextMenu.Portal>
         <ContextMenu.Content
-          className="min-w-44 bg-card border border-border/50 rounded-xl shadow-2xl shadow-black/20 backdrop-blur-xl p-1 z-[200]"
+          className="min-w-44 bg-card border border-border/50 rounded-xl shadow-2xl shadow-black/20 backdrop-blur-xl p-1 z-[200] origin-[--radix-context-menu-content-transform-origin] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-100"
         >
           {/* Volume slider for voice participants */}
           {isVoiceParticipant && (
