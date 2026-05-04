@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, ReactNode, useCallback, useMemo } from "react";
 import { Portal } from "./Portal";
 import { Volume2, Crown, Calendar } from "lucide-react";
-import { banners, predefinedBannerIds } from "../BannerSelector";
 import { PB_URL } from "@api/pb";
 
 interface UserPopoverProps {
@@ -21,43 +20,15 @@ const POPOVER_WIDTH = 256;
 const POPOVER_HEIGHT = 200;
 const GAP = 8;
 
-function hashString(str: string): number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
-
-function getBanner(bannerId?: string | null, username?: string) {
-  if (bannerId) {
-    const found = banners.find((b) => b.id === bannerId);
-    if (found) return found;
-  }
-  return banners[hashString(username || "") % banners.length];
-}
-
-function isCustomBanner(bannerId?: string | null): boolean {
-  return !!bannerId && !predefinedBannerIds.includes(bannerId) && !banners.some((b) => b.id === bannerId);
-}
-
-function getCustomBannerUrl(bannerId: string, userId?: string): string {
-  return `${PB_URL}/api/files/_pb_users_auth_/${userId}/${bannerId}`;
-}
-
-function loadBannerPosition(bannerId?: string | null): { x: number; y: number } {
-  if (!bannerId) return { x: 50, y: 50 };
-  try {
-    const saved = localStorage.getItem(`bannerPosition_${bannerId}`);
-    if (saved) return JSON.parse(saved);
-  } catch { /* ignore */ }
-  return { x: 50, y: 50 };
+function getBannerUrl(bannerId?: string | null, userId?: string): string | null {
+  if (!bannerId || !userId) return null;
+  const colId = "_pb_users_auth_";
+  return `${PB_URL}/api/files/${colId}/${userId}/${bannerId}`;
 }
 
 export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, joinedAt, volume, onVolumeChange, userId, children }: UserPopoverProps) {
-  const banner = useMemo(() => getBanner(bannerId, username), [username, bannerId]);
-  const bannerPos = useMemo(() => isCustomBanner(bannerId) ? loadBannerPosition(bannerId) : null, [bannerId]);
+  const bannerUrl = useMemo(() => getBannerUrl(bannerId, userId), [bannerId, userId]);
+  const bannerPos = useMemo(() => bannerUrl ? loadBannerPosition(bannerId) : null, [bannerId]);
   const [show, setShow] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -106,13 +77,11 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
             onClick={(e) => e.stopPropagation()}
           >
             {/* Banner with avatar on the left */}
-            <div className={`relative w-full aspect-[3.2/1] overflow-hidden ${isCustomBanner(bannerId) ? "" : "bg-gradient-to-br " + banner.gradient}`}>
-              {isCustomBanner(bannerId) ? (
-                <img src={getCustomBannerUrl(bannerId!, userId)} alt="" className="absolute inset-0 w-full h-full object-cover"
+            <div className="relative w-full aspect-[3.2/1] overflow-hidden bg-black/10">
+              {bannerUrl ? (
+                <img src={bannerUrl} alt="" className="absolute inset-0 w-full h-full object-cover"
                   style={bannerPos ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` } : undefined} />
-              ) : (
-                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: banner.pattern }} />
-              )}
+              ) : null}
               <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 flex items-end gap-3">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center ring-[3px] ring-card shadow-lg shadow-black/20 overflow-hidden flex-shrink-0">
