@@ -86,28 +86,25 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
               className="fixed z-[100] w-64 bg-card border border-border/50 rounded-2xl shadow-2xl shadow-black/20 backdrop-blur-xl"
               style={{ top: pos.top, left: pos.left }}
             >
-              {/* Banner */}
+              {/* Banner + Avatar + Name */}
               <div className="relative w-full aspect-[3.2/1] rounded-t-2xl overflow-hidden bg-black/10">
                 {bannerUrl ? (
                   <img src={bannerUrl} alt="" className="absolute inset-0 w-full h-full object-cover"
                     style={bannerPos ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` } : undefined} />
                 ) : null}
-              </div>
-
-              {/* Avatar + Name (overlapping banner) */}
-              <div className="flex items-end gap-3 px-4 -mt-6 pb-3">
-                <div className="w-12 h-12 rounded-full bg-card ring-[3px] ring-card shadow-lg shadow-black/30 flex-shrink-0 overflow-hidden">
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                      <Crown className="w-6 h-6 text-primary/70" strokeWidth={1.5} />
-                    </div>
-                  )}
-                </div>
-                <div className="min-w-0 pb-0.5">
-                  <div className="inline-block px-2 py-0.5 rounded-md bg-black/30 backdrop-blur-sm">
-                    <p className="text-sm font-bold text-white drop-shadow-sm truncate leading-tight">{username}</p>
+                <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end gap-2.5">
+                  <div className="w-10 h-10 rounded-full bg-card ring-[2px] ring-card shadow-lg shadow-black/30 flex-shrink-0 overflow-hidden">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                        <Crown className="w-5 h-5 text-primary/70" strokeWidth={1.5} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="pb-0.5">
+                    <p className="text-sm font-bold text-white drop-shadow-lg truncate leading-tight">{username}</p>
                   </div>
                 </div>
               </div>
@@ -165,22 +162,19 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
         <Portal>
           <div className="fixed inset-0 z-[150] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowModal(false)}>
             <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
-              {/* Banner */}
+              {/* Banner + Avatar + Name */}
               <div className="relative w-full aspect-[3.2/1] rounded-t-2xl overflow-hidden bg-black/10">
                 {bannerUrl ? (
                   <img src={bannerUrl} alt="" className="absolute inset-0 w-full h-full object-cover"
                     style={bannerPos ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` } : undefined} />
                 ) : null}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent" />
                 <button onClick={() => setShowModal(false)}
                   className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors">
                   <X className="w-3.5 h-3.5 text-white" />
                 </button>
-              </div>
-
-              {/* Avatar + Name (overlapping banner) */}
-              <div className="px-5 pb-5">
-                <div className="flex items-end -mt-8 mb-4">
-                  <div className="w-16 h-16 rounded-full bg-card ring-[3px] ring-card shadow-xl shadow-black/30 overflow-hidden flex-shrink-0">
+                <div className="absolute bottom-0 left-0 right-0 p-4 flex items-end gap-3">
+                  <div className="w-14 h-14 rounded-full bg-card ring-[3px] ring-card shadow-xl shadow-black/30 flex-shrink-0 overflow-hidden">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                     ) : (
@@ -189,21 +183,22 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
                       </div>
                     )}
                   </div>
+                  <div className="pb-1">
+                    <h2 className="text-lg font-bold text-white drop-shadow-lg">{username}</h2>
+                  </div>
                 </div>
+              </div>
 
-                <div className="inline-block px-2.5 py-0.5 rounded-md bg-black/20 backdrop-blur-sm mb-1">
-                  <h2 className="text-lg font-bold text-white drop-shadow-sm">{username}</h2>
-                </div>
-
+              {/* Role + Joined */}
+              <div className="px-5 pb-5 pt-4 space-y-2">
                 {role && (
-                  <div className="flex items-center gap-1.5 mt-1.5">
+                  <div className="flex items-center gap-1.5">
                     <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: roleColor || "#888" }} />
                     <span className="text-sm text-muted-foreground">{role}</span>
                   </div>
                 )}
-
                 {joinedAt && (
-                  <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground/70">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
                     <Calendar size={12} strokeWidth={1.5} />
                     <span>На серверѣ съ {new Date(joinedAt).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" })}</span>
                   </div>
