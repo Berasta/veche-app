@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, ReactNode, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, ReactNode, useMemo } from "react";
 import { Portal } from "./Portal";
 import { Volume2, Crown, Calendar } from "lucide-react";
 import { PB_URL } from "@api/pb";
@@ -42,6 +42,7 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
   const triggerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ top: 0, left: 0 });
+  const hoverTimer = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     if (!show || !triggerRef.current) return;
@@ -55,32 +56,26 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
     setPos({ top, left });
   }, [show]);
 
-  const handleClickOutside = useCallback((e: MouseEvent) => {
-    if (
-      popoverRef.current && !popoverRef.current.contains(e.target as Node) &&
-      triggerRef.current && !triggerRef.current.contains(e.target as Node)
-    ) {
-      setShow(false);
-    }
-  }, []);
+  const handleMouseEnter = () => {
+    clearTimeout(hoverTimer.current);
+    hoverTimer.current = setTimeout(() => setShow(true), 200);
+  };
 
-  useEffect(() => {
-    if (show) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [show, handleClickOutside]);
-
-  const handleClick = () => setShow((prev) => !prev);
+  const handleMouseLeave = () => {
+    clearTimeout(hoverTimer.current);
+    setTimeout(() => setShow(false), 150);
+  };
 
   return (
-    <div ref={triggerRef} onClick={handleClick} className="inline-block cursor-pointer">
+    <div ref={triggerRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="inline-block cursor-pointer">
       {children}
 
       {show && (
         <Portal>
           <div
             ref={popoverRef}
+            onMouseEnter={() => clearTimeout(hoverTimer.current)}
+            onMouseLeave={() => setShow(false)}
             className="fixed z-[100] w-64 bg-card border border-border/50 rounded-2xl shadow-2xl shadow-black/20 overflow-hidden backdrop-blur-xl"
             style={{ top: pos.top, left: pos.left }}
             onClick={(e) => e.stopPropagation()}
