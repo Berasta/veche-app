@@ -1,9 +1,8 @@
 import { useState, useCallback } from "react";
-import { Volume2, User, ArrowLeft } from "lucide-react";
+import { Volume2, User, ArrowLeft, MicOff, Monitor } from "lucide-react";
 import { ScreenShareModal, type ShareOptions } from "./ScreenShareModal";
 import { PageHeader } from "../ui/PageHeader";
 import { IconButton } from "../ui/IconButton";
-import { VoiceMemberCard, type VoiceMember } from "./VoiceMemberCard";
 import { ScreenShareDisplay } from "./ScreenShareDisplay";
 import { VoiceControls } from "./VoiceControls";
 import { useNavigate, useParams } from "react-router";
@@ -28,9 +27,22 @@ import {
 } from "@store/thunks/roomThunk";
 import { setScreenShareQuality } from "@store/slices/roomSlice";
 import { useVoiceData } from "@hooks/useVoiceData";
-import { getRoleMap } from "@api/rolesApi";
 import { useOverlay } from "@hooks/useOverlay";
 import { UserContextMenu } from "@components/ui/UserContextMenu";
+
+interface VoiceMemberData {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  isSpeaking: boolean;
+  isMuted: boolean;
+  isDeafened: boolean;
+  volume: number;
+  role?: string;
+  roleColor?: string;
+  banner?: string;
+  joinedAt?: string;
+}
 
 export function VoiceChat() {
   const dispatch = useAppDispatch();
@@ -52,17 +64,20 @@ export function VoiceChat() {
   const [showScreenShareModal, setShowScreenShareModal] = useState(false);
   const { userDataMap, roleMap, joinedAtMap } = useVoiceData(serverId, participants.map((p) => p.identity));
 
-  const voiceMembers: VoiceMember[] = participants.map((p) => {
+  const members: VoiceMemberData[] = participants.map((p) => {
     const ud = userDataMap[p.identity];
     return {
       id: p.identity,
       name: ud?.username || p.name,
       avatarUrl: ud?.avatarUrl,
-      icon: User,
       isSpeaking: p.isSpeaking,
       isMuted: p.isMuted,
       isDeafened: p.isLocal ? isDeafened : false,
-      isScreenSharing: false,
+      volume: volumes[p.identity] ?? 100,
+      role: roleMap[p.identity]?.name,
+      roleColor: roleMap[p.identity]?.color,
+      banner: userDataMap[p.identity]?.banner,
+      joinedAt: joinedAtMap[p.identity],
     };
   });
 
@@ -109,43 +124,96 @@ export function VoiceChat() {
         }
       />
 
-      {/* Voice Members */}
-      <div className="flex-1 overflow-y-auto p-2 md:p-6">
-        <div className="max-w-6xl mx-auto">
-          {/* Screen Share */}
-          {isScreenSharing && sharerName && sharingIdentity && (
+      {/* Main area: sidebar layout */}
+      <div className="flex-1 flex flex-col md:flex-row min-h-0">
+        {/* Screen share / main area */}
+        <div className="flex-1 flex flex-col min-h-0 p-2 md:p-4">
+          {isScreenSharing && sharerName && sharingIdentity ? (
             <ScreenShareDisplay sharerName={sharerName} sharerIdentity={sharingIdentity} />
+          ) : (
+            <div className="flex-1 flex items-center justify-center rounded-lg border border-dashed border-border/40 bg-black/5">
+              <div className="text-center">
+                <Volume2 className="w-12 h-12 text-muted-foreground/20 mx-auto mb-3" strokeWidth={1.5} />
+                <p className="text-sm text-muted-foreground/40">Нѣтъ демонстрации экрана</p>
+              </div>
+            </div>
           )}
+        </div>
 
-          {/* Participants */}
-          <div className="mb-6">
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-3">
-              Въ голосовой палатѣ — {voiceMembers.length}
-              {speakingCount > 0 && (
-                <span className="text-green-500 ml-1">
-                  · {speakingCount} говоритъ
-                </span>
-              )}
-            </h4>
+        {/* Participants sidebar */}
+        {members.length > 0 && (
+          <div className="w-full md:w-56 lg:w-64 border-t md:border-t-0 md:border-l border-border flex flex-col bg-card/20">
+            <div className="px-4 py-2.5 border-b border-border flex items-center gap-2 flex-shrink-0">
+              <User className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={2} />
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                {members.length} участник{members.length === 1 ? "" : members.length < 5 ? "а" : "ов"}
+                {speakingCount > 0 && (
+                  <span className="text-green-500 ml-1.5 font-normal normal-case">
+                    · {speakingCount} говоритъ
+                  </span>
+                )}
+              </span>
+            </div>
+            <div className="flex-1 overflow-y-auto p-1.5 space-y-0.5">
+              {members.map((m) => (
+                <UserContextMenu key={m.id} serverId={serverId} userId={m.id} username={m.name} isVoiceParticipant>
+                  <div
+                    className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-colors cursor-pointer group
+                      ${m.isSpeaking ? "bg-primary/10" : "hover:bg-muted/30"}
+                    `}
+                  >
+                    {/* Avatar */}
+                    <div className="relative flex-shrink-0">
+                      <div className={`w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold
+                        ${m.avatarUrl ? "" : m.isSpeaking ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}
+                      `}>
+                        {m.avatarUrl ? (
+                          <img src={m.avatarUrl} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          m.name.charAt(0).toUpperCase()
+                        )}
+                      </div>
+                      {/* Muted badge */}
+                      {m.isMuted && !m.isDeafened && (
+                        <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-red-500 flex items-center justify-center ring-[1.5px] ring-background">
+                          <MicOff className="w-2 h-2 text-white" />
+                        </div>
+                      )}
+                      {m.isDeafened && (
+                        <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-orange-500 flex items-center justify-center ring-[1.5px] ring-background">
+                          <MicOff className="w-2 h-2 text-white" />
+                        </div>
+                      )}
+                    </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-              {voiceMembers.map((member, index) => (
-                <UserContextMenu key={member.id} serverId={serverId} userId={member.id} username={member.name} isVoiceParticipant>
-                  <VoiceMemberCard
-                    member={member}
-                    index={index}
-                    volume={volumes[member.id]}
-                    onVolumeChange={(v) => dispatch(setParticipantVolume({ identity: member.id, volume: v }))}
-                    role={roleMap[member.id]?.name}
-                    roleColor={roleMap[member.id]?.color}
-                    bannerId={userDataMap[member.id]?.banner}
-                    joinedAt={joinedAtMap[member.id]}
-                  />
+                    {/* Name + role */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-sm truncate ${m.isSpeaking ? "text-foreground font-medium" : "text-muted-foreground"}`}
+                          style={m.roleColor && m.isSpeaking ? { color: m.roleColor } : undefined}>
+                          {m.name}
+                        </span>
+                        {m.isSpeaking && <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />}
+                      </div>
+                    </div>
+
+                    {/* Volume */}
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      value={m.volume}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => dispatch(setParticipantVolume({ identity: m.id, volume: Number(e.target.value) }))}
+                      className="w-16 h-1 rounded-full appearance-none cursor-pointer bg-muted/50 opacity-0 group-hover:opacity-100 transition-opacity [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:cursor-pointer"
+                      aria-label="Громкость"
+                    />
+                  </div>
                 </UserContextMenu>
               ))}
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Voice Controls */}
@@ -173,6 +241,11 @@ export function VoiceChat() {
         />
       )}
 
+      {connectError && (
+        <div className="px-4 py-2 bg-destructive/10 border-t border-destructive/20 text-destructive text-sm">
+          {connectError}
+        </div>
+      )}
     </div>
   );
 }
