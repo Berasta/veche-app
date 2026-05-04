@@ -1,7 +1,17 @@
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import * as ContextMenu from "@radix-ui/react-context-menu";
-import { AnimatePresence, motion } from "motion/react";
 import { MicOff, Mic, Volume2, UserX, Ear } from "lucide-react";
+
+const styleId = "ctx-menu-anim";
+if (typeof document !== "undefined" && !document.getElementById(styleId)) {
+  const style = document.createElement("style");
+  style.id = styleId;
+  style.textContent = `
+    @keyframes ctxFadeIn { from { opacity: 0; transform: scale(0.95) translateY(-4px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    @keyframes ctxFadeOut { from { opacity: 1; transform: scale(1) translateY(0); } to { opacity: 0; transform: scale(0.95) translateY(-4px); } }
+  `;
+  document.head.appendChild(style);
+}
 import { usePermissions } from "@hooks/usePermissions";
 import { PERMISSIONS } from "@api/rolesApi";
 import { useAppDispatch, useAppSelector } from "@store/hooks";
@@ -29,23 +39,13 @@ export function UserContextMenu({ serverId, userId, username, isVoiceParticipant
     dispatch(setParticipantVolume({ identity: userId, volume: isMuted ? 100 : 0 }));
   };
 
-  const [open, setOpen] = useState(false);
-
   return (
-    <ContextMenu.Root open={open} onOpenChange={setOpen}>
+    <ContextMenu.Root>
       <ContextMenu.Trigger>{children}</ContextMenu.Trigger>
-      <AnimatePresence>
-        {open && (
-          <ContextMenu.Portal forceMount>
-            <ContextMenu.Content asChild forceMount
-              className="min-w-44 bg-card border border-border/50 rounded-xl shadow-2xl shadow-black/20 backdrop-blur-xl p-1 z-[200]"
-            >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                transition={{ duration: 0.12, ease: "easeOut" }}
-              >
+      <ContextMenu.Portal>
+        <ContextMenu.Content
+          className="min-w-44 bg-card border border-border/50 rounded-xl shadow-2xl shadow-black/20 backdrop-blur-xl p-1 z-[200] data-[state=open]:animate-[ctxFadeIn_0.12s_ease-out_both] data-[state=closed]:animate-[ctxFadeOut_0.1s_ease-in_both]"
+        >
           {/* Volume slider for voice participants */}
           {isVoiceParticipant && (
             <>
@@ -104,7 +104,6 @@ export function UserContextMenu({ serverId, userId, username, isVoiceParticipant
           {!isVoiceParticipant && !canKick && (
             <div className="px-2.5 py-3 text-xs text-muted-foreground/50 text-center">Нѣтъ дѣйствій</div>
           )}
-          </motion.div>
         </ContextMenu.Content>
       </ContextMenu.Portal>
     </ContextMenu.Root>
