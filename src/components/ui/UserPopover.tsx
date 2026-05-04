@@ -32,23 +32,32 @@ const BANNER_COLLECTION = "_pb_users_auth_";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function buildBannerUrl(bannerId?: string | null, userId?: string): string | null {
+function buildBannerUrl(
+  bannerId?: string | null,
+  userId?: string,
+): string | null {
   if (!bannerId || !userId) return null;
   return `${PB_URL}/api/files/${BANNER_COLLECTION}/${userId}/${bannerId}`;
 }
 
-function loadBannerPosition(bannerId?: string | null): { x: number; y: number } {
+function loadBannerPosition(bannerId?: string | null): {
+  x: number;
+  y: number;
+} {
   if (!bannerId) return { x: 50, y: 50 };
   try {
     const saved = localStorage.getItem(`bannerPosition_${bannerId}`);
     if (saved) return JSON.parse(saved);
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return { x: 50, y: 50 };
 }
 
-function computePopoverPosition(
-  trigger: HTMLElement,
-): { top: number; left: number } {
+function computePopoverPosition(trigger: HTMLElement): {
+  top: number;
+  left: number;
+} {
   const rect = trigger.getBoundingClientRect();
   const spaceBelow = window.innerHeight - rect.bottom;
   const spaceAbove = rect.top;
@@ -86,7 +95,11 @@ function AvatarCircle({
       className={`${dim} ${ring} rounded-full bg-card ring-card shadow-lg shadow-black/30 overflow-hidden flex-shrink-0`}
     >
       {avatarUrl ? (
-        <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
+        <img
+          src={avatarUrl}
+          alt={username}
+          className="w-full h-full object-cover"
+        />
       ) : (
         <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
           <Crown className={`${iconSize} text-primary/70`} strokeWidth={1.5} />
@@ -112,7 +125,11 @@ function BannerSection({
           src={bannerUrl}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
-          style={bannerPos ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` } : undefined}
+          style={
+            bannerPos
+              ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` }
+              : undefined
+          }
         />
       )}
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/10" />
@@ -139,7 +156,11 @@ function BannerModalSection({
           src={bannerUrl}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
-          style={bannerPos ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` } : undefined}
+          style={
+            bannerPos
+              ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` }
+              : undefined
+          }
         />
       )}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent" />
@@ -158,7 +179,10 @@ function BannerModalSection({
 function RoleBadge({ role, color }: { role: string; color?: string }) {
   return (
     <div className="flex items-center gap-2">
-      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color || "#888" }} />
+      <div
+        className="w-2 h-2 rounded-full flex-shrink-0"
+        style={{ backgroundColor: color || "#888" }}
+      />
       <span className="text-sm font-medium text-foreground">{role}</span>
     </div>
   );
@@ -172,7 +196,11 @@ function JoinedDate({ joinedAt }: { joinedAt: string }) {
   });
   return (
     <div className="flex items-center gap-1.5">
-      <Calendar size={11} className="text-muted-foreground/50 flex-shrink-0" strokeWidth={1.5} />
+      <Calendar
+        size={11}
+        className="text-muted-foreground/50 flex-shrink-0"
+        strokeWidth={1.5}
+      />
       <p className="text-sm text-muted-foreground/70">{formatted}</p>
     </div>
   );
@@ -185,46 +213,11 @@ function UsernameOverlay({
   username: string;
   size: "popover" | "modal";
 }) {
-  const textClass =
-    size === "modal"
-      ? "text-lg font-bold text-white drop-shadow-lg leading-tight"
-      : "text-sm font-bold text-white drop-shadow-lg truncate leading-tight max-w-[90%] text-center";
+  const textClass = "font-bold text-white drop-shadow-lg leading-tight";
 
   return (
     <div className="inline-block px-2 py-0.5 rounded-md bg-black/30 backdrop-blur-sm">
       <p className={textClass}>{username}</p>
-    </div>
-  );
-}
-
-function VolumeSlider({
-  volume,
-  onChange,
-}: {
-  volume?: number;
-  onChange?: (volume: number) => void;
-}) {
-  if (onChange === undefined || volume === undefined) return null;
-
-  return (
-    <div className="px-4 pb-4">
-      <div className="bg-muted/30 backdrop-blur-sm border border-border/50 rounded-xl px-3 py-2.5">
-        <div className="flex items-center gap-2.5">
-          <Volume2 size={13} className="text-muted-foreground/70 flex-shrink-0" strokeWidth={1.5} />
-          <input
-            type="range"
-            min={0}
-            max={100}
-            value={volume}
-            onChange={(e) => onChange(Number(e.target.value))}
-            className="flex-1 h-1 rounded-full appearance-none cursor-pointer bg-muted/60 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:shadow-primary/30"
-            aria-label="Громкость"
-          />
-          <span className="text-[11px] font-medium text-muted-foreground/80 w-6 text-right flex-shrink-0 tabular-nums">
-            {volume}%
-          </span>
-        </div>
-      </div>
     </div>
   );
 }
@@ -277,8 +270,6 @@ export function UserPopover({
   role,
   roleColor,
   joinedAt,
-  volume,
-  onVolumeChange,
   userId,
   children,
 }: UserPopoverProps) {
@@ -289,7 +280,8 @@ export function UserPopover({
   const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0 });
   const triggerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
-  const { show, onMouseEnter, onMouseLeave, keepOpen, close } = useHoverPopover();
+  const { show, onMouseEnter, onMouseLeave, keepOpen, close } =
+    useHoverPopover();
 
   useEffect(() => {
     if (!show || !triggerRef.current) return;
@@ -324,8 +316,12 @@ export function UserPopover({
             style={{ top: popoverPos.top, left: popoverPos.left }}
           >
             <BannerSection bannerUrl={bannerUrl} bannerPos={bannerPos}>
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-3">
-                <AvatarCircle avatarUrl={avatarUrl} username={username} size="sm" />
+              <div className="absolute inset-0 flex items-center  gap-2 p-3">
+                <AvatarCircle
+                  avatarUrl={avatarUrl}
+                  username={username}
+                  size="sm"
+                />
                 <UsernameOverlay username={username} size="popover" />
               </div>
             </BannerSection>
@@ -358,9 +354,17 @@ export function UserPopover({
               className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-sm"
               onClick={(e) => e.stopPropagation()}
             >
-              <BannerModalSection bannerUrl={bannerUrl} bannerPos={bannerPos} onClose={() => setShowModal(false)}>
+              <BannerModalSection
+                bannerUrl={bannerUrl}
+                bannerPos={bannerPos}
+                onClose={() => setShowModal(false)}
+              >
                 <div className="absolute bottom-0 left-0 right-0 p-4 flex items-center gap-3">
-                  <AvatarCircle avatarUrl={avatarUrl} username={username} size="lg" />
+                  <AvatarCircle
+                    avatarUrl={avatarUrl}
+                    username={username}
+                    size="lg"
+                  />
                   <UsernameOverlay username={username} size="modal" />
                 </div>
               </BannerModalSection>
@@ -370,7 +374,14 @@ export function UserPopover({
                 {joinedAt && (
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
                     <Calendar size={12} strokeWidth={1.5} />
-                    <span>На серверѣ съ {new Date(joinedAt).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" })}</span>
+                    <span>
+                      На серверѣ съ{" "}
+                      {new Date(joinedAt).toLocaleDateString("ru-RU", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </span>
                   </div>
                 )}
               </div>
