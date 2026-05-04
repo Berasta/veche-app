@@ -83,11 +83,11 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
               ref={popoverRef}
               onMouseEnter={() => clearTimeout(hoverTimer.current)}
               onMouseLeave={() => setShow(false)}
-              className="fixed z-[100] w-64 bg-card border border-border/50 rounded-2xl shadow-2xl shadow-black/20 overflow-hidden backdrop-blur-xl"
+              className="fixed z-[100] w-64 bg-card border border-border/50 rounded-2xl shadow-2xl shadow-black/20 backdrop-blur-xl"
               style={{ top: pos.top, left: pos.left }}
             >
               {/* Banner */}
-              <div className="relative w-full aspect-[3.2/1] bg-black/10">
+              <div className="relative w-full aspect-[3.2/1] rounded-t-2xl overflow-hidden bg-black/10">
                 {bannerUrl ? (
                   <img src={bannerUrl} alt="" className="absolute inset-0 w-full h-full object-cover"
                     style={bannerPos ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` } : undefined} />
@@ -162,9 +162,9 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
       {showModal && (
         <Portal>
           <div className="fixed inset-0 z-[150] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowModal(false)}>
-            <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
               {/* Banner */}
-              <div className="relative w-full aspect-[3.2/1] overflow-hidden bg-black/10">
+              <div className="relative w-full aspect-[3.2/1] rounded-t-2xl overflow-hidden bg-black/10">
                 {bannerUrl ? (
                   <img src={bannerUrl} alt="" className="absolute inset-0 w-full h-full object-cover"
                     style={bannerPos ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` } : undefined} />
