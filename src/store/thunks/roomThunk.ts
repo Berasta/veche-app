@@ -190,6 +190,11 @@ export const joinChannel = createAsyncThunk(
           el.id = `audio-${participant.identity}`;
           document.body.appendChild(el);
           audioElements[participant.identity] = el;
+          // Если пользователь в оглушении — ставим новому участнику volume = 0
+          const state = getState() as RootState;
+          if (state.room.isDeafened) {
+            el.volume = 0;
+          }
         }
         dispatch(setParticipants(buildParticipants(room)));
       });
