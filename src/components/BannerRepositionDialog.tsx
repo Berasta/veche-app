@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Move, Save, X } from "lucide-react";
+import { Move, Save, X, Crop } from "lucide-react";
 
 interface BannerRepositionDialogProps {
   bannerUrl: string;
