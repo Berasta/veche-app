@@ -185,7 +185,7 @@ export const joinChannel = createAsyncThunk(
       });
 
       room.on(RoomEvent.TrackSubscribed, (track, _pub, participant) => {
-        if (track.kind === Track.Kind.Audio) {
+        if (track.kind === Track.Kind.Audio && track.source !== Track.Source.ScreenShareAudio) {
           const el = track.attach() as HTMLAudioElement;
           el.id = `audio-${participant.identity}`;
           document.body.appendChild(el);
@@ -195,6 +195,7 @@ export const joinChannel = createAsyncThunk(
       });
 
       room.on(RoomEvent.TrackUnsubscribed, (track, _pub, participant) => {
+        if (track.source === Track.Source.ScreenShareAudio) return;
         track.detach();
         audioElements[participant.identity]?.remove();
         delete audioElements[participant.identity];
