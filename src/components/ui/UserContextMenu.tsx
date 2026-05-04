@@ -1,5 +1,6 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import * as ContextMenu from "@radix-ui/react-context-menu";
+import { AnimatePresence, motion } from "motion/react";
 import { MicOff, Mic, Volume2, UserX, Ear } from "lucide-react";
 import { usePermissions } from "@hooks/usePermissions";
 import { PERMISSIONS } from "@api/rolesApi";
@@ -28,13 +29,23 @@ export function UserContextMenu({ serverId, userId, username, isVoiceParticipant
     dispatch(setParticipantVolume({ identity: userId, volume: isMuted ? 100 : 0 }));
   };
 
+  const [open, setOpen] = useState(false);
+
   return (
-    <ContextMenu.Root>
+    <ContextMenu.Root open={open} onOpenChange={setOpen}>
       <ContextMenu.Trigger>{children}</ContextMenu.Trigger>
-      <ContextMenu.Portal>
-        <ContextMenu.Content
-          className="min-w-44 bg-card border border-border/50 rounded-xl shadow-2xl shadow-black/20 backdrop-blur-xl p-1 z-[200] origin-[--radix-context-menu-content-transform-origin] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-100"
-        >
+      <AnimatePresence>
+        {open && (
+          <ContextMenu.Portal forceMount>
+            <ContextMenu.Content asChild forceMount
+              className="min-w-44 bg-card border border-border/50 rounded-xl shadow-2xl shadow-black/20 backdrop-blur-xl p-1 z-[200]"
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                transition={{ duration: 0.12, ease: "easeOut" }}
+              >
           {/* Volume slider for voice participants */}
           {isVoiceParticipant && (
             <>
@@ -93,6 +104,7 @@ export function UserContextMenu({ serverId, userId, username, isVoiceParticipant
           {!isVoiceParticipant && !canKick && (
             <div className="px-2.5 py-3 text-xs text-muted-foreground/50 text-center">Нѣтъ дѣйствій</div>
           )}
+          </motion.div>
         </ContextMenu.Content>
       </ContextMenu.Portal>
     </ContextMenu.Root>
