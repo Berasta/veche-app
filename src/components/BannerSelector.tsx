@@ -1,4 +1,4 @@
-import { Check, Image, Palette, Upload, X } from "lucide-react";
+import { Check, Image, Palette, Upload, X, Crop } from "lucide-react";
 import { useState, useRef } from "react";
 
 interface BannerSelectorProps {
@@ -6,6 +6,7 @@ interface BannerSelectorProps {
   onSelect: (bannerId: string) => void;
   onCustomUpload: (file: File) => Promise<void>;
   customBannerUrl?: string | null;
+  onReposition?: () => void;
   onClose: () => void;
 }
 
@@ -64,21 +65,6 @@ export const banners = [
   },
 ];
 
-const POSITION_LS_KEY = "bannerPosition";
-
-function loadPosition(filename?: string): { x: number; y: number } {
-  if (!filename) return { x: 50, y: 50 };
-  try {
-    const saved = localStorage.getItem(`${POSITION_LS_KEY}_${filename}`);
-    if (saved) return JSON.parse(saved);
-  } catch { /* ignore */ }
-  return { x: 50, y: 50 };
-}
-
-function savePosition(filename: string, x: number, y: number) {
-  localStorage.setItem(`${POSITION_LS_KEY}_${filename}`, JSON.stringify({ x, y }));
-}
-
 const isCustom = (id: string) => !predefinedBannerIds.includes(id);
 
 export function BannerSelector({
@@ -86,6 +72,7 @@ export function BannerSelector({
   onSelect,
   onCustomUpload,
   customBannerUrl,
+  onReposition,
   onClose,
 }: BannerSelectorProps) {
   const [selectedBanner, setSelectedBanner] = useState(currentBanner);
@@ -93,8 +80,6 @@ export function BannerSelector({
   const [tab, setTab] = useState<"patterns" | "custom">(
     isCustom(currentBanner) ? "custom" : "patterns",
   );
-  const [bannerPos, setBannerPos] = useState(() => loadPosition(customBannerUrl ? customBannerUrl.split("/").pop() : undefined));
-  const dragRef = useRef<{ startX: number; startY: number; posX: number; posY: number; dragging: boolean }>({ startX: 0, startY: 0, posX: 50, posY: 50, dragging: false });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSelect = (bannerId: string) => {
@@ -110,42 +95,10 @@ export function BannerSelector({
     try {
       await onCustomUpload(file);
       setSelectedBanner("custom");
-      const filename = customBannerUrl?.split("/").pop();
-      if (filename) {
-        const pos = loadPosition(filename);
-        setBannerPos(pos);
-      }
+      setTab("custom");
     } finally {
       setUploading(false);
     }
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!customBannerUrl) return;
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const startPosX = bannerPos.x;
-    const startPosY = bannerPos.y;
-    dragRef.current.dragging = true;
-    const onMove = (ev: MouseEvent) => {
-      if (!dragRef.current.dragging) return;
-      const dx = ev.clientX - startX;
-      const dy = ev.clientY - startY;
-      const newX = Math.max(0, Math.min(100, startPosX - dx / 3));
-      const newY = Math.max(0, Math.min(100, startPosY - dy / 3));
-      dragRef.current.posX = newX;
-      dragRef.current.posY = newY;
-      setBannerPos({ x: newX, y: newY });
-    };
-    const onUp = () => {
-      dragRef.current.dragging = false;
-      const filename = customBannerUrl?.split("/").pop();
-      if (filename) savePosition(filename, dragRef.current.posX, dragRef.current.posY);
-      document.removeEventListener("mousemove", onMove);
-      document.removeEventListener("mouseup", onUp);
-    };
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
   };
 
   const previewBanner = banners.find((b) => b.id === selectedBanner);
@@ -205,17 +158,24 @@ export function BannerSelector({
 
         {/* Preview */}
         <div className="border-b border-border p-4 md:p-6 bg-background/50">
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            Предварительный просмотръ
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Предварительный просмотръ
+            </span>
+            {showCustomPreview && customBannerUrl && onReposition && (
+              <button onClick={onReposition}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-medium transition-colors">
+                <Crop className="w-3 h-3" strokeWidth={2} />
+                Настроить область
+              </button>
+            )}
           </div>
           <div className="relative h-32 rounded-lg overflow-hidden border border-border">
             {showCustomPreview && customBannerUrl ? (
               <img
                 src={customBannerUrl}
                 alt=""
-                onMouseDown={handleMouseDown}
-                className="absolute inset-0 w-full h-full object-cover cursor-grab active:cursor-grabbing"
-                style={{ objectPosition: `${bannerPos.x}% ${bannerPos.y}%` }}
+                className="absolute inset-0 w-full h-full object-cover"
               />
             ) : previewBanner ? (
               <div className={`absolute inset-0 bg-gradient-to-br ${previewBanner.gradient}`}>
@@ -296,12 +256,19 @@ export function BannerSelector({
                 {uploading ? "Загрузка..." : "Выбрати изображеніе"}
               </button>
               {customBannerUrl && (
-                <button
-                  onClick={() => onSelect("default")}
-                  className="mt-3 text-xs text-muted-foreground hover:text-foreground underline transition-colors"
-                >
-                  Удалити своё изображеніе
-                </button>
+                <div className="flex items-center gap-3 mt-4">
+                  {onReposition && (
+                    <button onClick={onReposition}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-sm font-medium transition-colors">
+                      <Crop className="w-4 h-4" strokeWidth={2} />
+                      Настроить область
+                    </button>
+                  )}
+                  <button onClick={() => onSelect("default")}
+                    className="text-xs text-muted-foreground hover:text-foreground underline transition-colors">
+                    Удалити своё изображеніе
+                  </button>
+                </div>
               )}
             </div>
           )}

@@ -6,6 +6,7 @@ import { ThemeSwitcher } from "../components/ThemeSwitcher";
 import { VoiceSettings } from "../components/settings/VoiceSettings";
 import { HotkeySettings } from "../components/settings/HotkeySettings";
 import { BannerSelector, banners, predefinedBannerIds } from "../components/BannerSelector";
+import { BannerRepositionDialog } from "../components/BannerRepositionDialog";
 import { useAuth } from "@store/hooks/useAuth";
 import { pb, PB_URL } from "@api/pb";
 import { fetchCurrentUser, logout } from "@store/slices/authSlice";
@@ -30,6 +31,7 @@ export function Settings() {
   const [customBannerUrl, setCustomBannerUrl] = useState<string | null>(null);
   const [bannerPosition, setBannerPosition] = useState({ x: 50, y: 50 });
   const [showBannerSelector, setShowBannerSelector] = useState(false);
+  const [repositionFile, setRepositionFile] = useState<{ url: string; filename: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -92,6 +94,12 @@ export function Settings() {
     setSelectedBanner("default");
     localStorage.setItem("profileBanner", "default");
     dispatch(fetchCurrentUser());
+    setRepositionFile({ url, filename });
+  };
+
+  const handleRepositionSave = (x: number, y: number) => {
+    setBannerPosition({ x, y });
+    setRepositionFile(null);
   };
 
   const startEditing = () => { setNickname(user?.username || ""); setIsEditing(true); };
@@ -276,7 +284,20 @@ export function Settings() {
           onSelect={handleBannerSelect}
           onCustomUpload={handleCustomUpload}
           customBannerUrl={customBannerUrl}
+          onReposition={customBannerUrl ? () => {
+            const filename = customBannerUrl.split("/").pop() || "";
+            setRepositionFile({ url: customBannerUrl, filename });
+          } : undefined}
           onClose={() => setShowBannerSelector(false)}
+        />
+      )}
+
+      {repositionFile && (
+        <BannerRepositionDialog
+          bannerUrl={repositionFile.url}
+          filename={repositionFile.filename}
+          onSave={handleRepositionSave}
+          onClose={() => setRepositionFile(null)}
         />
       )}
     </div>
