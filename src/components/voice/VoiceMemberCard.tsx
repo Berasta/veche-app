@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { MicOff, Monitor } from "lucide-react";
+import { MicOff, Monitor, EarOff } from "lucide-react";
 import { motion } from "motion/react";
 import { UserPopover } from "@components/ui/UserPopover";
 
@@ -10,6 +10,7 @@ export interface VoiceMember {
   avatarUrl?: string;
   isSpeaking: boolean;
   isMuted: boolean;
+  isDeafened?: boolean;
   isScreenSharing: boolean;
 }
 
@@ -73,8 +74,15 @@ export function VoiceMemberCard({ member, index, volume, onVolumeChange, role, r
             )}
           </div>
 
+          {/* Deafen icon (local user only) */}
+          {member.isDeafened && (
+            <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center ring-[2px] ring-background">
+              <EarOff className="w-2.5 h-2.5 text-white" />
+            </div>
+          )}
+
           {/* Muted icon */}
-          {member.isMuted && (
+          {!member.isDeafened && member.isMuted && (
             <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center ring-[2px] ring-background">
               <MicOff className="w-2.5 h-2.5 text-white" />
             </div>

@@ -61,6 +61,7 @@ export function VoiceChat() {
       icon: User,
       isSpeaking: p.isSpeaking,
       isMuted: p.isMuted,
+      isDeafened: p.isLocal ? isDeafened : false,
       isScreenSharing: false,
     };
   });
