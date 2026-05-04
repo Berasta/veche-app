@@ -67,14 +67,14 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
     setTimeout(() => setShow(false), 150);
   };
 
-  const handlePopoverClick = () => {
+  const handleTriggerClick = () => {
     setShow(false);
     setShowModal(true);
   };
 
   return (
     <>
-      <div ref={triggerRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="inline-block cursor-pointer">
+      <div ref={triggerRef} onClick={handleTriggerClick} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="inline-block cursor-pointer">
         {children}
 
         {show && (
@@ -83,7 +83,6 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
               ref={popoverRef}
               onMouseEnter={() => clearTimeout(hoverTimer.current)}
               onMouseLeave={() => setShow(false)}
-              onClick={handlePopoverClick}
               className="fixed z-[100] w-64 bg-card border border-border/50 rounded-2xl shadow-2xl shadow-black/20 overflow-hidden backdrop-blur-xl"
               style={{ top: pos.top, left: pos.left }}
             >
