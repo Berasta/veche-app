@@ -1,16 +1,14 @@
-// src/components/ActiveVoiceBar.tsx
 import {
   Mic,
   MicOff,
-  Monitor,
-  MonitorOff,
   PhoneOff,
   Volume2,
   Maximize2,
   Ear,
   EarOff,
+  Monitor,
+  MonitorOff,
 } from "lucide-react";
-
 import {
   selectConnected,
   selectConnecting,
@@ -23,7 +21,6 @@ import {
   selectSpeakingCount,
   selectIsScreenSharing,
   selectError,
-  selectVolumes,
   selectIsDeafened,
 } from "../../store/selectors/roomSelectors";
 import { useAppDispatch, useAppSelector } from "@store/hooks";
@@ -33,13 +30,9 @@ import {
   toggleScreenShare,
   toggleDeafen,
 } from "@store/thunks/roomThunk";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ScreenShareModal } from "./ScreenShareModal";
 import { useNavigate } from "react-router";
-import { UserPopover } from "@components/ui/UserPopover";
-import { getUserById } from "@api/userApi";
-import { setParticipantVolume } from "@store/thunks/roomThunk";
-import { useVoiceSounds } from "@hooks/useVoiceSounds";
 
 export function ActiveVoiceBar() {
   const dispatch = useAppDispatch();
@@ -55,252 +48,129 @@ export function ActiveVoiceBar() {
   const speakingCount = useAppSelector(selectSpeakingCount);
   const activeChannelId = useAppSelector(selectActiveChannelId);
   const activeServerId = useAppSelector(selectActiveServerId);
+  const error = useAppSelector(selectError);
 
   const [showScreenModal, setShowScreenModal] = useState(false);
-  const error = useAppSelector(selectError);
-  const volumes = useAppSelector(selectVolumes);
-  const [userDataMap, setUserDataMap] = useState<
-    Record<string, { username: string; avatarUrl?: string }>
-  >({});
 
-  useVoiceSounds();
-
-  useEffect(() => {
-    const ids = participants.map((p) => p.identity);
-    const missing = ids.filter((id) => !userDataMap[id]);
-    if (missing.length === 0) return;
-    let cancelled = false;
-    Promise.all(
-      missing.map(async (id) => {
-        try {
-          const user = await getUserById(id);
-          return {
-            id,
-            data: { username: user.username, avatarUrl: user.avatar_url },
-          };
-        } catch {
-          return { id, data: { username: id, avatarUrl: undefined } };
-        }
-      }),
-    ).then((results) => {
-      if (cancelled) return;
-      setUserDataMap((prev) => {
-        const next = { ...prev };
-        results.forEach((r) => {
-          next[r.id] = r.data;
-        });
-        return next;
-      });
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [participants]);
+  if (!connected && !connecting && !error) return null;
 
   return (
     <>
       {error && (
-        <div className="px-4 py-2 bg-destructive/10 border-b border-destructive/20 text-destructive text-sm">
+        <div className="px-4 py-1.5 bg-destructive/10 text-destructive text-xs text-center">
           {error}
         </div>
       )}
-      <div
-      className={`
-      bottom-0 left-0 right-0 z-50
-      bg-background border-t border-border
-      px-3 py-2 md:px-4 md:py-2 flex items-center gap-2 md:gap-3 shadow-lg
-    `}
-      >
-        <button
-          onClick={() =>
-            console.log("=== HOTKEY DEBUG ===", {
-              connected: document.querySelector("[data-debug-hotkeys]"),
-            })
-          }
-          className="hidden"
-        >
-          debug
-        </button>
-        <div
-          data-debug-hotkeys
-          className="hidden text-[10px] text-muted-foreground font-mono px-2"
-        >
-          {import.meta.env.DEV ? "DEV" : "PROD"}
-        </div>
-        {!connected && !connecting ? (
-          <div className="text-sm text-muted-foreground">
-            Нет активной голосовой связи
+      <div className="h-10 bg-card border-t border-border flex items-center px-3 gap-2 z-50">
+        {/* Reconnecting banner */}
+        {reconnecting && (
+          <div className="absolute inset-x-0 -top-5 h-5 bg-yellow-500/10 text-yellow-600 text-[10px] flex items-center justify-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+            Переподключение...
           </div>
-        ) : null}
-        {/* Канал */}
-        <div
-          className={`flex items-center gap-2 flex-1 min-w-0 ${!connected ? "invisible" : ""}`}
-        >
-          <div className="relative">
-            <Volume2 size={18} className="text-green-500" />
-            {speakingCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            )}
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm md:text-base font-medium truncate">
-              {channelName}
-            </p>
-            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-              {reconnecting ? (
-                <span className="flex items-center gap-1 text-yellow-500">
-                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
-                  Переподключение...
-                </span>
-              ) : connecting ? (
-                <span>Подключение...</span>
-              ) : (
-                <>
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                  {participants.length} участник{participants.length === 1 ? "" : participants.length < 5 ? "а" : "ов"}
-                </>
-              )}
-            </p>
-          </div>
-        </div>
+        )}
 
-        {/* Аватары участников — скрываем на мобильных */}
-        <div className="hidden md:flex items-center">
-          {participants.slice(0, 4).map((p) => {
-            const ud = userDataMap[p.identity];
-            return (
-              <div key={p.identity} className="-mr-2 last:mr-0">
-                <UserPopover
-                  username={ud?.username || p.name}
-                  avatarUrl={ud?.avatarUrl}
-                  volume={volumes[p.identity]}
-                  onVolumeChange={(v) =>
-                    dispatch(
-                      setParticipantVolume({ identity: p.identity, volume: v }),
-                    )
-                  }
-                >
-                  <div
-                    className={`w-7 h-7 rounded-full border-2 border-background flex items-center justify-center text-xs font-bold overflow-hidden cursor-pointer ${
-                      p.isSpeaking
-                        ? "ring-2 ring-primary"
-                        : p.isMuted
-                          ? "opacity-60"
-                          : ""
-                    } ${p.isLocal ? "bg-violet-600 text-white" : "bg-muted text-foreground"}`}
-                  >
-                    {ud?.avatarUrl ? (
-                      <img
-                        src={ud.avatarUrl}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      (ud?.username || p.name).charAt(0).toUpperCase()
-                    )}
-                  </div>
-                </UserPopover>
+        {connecting ? (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+            Подключение къ каналу...
+          </div>
+        ) : connected ? (
+          <>
+            {/* Channel info */}
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <div className="relative flex-shrink-0">
+                <Volume2 size={14} className="text-green-500" />
+                {speakingCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                )}
               </div>
-            );
-          })}
-          {participants.length > 4 && (
-            <div className="w-7 h-7 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs flex-shrink-0">
-              +{participants.length - 4}
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-medium text-foreground truncate">
+                    {channelName}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground/60 flex-shrink-0">
+                    {participants.length} уч.
+                  </span>
+                  {speakingCount > 0 && (
+                    <span className="text-[10px] text-green-500 flex-shrink-0 font-medium">
+                      · {speakingCount} говоритъ
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
-          )}
-        </div>
 
-        {/* Кол-во участников на мобильных */}
-        {connected && participants.length > 0 && (
-          <div className="md:hidden text-xs text-muted-foreground flex-shrink-0">
-            {participants.length} уч.
-          </div>
-        )}
+            {/* Action buttons */}
+            <div className="flex items-center gap-0.5">
+              <button
+                onClick={() => dispatch(toggleMute())}
+                title={isMuted ? "Включить микрофон" : "Выключить микрофон"}
+                className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${
+                  isMuted
+                    ? "bg-red-500/20 text-red-500"
+                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {isMuted ? <MicOff size={13} /> : <Mic size={13} />}
+              </button>
 
-        {/* Раскрыть звонок */}
-        {connected && activeServerId && activeChannelId && (
-          <button
-            onClick={() =>
-              navigate(`/app/server/${activeServerId}/voice/${activeChannelId}`)
-            }
-            title="Раскрыти звонокъ"
-            className="p-2 md:p-2 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
-          >
-            <Maximize2 size={16} />
-          </button>
-        )}
+              <button
+                onClick={() => dispatch(toggleDeafen())}
+                title={isDeafened ? "Включить звукъ" : "Оглушити"}
+                className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${
+                  isDeafened
+                    ? "bg-red-500/20 text-red-500"
+                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {isDeafened ? <EarOff size={13} /> : <Ear size={13} />}
+              </button>
 
-        {/* Контролы */}
-        <div
-          className={`flex items-center gap-0.5 md:gap-1 ${!connected ? "invisible" : ""}`}
-        >
-          <button
-            onClick={() => dispatch(toggleMute())}
-            title={isMuted ? "Включить микрофон" : "Выключить микрофон"}
-            className={`
-            p-2 md:p-2 rounded-md transition-colors
-            ${
-              isMuted
-                ? "bg-red-500/20 text-red-500 hover:bg-red-500/30"
-                : "hover:bg-muted text-muted-foreground hover:text-foreground"
-            }
-          `}
-          >
-            {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
-          </button>
+              <button
+                onClick={() =>
+                  isScreenSharing
+                    ? dispatch(toggleScreenShare())
+                    : setShowScreenModal(true)
+                }
+                title={isScreenSharing ? "Остановить показъ" : "Показать экранъ"}
+                className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${
+                  isScreenSharing
+                    ? "bg-blue-500/20 text-blue-500"
+                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {isScreenSharing ? <MonitorOff size={13} /> : <Monitor size={13} />}
+              </button>
 
-          <button
-            onClick={() => dispatch(toggleDeafen())}
-            title={isDeafened ? "Включить звукъ" : "Оглушити"}
-            className={`
-            p-2 md:p-2 rounded-md transition-colors
-            ${
-              isDeafened
-                ? "bg-red-500/20 text-red-500 hover:bg-red-500/30"
-                : "hover:bg-muted text-muted-foreground hover:text-foreground"
-            }
-          `}
-          >
-            {isDeafened ? <EarOff size={16} /> : <Ear size={16} />}
-          </button>
-
-          <button
-            onClick={() => dispatch(leaveChannel())}
-            title="Выйти из канала"
-            className="p-2 md:p-2 rounded-md bg-red-500/20 text-red-500 hover:bg-red-500/30 transition-colors"
-          >
-            <PhoneOff size={16} />
-          </button>
-
-          <div className="relative">
-            <button
-              onClick={() =>
-                isScreenSharing
-                  ? dispatch(toggleScreenShare())
-                  : setShowScreenModal(true)
-              }
-              className={`
-              p-2 md:p-2 rounded-md transition-colors
-              ${
-                isScreenSharing
-                  ? "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30"
-                  : "hover:bg-muted text-muted-foreground hover:text-foreground"
-              }
-            `}
-            >
-              {isScreenSharing ? (
-                <MonitorOff size={16} />
-              ) : (
-                <Monitor size={16} />
+              {activeServerId && activeChannelId && (
+                <button
+                  onClick={() => navigate(`/app/server/${activeServerId}/voice/${activeChannelId}`)}
+                  title="Раскрыть звонокъ"
+                  className="w-7 h-7 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
+                >
+                  <Maximize2 size={13} />
+                </button>
               )}
-            </button>
 
-            {showScreenModal && (
-              <ScreenShareModal onClose={() => setShowScreenModal(false)} />
-            )}
-          </div>
-        </div>
+              <div className="w-px h-4 bg-border mx-1" />
+
+              <button
+                onClick={() => dispatch(leaveChannel())}
+                title="Покинуть каналъ"
+                className="w-7 h-7 rounded-md hover:bg-red-500/20 text-muted-foreground hover:text-red-500 flex items-center justify-center transition-colors"
+              >
+                <PhoneOff size={13} />
+              </button>
+            </div>
+          </>
+        ) : null}
       </div>
+
+      {showScreenModal && (
+        <ScreenShareModal onClose={() => setShowScreenModal(false)} />
+      )}
     </>
   );
 }
