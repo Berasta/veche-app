@@ -1,4 +1,4 @@
-import { pb, PB_URL } from "./pb";
+import { pb } from "./pb";
 
 export type User = {
   id: string;
@@ -12,9 +12,7 @@ export const getUserById = async (id: string) => {
   const user = await pb.collection("users").getOne(id);
   return {
     ...user,
-    avatar_url: user.avatar
-      ? `${PB_URL}/api/files/${user.collectionId}/${user.id}/${user.avatar}`
-      : undefined,
+    avatar_url: user.avatar ? pb.files?.getUrl(user, user.avatar) : undefined,
     banner: user.banner || undefined,
   };
 };

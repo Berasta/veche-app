@@ -1,7 +1,7 @@
 // src/store/slices/messagesSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RecordSubscription } from "pocketbase";
-import { pb, PB_URL } from "../../api/pb";
+import { pb } from "../../api/pb";
 
 export interface Message {
   id: string;
@@ -149,12 +149,14 @@ export const subscribeToChannel = (channelId: string, dispatch: any) => {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function normalizeMessage(record: any): Message {
   const author = record.expand?.user_id;
-  const baseUrl = `${PB_URL}/api/files/${record.collectionId}/${record.id}`;
   const images: string[] = [];
   if (record.images) {
     const names = Array.isArray(record.images) ? record.images : [record.images];
     names.forEach((name: string) => {
-      if (name) images.push(`${baseUrl}/${name}`);
+      if (name) {
+        const url = pb.files?.getUrl(record, name, { thumb: "0x0" });
+        if (url) images.push(url);
+      }
     });
   }
   return {
@@ -167,9 +169,7 @@ function normalizeMessage(record: any): Message {
     created: record.created,
     author_name: author?.name || author?.username || "Пользователь",
     author_avatar: author?.avatar || null,
-    author_avatar_url: author?.avatar
-      ? `${PB_URL}/api/files/${author.collectionId || "_pb_users_auth_"}/${author.id}/${author.avatar}`
-      : null,
+    author_avatar_url: author?.avatar ? pb.files?.getUrl(author, author.avatar) : null,
     author_banner: author?.banner || undefined,
     images,
   };
