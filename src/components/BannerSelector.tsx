@@ -64,6 +64,21 @@ export const banners = [
   },
 ];
 
+const POSITION_LS_KEY = "bannerPosition";
+
+function loadPosition(filename?: string): { x: number; y: number } {
+  if (!filename) return { x: 50, y: 50 };
+  try {
+    const saved = localStorage.getItem(`${POSITION_LS_KEY}_${filename}`);
+    if (saved) return JSON.parse(saved);
+  } catch { /* ignore */ }
+  return { x: 50, y: 50 };
+}
+
+function savePosition(filename: string, x: number, y: number) {
+  localStorage.setItem(`${POSITION_LS_KEY}_${filename}`, JSON.stringify({ x, y }));
+}
+
 const isCustom = (id: string) => !predefinedBannerIds.includes(id);
 
 export function BannerSelector({
@@ -78,6 +93,8 @@ export function BannerSelector({
   const [tab, setTab] = useState<"patterns" | "custom">(
     isCustom(currentBanner) ? "custom" : "patterns",
   );
+  const [bannerPos, setBannerPos] = useState(() => loadPosition(customBannerUrl ? customBannerUrl.split("/").pop() : undefined));
+  const dragRef = useRef<{ startX: number; startY: number; posX: number; posY: number; dragging: boolean }>({ startX: 0, startY: 0, posX: 50, posY: 50, dragging: false });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSelect = (bannerId: string) => {
@@ -93,9 +110,36 @@ export function BannerSelector({
     try {
       await onCustomUpload(file);
       setSelectedBanner("custom");
+      const filename = customBannerUrl?.split("/").pop();
+      if (filename) {
+        const pos = loadPosition(filename);
+        setBannerPos(pos);
+      }
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!customBannerUrl) return;
+    dragRef.current = { startX: e.clientX, startY: e.clientY, posX: bannerPos.x, posY: bannerPos.y, dragging: true };
+    const onMove = (ev: MouseEvent) => {
+      if (!dragRef.current.dragging) return;
+      const dx = ev.clientX - dragRef.current.startX;
+      const dy = ev.clientY - dragRef.current.startY;
+      const newX = Math.max(0, Math.min(100, dragRef.current.posX - dx / 3));
+      const newY = Math.max(0, Math.min(100, dragRef.current.posY - dy / 3));
+      setBannerPos({ x: newX, y: newY });
+    };
+    const onUp = () => {
+      dragRef.current.dragging = false;
+      const filename = customBannerUrl?.split("/").pop();
+      if (filename) savePosition(filename, bannerPos.x, bannerPos.y);
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+    };
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
   };
 
   const previewBanner = banners.find((b) => b.id === selectedBanner);
@@ -163,7 +207,9 @@ export function BannerSelector({
               <img
                 src={customBannerUrl}
                 alt=""
-                className="absolute inset-0 w-full h-full object-cover"
+                onMouseDown={handleMouseDown}
+                className="absolute inset-0 w-full h-full object-cover cursor-grab active:cursor-grabbing"
+                style={{ objectPosition: `${bannerPos.x}% ${bannerPos.y}%` }}
               />
             ) : previewBanner ? (
               <div className={`absolute inset-0 bg-gradient-to-br ${previewBanner.gradient}`}>

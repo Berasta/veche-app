@@ -46,8 +46,18 @@ function getCustomBannerUrl(bannerId: string, userId?: string): string {
   return `${PB_URL}/api/files/_pb_users_auth_/${userId}/${bannerId}`;
 }
 
+function loadBannerPosition(bannerId?: string | null): { x: number; y: number } {
+  if (!bannerId) return { x: 50, y: 50 };
+  try {
+    const saved = localStorage.getItem(`bannerPosition_${bannerId}`);
+    if (saved) return JSON.parse(saved);
+  } catch { /* ignore */ }
+  return { x: 50, y: 50 };
+}
+
 export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, joinedAt, volume, onVolumeChange, userId, children }: UserPopoverProps) {
   const banner = useMemo(() => getBanner(bannerId, username), [username, bannerId]);
+  const bannerPos = useMemo(() => isCustomBanner(bannerId) ? loadBannerPosition(bannerId) : null, [bannerId]);
   const [show, setShow] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -98,7 +108,8 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
             {/* Banner with avatar on the left */}
             <div className={`relative h-20 overflow-hidden ${isCustomBanner(bannerId) ? "" : "bg-gradient-to-br " + banner.gradient}`}>
               {isCustomBanner(bannerId) ? (
-                <img src={getCustomBannerUrl(bannerId!, userId)} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                <img src={getCustomBannerUrl(bannerId!, userId)} alt="" className="absolute inset-0 w-full h-full object-cover"
+                  style={bannerPos ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` } : undefined} />
               ) : (
                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: banner.pattern }} />
               )}

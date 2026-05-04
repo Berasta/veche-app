@@ -28,6 +28,7 @@ export function Settings() {
   const [saving, setSaving] = useState(false);
   const [selectedBanner, setSelectedBanner] = useState("default");
   const [customBannerUrl, setCustomBannerUrl] = useState<string | null>(null);
+  const [bannerPosition, setBannerPosition] = useState({ x: 50, y: 50 });
   const [showBannerSelector, setShowBannerSelector] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -38,6 +39,10 @@ export function Settings() {
     if (user?.banner && savedBanner === "default" && !predefinedBannerIds.includes(user.banner)) {
       const colId = (pb.authStore.record as any)?.collectionId || "_pb_users_auth_";
       setCustomBannerUrl(`${PB_URL}/api/files/${colId}/${user.id}/${user.banner}`);
+      try {
+        const pos = localStorage.getItem(`bannerPosition_${user.banner}`);
+        if (pos) setBannerPosition(JSON.parse(pos));
+      } catch {}
     }
   }, [user]);
 
@@ -165,7 +170,8 @@ export function Settings() {
               {/* Banner */}
               <div className={`relative h-32 rounded-lg overflow-hidden border border-primary/20 group ${customBannerUrl ? "" : "bg-gradient-to-br " + (currentBanner?.gradient || banners[0].gradient)}`}>
                 {customBannerUrl ? (
-                  <img src={customBannerUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  <img src={customBannerUrl} alt="" className="absolute inset-0 w-full h-full object-cover"
+                    style={{ objectPosition: `${bannerPosition.x}% ${bannerPosition.y}%` }} />
                 ) : (
                   <div className="absolute inset-0 opacity-20" style={{ backgroundImage: currentBanner?.pattern || banners[0].pattern }} />
                 )}
