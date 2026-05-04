@@ -1,11 +1,17 @@
-import { Check, Image, Palette } from "lucide-react";
-import { useState } from "react";
+import { Check, Image, Palette, Upload, X } from "lucide-react";
+import { useState, useRef } from "react";
 
 interface BannerSelectorProps {
   currentBanner: string;
   onSelect: (bannerId: string) => void;
+  onCustomUpload: (file: File) => Promise<void>;
+  customBannerUrl?: string | null;
   onClose: () => void;
 }
+
+export const predefinedBannerIds = [
+  "default", "forest", "birch", "fire", "water", "night", "ornament", "monastery",
+];
 
 export const banners = [
   {
@@ -58,17 +64,42 @@ export const banners = [
   },
 ];
 
+const isCustom = (id: string) => !predefinedBannerIds.includes(id);
+
 export function BannerSelector({
   currentBanner,
   onSelect,
+  onCustomUpload,
+  customBannerUrl,
   onClose,
 }: BannerSelectorProps) {
   const [selectedBanner, setSelectedBanner] = useState(currentBanner);
+  const [uploading, setUploading] = useState(false);
+  const [tab, setTab] = useState<"patterns" | "custom">(
+    isCustom(currentBanner) ? "custom" : "patterns",
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSelect = (bannerId: string) => {
     setSelectedBanner(bannerId);
+    setTab("patterns");
     onSelect(bannerId);
   };
+
+  const handleFilePick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      await onCustomUpload(file);
+      setSelectedBanner("custom");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const previewBanner = banners.find((b) => b.id === selectedBanner);
+  const showCustomPreview = tab === "custom" || isCustom(selectedBanner);
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -85,7 +116,7 @@ export function BannerSelector({
                   Избрати хоругвь профиля
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Выберите фоновый узоръ для своего профиля
+                  Выберите фоновый узоръ или загрузите свой
                 </p>
               </div>
             </div>
@@ -93,9 +124,33 @@ export function BannerSelector({
               onClick={onClose}
               className="w-8 h-8 rounded-md hover:bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
             >
-              ✕
+              <X className="w-4 h-4" />
             </button>
           </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex border-b border-border">
+          <button
+            onClick={() => setTab("patterns")}
+            className={`flex-1 py-2.5 text-xs font-semibold uppercase tracking-widest transition-colors ${
+              tab === "patterns"
+                ? "text-foreground border-b-2 border-primary"
+                : "text-muted-foreground/50 hover:text-muted-foreground"
+            }`}
+          >
+            Узоры
+          </button>
+          <button
+            onClick={() => setTab("custom")}
+            className={`flex-1 py-2.5 text-xs font-semibold uppercase tracking-widest transition-colors ${
+              tab === "custom"
+                ? "text-foreground border-b-2 border-primary"
+                : "text-muted-foreground/50 hover:text-muted-foreground"
+            }`}
+          >
+            Своё изображеніе
+          </button>
         </div>
 
         {/* Preview */}
@@ -104,21 +159,17 @@ export function BannerSelector({
             Предварительный просмотръ
           </div>
           <div className="relative h-32 rounded-lg overflow-hidden border border-border">
-            <div
-              className={`absolute inset-0 bg-gradient-to-br ${
-                banners.find((b) => b.id === selectedBanner)?.gradient ||
-                banners[0].gradient
-              }`}
-            >
-              <div
-                className="absolute inset-0 opacity-20"
-                style={{
-                  backgroundImage:
-                    banners.find((b) => b.id === selectedBanner)?.pattern ||
-                    banners[0].pattern,
-                }}
+            {showCustomPreview && customBannerUrl ? (
+              <img
+                src={customBannerUrl}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover"
               />
-            </div>
+            ) : previewBanner ? (
+              <div className={`absolute inset-0 bg-gradient-to-br ${previewBanner.gradient}`}>
+                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: previewBanner.pattern }} />
+              </div>
+            ) : null}
             <div className="absolute inset-0 flex items-end p-4">
               <div className="flex items-center gap-3">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center ring-4 ring-background">
@@ -137,54 +188,71 @@ export function BannerSelector({
           </div>
         </div>
 
-        {/* Banner Grid */}
+        {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 md:p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {banners.map((banner) => (
-              <button
-                key={banner.id}
-                onClick={() => handleSelect(banner.id)}
-                className={`
-                  group relative rounded-lg overflow-hidden border-2 transition-all
-                  ${
-                    selectedBanner === banner.id
-                      ? "border-primary ring-2 ring-primary/20"
-                      : "border-border hover:border-primary/50"
-                  }
-                `}
-              >
-                {/* Banner Preview */}
-                <div
-                  className={`relative h-24 bg-gradient-to-br ${banner.gradient}`}
+          {tab === "patterns" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {banners.map((banner) => (
+                <button
+                  key={banner.id}
+                  onClick={() => handleSelect(banner.id)}
+                  className={`
+                    group relative rounded-lg overflow-hidden border-2 transition-all
+                    ${
+                      selectedBanner === banner.id
+                        ? "border-primary ring-2 ring-primary/20"
+                        : "border-border hover:border-primary/50"
+                    }
+                  `}
                 >
-                  <div
-                    className="absolute inset-0 opacity-20"
-                    style={{ backgroundImage: banner.pattern }}
-                  />
-
-                  {/* Selected Indicator */}
-                  {selectedBanner === banner.id && (
-                    <div className="absolute top-2 right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-lg">
-                      <Check
-                        className="w-4 h-4 text-primary-foreground"
-                        strokeWidth={3}
-                      />
-                    </div>
-                  )}
-
-                  {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-                </div>
-
-                {/* Name */}
-                <div className="p-3 bg-card/80 backdrop-blur-sm">
-                  <div className="text-sm font-medium text-foreground text-center">
-                    {banner.name}
+                  <div className={`relative h-24 bg-gradient-to-br ${banner.gradient}`}>
+                    <div className="absolute inset-0 opacity-20" style={{ backgroundImage: banner.pattern }} />
+                    {selectedBanner === banner.id && (
+                      <div className="absolute top-2 right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-lg">
+                        <Check className="w-4 h-4 text-primary-foreground" strokeWidth={3} />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                   </div>
-                </div>
+                  <div className="p-3 bg-card/80 backdrop-blur-sm">
+                    <div className="text-sm font-medium text-foreground text-center">{banner.name}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 px-4">
+              <div className="w-24 h-24 rounded-2xl bg-muted/50 border-2 border-dashed border-border flex items-center justify-center mb-4">
+                <Upload className="w-8 h-8 text-muted-foreground/50" strokeWidth={1.5} />
+              </div>
+              <p className="text-sm text-foreground font-medium mb-1">Загрузите своё изображеніе</p>
+              <p className="text-xs text-muted-foreground text-center mb-4 max-w-xs">
+                Рекомендуемый размеръ: 640×200 пикселей
+              </p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFilePick}
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="px-5 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+              >
+                {uploading ? "Загрузка..." : "Выбрати изображеніе"}
               </button>
-            ))}
-          </div>
+              {customBannerUrl && (
+                <button
+                  onClick={() => onSelect("default")}
+                  className="mt-3 text-xs text-muted-foreground hover:text-foreground underline transition-colors"
+                >
+                  Удалити своё изображеніе
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -193,7 +261,7 @@ export function BannerSelector({
             <p className="text-xs text-muted-foreground">
               Выбрано:{" "}
               <span className="text-foreground font-medium">
-                {banners.find((b) => b.id === selectedBanner)?.name}
+                {showCustomPreview && customBannerUrl ? "Своё изображеніе" : previewBanner?.name}
               </span>
             </p>
             <button

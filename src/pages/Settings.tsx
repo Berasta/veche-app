@@ -5,9 +5,9 @@ import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, Keyboard, U
 import { ThemeSwitcher } from "../components/ThemeSwitcher";
 import { VoiceSettings } from "../components/settings/VoiceSettings";
 import { HotkeySettings } from "../components/settings/HotkeySettings";
-import { BannerSelector, banners } from "../components/BannerSelector";
+import { BannerSelector, banners, predefinedBannerIds } from "../components/BannerSelector";
 import { useAuth } from "@store/hooks/useAuth";
-import { pb } from "@api/pb";
+import { pb, PB_URL } from "@api/pb";
 import { fetchCurrentUser, logout } from "@store/slices/authSlice";
 import { useAppDispatch } from "@store/hooks";
 
@@ -27,6 +27,7 @@ export function Settings() {
   const [nickname, setNickname] = useState("");
   const [saving, setSaving] = useState(false);
   const [selectedBanner, setSelectedBanner] = useState("default");
+  const [customBannerUrl, setCustomBannerUrl] = useState<string | null>(null);
   const [showBannerSelector, setShowBannerSelector] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -34,7 +35,11 @@ export function Settings() {
   useEffect(() => {
     const savedBanner = localStorage.getItem("profileBanner") || "default";
     setSelectedBanner(savedBanner);
-  }, []);
+    if (user?.banner && savedBanner === "default" && !predefinedBannerIds.includes(user.banner)) {
+      const colId = (pb.authStore.record as any)?.collectionId || "_pb_users_auth_";
+      setCustomBannerUrl(`${PB_URL}/api/files/${colId}/${user.id}/${user.banner}`);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -60,6 +65,7 @@ export function Settings() {
 
   const handleBannerSelect = async (bannerId: string) => {
     setSelectedBanner(bannerId);
+    setCustomBannerUrl(null);
     localStorage.setItem("profileBanner", bannerId);
     if (user) {
       try { await pb.collection("users").update(user.id, { banner: bannerId }); dispatch(fetchCurrentUser()); } catch (err) {
@@ -67,6 +73,20 @@ export function Settings() {
         toast.error("Не удалось сохранить хоругвь");
       }
     }
+  };
+
+  const handleCustomUpload = async (file: File) => {
+    if (!user) return;
+    const formData = new FormData();
+    formData.append("banner", file);
+    const updated = await pb.collection("users").update(user.id, formData);
+    const filename = (updated as any).banner;
+    const colId = (updated as any).collectionId || "_pb_users_auth_";
+    const url = `${PB_URL}/api/files/${colId}/${user.id}/${filename}`;
+    setCustomBannerUrl(url);
+    setSelectedBanner("default");
+    localStorage.setItem("profileBanner", "default");
+    dispatch(fetchCurrentUser());
   };
 
   const startEditing = () => { setNickname(user?.username || ""); setIsEditing(true); };
@@ -143,8 +163,12 @@ export function Settings() {
           {activeTab === "profile" && (
             <>
               {/* Banner */}
-              <div className={`relative h-32 rounded-lg overflow-hidden bg-gradient-to-br ${currentBanner.gradient} border border-primary/20 group`}>
-                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: currentBanner.pattern }} />
+              <div className={`relative h-32 rounded-lg overflow-hidden border border-primary/20 group ${customBannerUrl ? "" : "bg-gradient-to-br " + (currentBanner?.gradient || banners[0].gradient)}`}>
+                {customBannerUrl ? (
+                  <img src={customBannerUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                ) : (
+                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: currentBanner?.pattern || banners[0].pattern }} />
+                )}
                 <button onClick={() => setShowBannerSelector(true)}
                   className="absolute top-3 right-3 px-3 py-1.5 bg-background/80 backdrop-blur-sm hover:bg-background/95 text-foreground rounded-lg transition-all opacity-0 group-hover:opacity-100 flex items-center gap-2 text-sm border border-border shadow-lg">
                   <Image className="w-3.5 h-3.5" strokeWidth={2} />
@@ -241,7 +265,13 @@ export function Settings() {
 
       {/* Banner Selector Modal */}
       {showBannerSelector && (
-        <BannerSelector currentBanner={selectedBanner} onSelect={handleBannerSelect} onClose={() => setShowBannerSelector(false)} />
+        <BannerSelector
+          currentBanner={selectedBanner}
+          onSelect={handleBannerSelect}
+          onCustomUpload={handleCustomUpload}
+          customBannerUrl={customBannerUrl}
+          onClose={() => setShowBannerSelector(false)}
+        />
       )}
     </div>
   );

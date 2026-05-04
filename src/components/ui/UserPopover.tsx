@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, ReactNode, useCallback, useMemo } from "react";
 import { Portal } from "./Portal";
 import { Volume2, Crown, Calendar } from "lucide-react";
-import { banners } from "../BannerSelector";
+import { banners, predefinedBannerIds } from "../BannerSelector";
+import { PB_URL } from "@api/pb";
 
 interface UserPopoverProps {
   username: string;
@@ -35,6 +36,14 @@ function getBanner(bannerId?: string | null, username?: string) {
     if (found) return found;
   }
   return banners[hashString(username || "") % banners.length];
+}
+
+function isCustomBanner(bannerId?: string | null): boolean {
+  return !!bannerId && !predefinedBannerIds.includes(bannerId) && !banners.some((b) => b.id === bannerId);
+}
+
+function getCustomBannerUrl(bannerId: string, userId?: string): string {
+  return `${PB_URL}/api/files/_pb_users_auth_/${userId}/${bannerId}`;
 }
 
 export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, joinedAt, volume, onVolumeChange, userId, children }: UserPopoverProps) {
@@ -87,8 +96,12 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
             onClick={(e) => e.stopPropagation()}
           >
             {/* Banner with avatar on the left */}
-            <div className={`relative h-20 bg-gradient-to-br ${banner.gradient} overflow-hidden`}>
-              <div className="absolute inset-0 opacity-20" style={{ backgroundImage: banner.pattern }} />
+            <div className={`relative h-20 overflow-hidden ${isCustomBanner(bannerId) ? "" : "bg-gradient-to-br " + banner.gradient}`}>
+              {isCustomBanner(bannerId) ? (
+                <img src={getCustomBannerUrl(bannerId!, userId)} alt="" className="absolute inset-0 w-full h-full object-cover" />
+              ) : (
+                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: banner.pattern }} />
+              )}
               <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 flex items-end gap-3">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center ring-[3px] ring-card shadow-lg shadow-black/20 overflow-hidden flex-shrink-0">
