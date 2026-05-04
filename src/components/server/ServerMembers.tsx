@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { toast } from "sonner";
 import { X, Users, User, Circle } from "lucide-react";
 import { UserPopover } from "@components/ui/UserPopover";
+import { UserContextMenu } from "@components/ui/UserContextMenu";
 import { MembersSkeleton } from "@components/ui/Skeleton";
 import { getRoleMap } from "@api/rolesApi";
 import { pb, PB_URL } from "@api/pb";
@@ -26,7 +27,7 @@ interface Member {
 }
 
 function MembersPanel({
-  members, loading, roleMap, groupedMembers, onClose, showHeader = true, volumes = {}, onVolumeChange,
+  members, loading, roleMap, groupedMembers, onClose, showHeader = true, volumes = {}, onVolumeChange, serverId,
 }: {
   members: Member[];
   loading: boolean;
@@ -36,6 +37,7 @@ function MembersPanel({
   showHeader?: boolean;
   volumes?: Record<string, number>;
   onVolumeChange?: (identity: string, volume: number) => void;
+  serverId?: string;
 }) {
   return (
     <>
@@ -64,13 +66,15 @@ function MembersPanel({
                 <div className="space-y-0.5">
                   {group.members.map((member) => (
                     <div key={member.id} className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-sidebar-accent/50 transition-colors">
-                      <UserPopover username={member.username} avatarUrl={member.avatarUrl} bannerId={member.banner} userId={member.id} role={roleMap[member.id]?.name} roleColor={roleMap[member.id]?.color} joinedAt={member.joinedAt} volume={volumes[member.id]} onVolumeChange={(v) => onVolumeChange?.(member.id, v)}>
-                        <div className="w-7 h-7 flex-shrink-0">
-                          <div className="w-full h-full rounded-full overflow-hidden bg-sidebar/50 flex items-center justify-center cursor-pointer">
-                            {member.avatarUrl ? <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" /> : <User className="w-3.5 h-3.5 text-sidebar-foreground/50" strokeWidth={2} />}
+                      <UserContextMenu serverId={serverId} userId={member.id} username={member.username} isVoiceParticipant={member.id in volumes}>
+                        <UserPopover username={member.username} avatarUrl={member.avatarUrl} bannerId={member.banner} userId={member.id} role={roleMap[member.id]?.name} roleColor={roleMap[member.id]?.color} joinedAt={member.joinedAt} volume={volumes[member.id]} onVolumeChange={(v) => onVolumeChange?.(member.id, v)}>
+                          <div className="w-7 h-7 flex-shrink-0">
+                            <div className="w-full h-full rounded-full overflow-hidden bg-sidebar/50 flex items-center justify-center cursor-pointer">
+                              {member.avatarUrl ? <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" /> : <User className="w-3.5 h-3.5 text-sidebar-foreground/50" strokeWidth={2} />}
+                            </div>
                           </div>
-                        </div>
-                      </UserPopover>
+                        </UserPopover>
+                      </UserContextMenu>
                       <span className="text-sm truncate text-sidebar-foreground" style={roleMap[member.id]?.color ? { color: roleMap[member.id].color } : {}}>{member.username}</span>
                     </div>
                   ))}
@@ -208,6 +212,7 @@ function ServerMembersContent({ serverId, onClose, showHeader }: { serverId: str
       showHeader={showHeader}
       volumes={volumes}
       onVolumeChange={(identity, v) => dispatch(setParticipantVolume({ identity, volume: v }))}
+      serverId={serverId}
     />
   );
 }

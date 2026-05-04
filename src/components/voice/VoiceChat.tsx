@@ -30,6 +30,7 @@ import { setScreenShareQuality } from "@store/slices/roomSlice";
 import { useVoiceData } from "@hooks/useVoiceData";
 import { getRoleMap } from "@api/rolesApi";
 import { useOverlay } from "@hooks/useOverlay";
+import { UserContextMenu } from "@components/ui/UserContextMenu";
 
 export function VoiceChat() {
   const dispatch = useAppDispatch();
@@ -128,17 +129,18 @@ export function VoiceChat() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
               {voiceMembers.map((member, index) => (
-                <VoiceMemberCard
-                  key={member.id}
-                  member={member}
-                  index={index}
-                  volume={volumes[member.id]}
-                  onVolumeChange={(v) => dispatch(setParticipantVolume({ identity: member.id, volume: v }))}
-                  role={roleMap[member.id]?.name}
-                  roleColor={roleMap[member.id]?.color}
-                  bannerId={userDataMap[member.id]?.banner}
-                  joinedAt={joinedAtMap[member.id]}
-                />
+                <UserContextMenu key={member.id} serverId={serverId} userId={member.id} username={member.name} isVoiceParticipant>
+                  <VoiceMemberCard
+                    member={member}
+                    index={index}
+                    volume={volumes[member.id]}
+                    onVolumeChange={(v) => dispatch(setParticipantVolume({ identity: member.id, volume: v }))}
+                    role={roleMap[member.id]?.name}
+                    roleColor={roleMap[member.id]?.color}
+                    bannerId={userDataMap[member.id]?.banner}
+                    joinedAt={joinedAtMap[member.id]}
+                  />
+                </UserContextMenu>
               ))}
             </div>
           </div>
