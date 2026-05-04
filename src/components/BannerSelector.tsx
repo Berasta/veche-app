@@ -170,7 +170,7 @@ export function BannerSelector({
               </button>
             )}
           </div>
-          <div className="relative h-32 rounded-lg overflow-hidden border border-border">
+          <div className="relative w-full aspect-[3.2/1] rounded-lg overflow-hidden border border-border">
             {showCustomPreview && customBannerUrl ? (
               <img
                 src={customBannerUrl}

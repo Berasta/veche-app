@@ -176,7 +176,7 @@ export function Settings() {
           {activeTab === "profile" && (
             <>
               {/* Banner */}
-              <div className={`relative h-32 rounded-lg overflow-hidden border border-primary/20 group ${customBannerUrl ? "" : "bg-gradient-to-br " + (currentBanner?.gradient || banners[0].gradient)}`}>
+              <div className={`relative w-full aspect-[3.2/1] rounded-lg overflow-hidden border border-primary/20 group ${customBannerUrl ? "" : "bg-gradient-to-br " + (currentBanner?.gradient || banners[0].gradient)}`}>
                 {customBannerUrl ? (
                   <img src={customBannerUrl} alt="" className="absolute inset-0 w-full h-full object-cover"
                     style={{ objectPosition: `${bannerPosition.x}% ${bannerPosition.y}%` }} />

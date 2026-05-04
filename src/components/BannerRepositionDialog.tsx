@@ -87,7 +87,7 @@ export function BannerRepositionDialog({ bannerUrl, filename, onSave, onClose }:
 
         {/* Preview */}
         <div className="p-6 bg-background/50">
-          <div className="relative w-full h-48 md:h-64 rounded-xl overflow-hidden border-2 border-border/50 bg-black/40">
+          <div className="relative w-full aspect-[3.2/1] rounded-xl overflow-hidden border-2 border-border/50 bg-black/40">
             <img
               id="banner-reposition-img"
               src={bannerUrl}

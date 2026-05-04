@@ -106,7 +106,7 @@ export function UserPopover({ username, avatarUrl, bannerId, role, roleColor, jo
             onClick={(e) => e.stopPropagation()}
           >
             {/* Banner with avatar on the left */}
-            <div className={`relative h-20 overflow-hidden ${isCustomBanner(bannerId) ? "" : "bg-gradient-to-br " + banner.gradient}`}>
+            <div className={`relative w-full aspect-[3.2/1] overflow-hidden ${isCustomBanner(bannerId) ? "" : "bg-gradient-to-br " + banner.gradient}`}>
               {isCustomBanner(bannerId) ? (
                 <img src={getCustomBannerUrl(bannerId!, userId)} alt="" className="absolute inset-0 w-full h-full object-cover"
                   style={bannerPos ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` } : undefined} />
