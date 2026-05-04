@@ -167,8 +167,8 @@ function normalizeMessage(record: any): Message {
     created: record.created,
     author_name: author?.name || author?.username || "Пользователь",
     author_avatar: author?.avatar || null,
-    author_avatar_url: author?.avatar && author?.collectionId
-      ? `${PB_URL}/api/files/${author.collectionId}/${author.id}/${author.avatar}`
+    author_avatar_url: author?.avatar
+      ? `${PB_URL}/api/files/${author.collectionId || "_pb_users_auth_"}/${author.id}/${author.avatar}`
       : null,
     author_banner: author?.banner || undefined,
     images,
