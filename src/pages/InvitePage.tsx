@@ -1,35 +1,22 @@
-import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { getInviteByCode, incrementInviteUse } from "@shared/api/inviteApi";
 import { addServerMember } from "@shared/api/memberApi";
-import { pb } from "@shared/api/pb";
-import { Loader2, CheckCircle, XCircle } from "lucide-react";
-
-function setMeta(title: string, description: string, image?: string) {
-  document.title = title;
-  const set = (name: string, content: string) => {
-    let el = document.querySelector(`meta[property="${name}"]`) as HTMLMetaElement | null;
-    if (!el) { el = document.createElement("meta"); el.setAttribute("property", name); document.head.appendChild(el); }
-    el.setAttribute("content", content);
-  };
-  set("og:title", title);
-  set("og:description", description);
-  set("twitter:title", title);
-  set("twitter:description", description);
-  if (image) { set("og:image", image); set("twitter:image", image); }
-}
+import { pb, PB_URL } from "@shared/api/pb";
+import { Loader2, Crown, Users, ArrowRight } from "lucide-react";
 
 export function InvitePage() {
   const { code } = useParams();
   const navigate = useNavigate();
-  const [status, setStatus] = useState<"loading" | "valid" | "invalid">("loading");
-  const [serverName, setServerName] = useState<string | null>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "invalid">("loading");
+  const [serverName, setServerName] = useState("");
+  const [serverAvatar, setServerAvatar] = useState<string | null>(null);
+  const [serverId, setServerId] = useState("");
+  const [memberCount, setMemberCount] = useState(0);
+  const [joining, setJoining] = useState(false);
 
   useEffect(() => {
     if (!code) { setStatus("invalid"); return; }
-
-    setMeta("Вече — Приглашенiе", "Провѣрка приглашенiя...");
 
     (async () => {
       try {
@@ -38,62 +25,101 @@ export function InvitePage() {
         if (invite.expires_at && new Date(invite.expires_at) < new Date()) { setStatus("invalid"); return; }
         if (invite.max_uses && invite.use_count >= invite.max_uses) { setStatus("invalid"); return; }
 
-        let name = "Градъ";
+        const sid = invite.server_id;
+        setServerId(sid);
+
         try {
-          const server = await pb.collection("servers").getOne(invite.server_id);
-          name = server.name;
-          setServerName(name);
-          setMeta(
-            `Приглашенiе въ "${name}"`,
-            `Васъ приглашаютъ въ градъ "${name}" на Вече. Присоединяйтесь къ бесѣдѣ!`,
-            undefined,
-          );
-        } catch (err) {
-          console.error("Ошибка загрузки названiя града", err);
-          toast.error("Не удалось загрузить названiе града");
-        }
+          const server = await pb.collection("servers").getOne(sid);
+          setServerName(server.name || "Градъ");
+          setServerAvatar(server.avatar ? `${PB_URL}/api/files/${server.collectionId}/${server.id}/${server.avatar}` : null);
+        } catch {}
 
-        await addServerMember(invite.server_id);
-        await incrementInviteUse(invite.id);
-        setStatus("valid");
+        try {
+          const members = await pb.collection("server_members").getFullList({ filter: `server_id = "${sid}"` });
+          setMemberCount(members.length);
+        } catch {}
 
-        setTimeout(() => navigate(`/app/server/${invite.server_id}`), 1500);
+        setStatus("ready");
       } catch {
-        setMeta("Приглашенiе не дѣйствительно", "Срокъ истекъ или превышенъ лимитъ использованiй");
         setStatus("invalid");
       }
     })();
-  }, [code, navigate]);
+  }, [code]);
+
+  const handleJoin = async () => {
+    if (!code || joining) return;
+    setJoining(true);
+    try {
+      const invite = await getInviteByCode(code);
+      if (!invite) return;
+      await addServerMember(invite.server_id);
+      await incrementInviteUse(invite.id);
+      navigate(`/app/server/${invite.server_id}`);
+    } catch {
+      setJoining(false);
+    }
+  };
 
   return (
     <div className="h-screen w-full flex items-center justify-center bg-background">
-      <div className="text-center">
+      <div className="w-full max-w-sm mx-4">
         {status === "loading" && (
-          <>
-            <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-4" />
-            <p className="text-sm text-muted-foreground">Провѣрка приглашенiя...</p>
-          </>
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin text-foreground/20 mx-auto" />
+            <p className="text-xs text-foreground/30 mt-3">Провѣрка приглашенiя...</p>
+          </div>
         )}
-        {status === "valid" && (
-          <>
-            <CheckCircle className="w-10 h-10 text-green-500 mx-auto mb-4" />
-            <p className="text-sm text-foreground font-medium mb-1">Приглашенiе принято!</p>
-            {serverName && (
-              <p className="text-lg font-bold text-primary mb-1">«{serverName}»</p>
-            )}
-            <p className="text-xs text-muted-foreground">
-              {serverName ? `Входъ въ градъ...` : "Перенаправляемъ..."}
-            </p>
-          </>
+
+        {status === "ready" && (
+          <div className="bg-foreground/[0.02] backdrop-blur-xl rounded-2xl overflow-hidden border border-foreground/5">
+            {/* Banner */}
+            <div className="relative h-20 bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10">
+              {serverAvatar && (
+                <img src={serverAvatar} alt="" className="absolute inset-0 w-full h-full object-cover opacity-30" />
+              )}
+            </div>
+
+            <div className="px-5 pb-5 -mt-8">
+              {/* Avatar */}
+              <div className="w-16 h-16 rounded-2xl overflow-hidden bg-foreground/10 ring-4 ring-background flex items-center justify-center mb-3 shadow-lg">
+                {serverAvatar ? (
+                  <img src={serverAvatar} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <Crown className="w-7 h-7 text-foreground/30" strokeWidth={1.5} />
+                )}
+              </div>
+
+              {/* Info */}
+              <h2 className="text-lg font-bold text-foreground/90 mb-0.5">{serverName || "Градъ"}</h2>
+              <div className="flex items-center gap-1.5 text-xs text-foreground/40 mb-4">
+                <Users className="w-3 h-3" strokeWidth={1.5} />
+                <span>{memberCount} участник{memberCount === 1 ? "" : memberCount < 5 ? "а" : "ов"}</span>
+              </div>
+
+              {/* Server ID subtle */}
+              <p className="text-[10px] text-foreground/15 font-mono mb-4">id: {serverId.slice(0, 8)}</p>
+
+              {/* Join button */}
+              <button onClick={handleJoin} disabled={joining}
+                className="w-full py-2.5 rounded-xl bg-foreground/10 hover:bg-foreground/15 text-foreground/80 text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-40">
+                {joining ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <><ArrowRight className="w-4 h-4" strokeWidth={1.5} /> Присоединиться</>
+                )}
+              </button>
+            </div>
+          </div>
         )}
+
         {status === "invalid" && (
-          <>
-            <XCircle className="w-10 h-10 text-destructive mx-auto mb-4" />
-            <p className="text-sm text-foreground font-medium mb-1">Приглашенiе не дѣйствительно</p>
-            <p className="text-xs text-muted-foreground">
-              Срокъ истекъ или превышенъ лимитъ использованiй
-            </p>
-          </>
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-2xl bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+              <Crown className="w-8 h-8 text-destructive/50" strokeWidth={1.5} />
+            </div>
+            <h2 className="text-base font-semibold text-foreground/80 mb-1">Приглашенiе не дѣйствительно</h2>
+            <p className="text-xs text-foreground/40">Срокъ истекъ или превышенъ лимитъ использованiй</p>
+          </div>
         )}
       </div>
     </div>
