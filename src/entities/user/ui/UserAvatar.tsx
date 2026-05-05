@@ -66,10 +66,6 @@ export function UserAvatar({ user, size = "md", showName, isSpeaking, onClick, c
         {frameClass && (
           <div className={`absolute inset-0 rounded-full pointer-events-none ${frameClass}`} />
         )}
-        {/* Accessory overlay (ears, etc.) */}
-        {user.avatarAccessory && (
-          <AccessoryOverlay type={user.avatarAccessory} size={size} />
-        )}
         {/* Speaking ring (on top of frame) */}
         {speaking && (
           <div className="absolute inset-0 rounded-full ring-2 ring-primary ring-offset-1 ring-offset-background pointer-events-none" />
