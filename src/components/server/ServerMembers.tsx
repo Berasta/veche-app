@@ -188,18 +188,13 @@ export function ServerMembers({ serverId, isOpen, onClose, inline }: ServerMembe
     );
   }
 
-  const translateX = panelVisible ? "translate-x-0" : "translate-x-full";
   return (
-    <div className="fixed inset-0 z-[60] flex" onClick={onClose}>
-      <div className="flex-1 bg-black/20 transition-opacity duration-200" />
-      <div
-        ref={panelRef}
-        className={`w-[85vw] md:w-72 bg-background/60 backdrop-blur-xl flex flex-col transition-transform duration-200 ease-out relative ${translateX}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="absolute left-0 top-0 bottom-0 w-px bg-foreground/5 pointer-events-none" />
-        <ServerMembersContent serverId={serverId} onClose={onClose} />
-      </div>
+    <div
+      ref={panelRef}
+      className={`w-72 bg-background/60 backdrop-blur-xl flex flex-col flex-shrink-0 relative transition-all duration-200 ${panelVisible ? "opacity-100" : "opacity-0 w-0 overflow-hidden"}`}
+    >
+      <div className="absolute left-0 top-0 bottom-0 w-px bg-foreground/5 pointer-events-none" />
+      <ServerMembersContent serverId={serverId} onClose={onClose} />
     </div>
   );
 }
