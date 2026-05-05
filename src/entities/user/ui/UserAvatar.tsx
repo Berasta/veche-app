@@ -9,6 +9,7 @@ export interface UserAvatarData {
   avatarUrl?: string | null;
   avatarFrame?: string;
   avatarAccessory?: string;
+  bannerSkin?: string;
   role?: string;
   roleColor?: string;
   isSpeaking?: boolean;
