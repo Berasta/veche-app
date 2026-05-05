@@ -23,3 +23,18 @@
   0%, 100% { background-position: 0% 50%; opacity: 0.6; }
   50% { background-position: 100% 50%; opacity: 1; }
 }
+
+@keyframes rainbow-ring {
+  0% { border-color: #ef4444; box-shadow: 0 0 6px #ef4444; }
+  17% { border-color: #f97316; box-shadow: 0 0 6px #f97316; }
+  33% { border-color: #eab308; box-shadow: 0 0 6px #eab308; }
+  50% { border-color: #22c55e; box-shadow: 0 0 6px #22c55e; }
+  67% { border-color: #3b82f6; box-shadow: 0 0 6px #3b82f6; }
+  83% { border-color: #a855f7; box-shadow: 0 0 6px #a855f7; }
+  100% { border-color: #ef4444; box-shadow: 0 0 6px #ef4444; }
+}
+
+@keyframes shadow-fade {
+  0%, 100% { border-color: rgba(255,255,255,0.1); box-shadow: 0 0 4px rgba(255,255,255,0.05); }
+  50% { border-color: rgba(255,255,255,0.3); box-shadow: 0 0 12px rgba(255,255,255,0.15); }
+}

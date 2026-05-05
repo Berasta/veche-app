@@ -325,9 +325,21 @@ export function Settings() {
                   <p className="text-[10px] font-semibold text-foreground/30 uppercase tracking-widest mb-2">Оправы</p>
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     <FrameOption name="" empty active={!user.avatar_frame} onClick={async () => { await removeShopItem(user.id, "frame"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }} />
-                    {["frame_royal", "frame_violet", "frame_ruby", "frame_ancient", "frame_arcane"].map((id) => {
-                      const labels: Record<string, string> = { frame_royal: "Царская", frame_violet: "Боярская", frame_ruby: "Рубиновая", frame_ancient: "Древнее сіяніе", frame_arcane: "Чародѣйскій" };
-                      const rings: Record<string, string> = { frame_royal: "ring-2 ring-yellow-500", frame_violet: "ring-2 ring-violet-500", frame_ruby: "ring-2 ring-red-500", frame_ancient: "ring-2 ring-yellow-400 animate-[glow-pulse_2s_ease-in-out_infinite]", frame_arcane: "ring-2 ring-purple-500 animate-[glow-pulse_2.5s_ease-in-out_infinite]" };
+                    {["frame_royal", "frame_violet", "frame_ruby", "frame_ancient", "frame_arcane", "frame_rainbow", "frame_neon", "frame_fire", "frame_ice", "frame_shadow"].map((id) => {
+                      const labels: Record<string, string> = {
+                        frame_royal: "Царская", frame_violet: "Боярская", frame_ruby: "Рубиновая",
+                        frame_ancient: "Древнее сіяніе", frame_arcane: "Чародѣйскій",
+                        frame_rainbow: "Радужная", frame_neon: "Неоновая", frame_fire: "Пламенная", frame_ice: "Ледяная", frame_shadow: "Призрачная"
+                      };
+                      const rings: Record<string, string> = {
+                        frame_royal: "ring-2 ring-yellow-500", frame_violet: "ring-2 ring-violet-500", frame_ruby: "ring-2 ring-red-500",
+                        frame_ancient: "ring-2 ring-yellow-400 animate-[glow-pulse_2s_ease-in-out_infinite]", frame_arcane: "ring-2 ring-purple-500 animate-[glow-pulse_2.5s_ease-in-out_infinite]",
+                        frame_rainbow: "ring-2 ring-transparent animate-[rainbow-ring_3s_linear_infinite]",
+                        frame_neon: "ring-[3px] ring-cyan-400 animate-[glow-pulse_1.5s_ease-in-out_infinite] shadow-[0_0_10px_rgba(34,211,238,0.5)]",
+                        frame_fire: "ring-2 ring-orange-500 animate-[glow-pulse_1s_ease-in-out_infinite] shadow-[0_0_8px_rgba(249,115,22,0.6)]",
+                        frame_ice: "ring-2 ring-blue-300 animate-[glow-pulse_3s_ease-in-out_infinite] shadow-[0_0_8px_rgba(147,197,253,0.4)]",
+                        frame_shadow: "ring-2 ring-transparent animate-[shadow-fade_2s_ease-in-out_infinite]"
+                      };
                       return (
                         <FrameOption key={id} name={labels[id]} frameClass={rings[id]} active={user.avatar_frame === id}
                           onClick={async () => { await applyShopItem(user.id, id, "frame"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }} />
