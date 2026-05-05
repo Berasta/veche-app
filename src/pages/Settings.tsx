@@ -6,7 +6,6 @@ import { ThemeSwitcher } from "@features/theme/ThemeSwitcher";
 import { VoiceSettings } from "@features/voice/VoiceSettings";
 import { HotkeySettings } from "@features/voice/HotkeySettings";
 import { BannerRepositionDialog } from "@entities/user/ui/BannerRepositionDialog";
-import { Shop } from "../features/shop/Shop";
 import { useAuth } from "@entities/user/model/useAuth";
 import { pb, PB_URL } from "@shared/api/pb";
 import { fetchCurrentUser, logout } from "@entities/user/model/authSlice";
@@ -19,7 +18,7 @@ const TABS = [
   { id: "profile", label: "Профиль", icon: User },
   { id: "theme", label: "Тема", icon: Palette },
   { id: "voice", label: "Голосъ", icon: Headphones },
-  { id: "shop", label: "Магазинъ", icon: Gem },
+
   { id: "hotkeys", label: "Клавиши", icon: Keyboard },
 ];
 
@@ -290,13 +289,6 @@ export function Settings() {
                 <h3 className="text-sm font-medium text-foreground/80">Горячiя клавиши</h3>
               </div>
               <HotkeySettings />
-            </div>
-          )}
-
-          {/* Shop tab */}
-          {activeTab === "shop" && (
-            <div className="bg-foreground/[0.02] backdrop-blur-sm rounded-xl p-4">
-              <Shop />
             </div>
           )}
 
