@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, Keyboard, User, ArrowLeft, Trash2, Crop, Gem, Loader2 } from "lucide-react";
+import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, Keyboard, User, ArrowLeft, Trash2, Crop, Loader2 } from "lucide-react";
 import { ThemeSwitcher } from "@features/theme/ThemeSwitcher";
 import { VoiceSettings } from "@features/voice/VoiceSettings";
 import { HotkeySettings } from "@features/voice/HotkeySettings";
@@ -10,7 +10,7 @@ import { useAuth } from "@entities/user/model/useAuth";
 import { pb, PB_URL } from "@shared/api/pb";
 import { fetchCurrentUser, logout } from "@entities/user/model/authSlice";
 import { useAppDispatch } from "@app/hooks";
-import { UserAvatar, type UserAvatarData } from "@entities/user/ui/UserAvatar";
+import { UserAvatar } from "@entities/user/ui/UserAvatar";
 import { Portal } from "@shared/ui/Portal";
 import { applyShopItem, removeShopItem } from "@entities/user/model/userApi";
 

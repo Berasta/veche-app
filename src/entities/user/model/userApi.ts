@@ -1,5 +1,4 @@
 import { pb } from "@shared/api/pb";
-import { fetchCurrentUser } from "./authSlice";
 
 export type ShopItemType = "banner" | "frame" | "accessory";
 

@@ -20,7 +20,6 @@ interface GramotaMessageProps {
   authorRoleColor?: string;
   authorBanner?: string;
   authorFrame?: string;
-  authorAccessory?: string;
   authorJoinedAt?: string;
   isOwn?: boolean;
   edited?: boolean;
@@ -28,7 +27,7 @@ interface GramotaMessageProps {
   onDelete?: (messageId: string) => void;
 }
 
-export function GramotaMessage({ author, avatar, time, content, images, reactions, onReaction, messageId, authorId, authorRole, authorRoleColor, authorBanner, authorFrame, authorAccessory, authorJoinedAt, isOwn, edited, onEdit, onDelete }: GramotaMessageProps) {
+export function GramotaMessage({ author, avatar, time, content, images, reactions, onReaction, messageId, authorId, authorRole, authorRoleColor, authorBanner, authorFrame, authorJoinedAt, isOwn, edited, onEdit, onDelete }: GramotaMessageProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(content);

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { toast } from "sonner";
-import { ScrollText, Users, MessageSquare } from "lucide-react";
+import { ScrollText } from "lucide-react";
 import { groupMessages } from "@shared/lib/groupMessages";
 import { formatMessageTime } from "@shared/lib/formatTime";
 import { GramotaInput, type GramotaInputHandle } from "@features/send-message/GramotaInput";
@@ -334,7 +333,6 @@ export function GramotaArea({
                   authorRoleColor={member?.roleColor}
                   authorBanner={member?.banner}
                   authorFrame={member?.avatarFrame}
-                  authorAccessory={member?.avatarAccessory}
                   authorJoinedAt={joinedAtMap[msg.user_id]}
                   isOwn={user?.id === msg.user_id}
                   edited={!!msg.edited_at}

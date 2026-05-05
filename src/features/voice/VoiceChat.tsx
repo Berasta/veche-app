@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect, useRef } from "react";
-import { Volume2, User, ArrowLeft, MicOff, Monitor, Clock } from "lucide-react";
+import { useState, useCallback, useEffect } from "react";
+import { Volume2, User, ArrowLeft, Clock } from "lucide-react";
 import { UserAvatar, type UserAvatarData } from "@entities/user/ui/UserAvatar";
 import { ScreenShareModal, type ShareOptions } from "./ScreenShareModal";
 import { PageHeader } from "@shared/ui/PageHeader";

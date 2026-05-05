@@ -1,5 +1,5 @@
 import { UserPopover } from "@entities/user/ui/UserPopover";
-import { UserAvatar, type UserAvatarData } from "@entities/user/ui/UserAvatar";
+import { UserAvatar } from "@entities/user/ui/UserAvatar";
 
 export interface MessageHeaderProps {
   author: string;
@@ -11,11 +11,10 @@ export interface MessageHeaderProps {
   bannerId?: string | null;
   joinedAt?: string;
   frame?: string;
-  accessory?: string;
 }
 
-export function MessageHeader({ author, avatar, time, userId, role, roleColor, bannerId, joinedAt, frame, accessory }: MessageHeaderProps) {
-  const user: UserAvatarData = { id: userId || "", username: author, avatarUrl: avatar, avatarFrame: frame, avatarAccessory: accessory, role, roleColor };
+export function MessageHeader({ author, avatar, time, userId, role, roleColor, bannerId, joinedAt, frame }: MessageHeaderProps) {
+  const user = { id: userId || "", username: author, avatarUrl: avatar, avatarFrame: frame, role, roleColor };
 
   return (
     <div className="flex items-center gap-2 mb-1">

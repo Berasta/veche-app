@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import { MessageSquare, Volume2, Users, Plus, X, Menu } from "lucide-react";
+import { Plus, Menu } from "lucide-react";
 import { Skeleton } from "@shared/ui/Skeleton";
 import { useEffect, useState, useRef } from "react";
 import { ServerButton } from "./ServerButton";
