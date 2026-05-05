@@ -327,7 +327,7 @@ export function Settings() {
                     <FrameOption name="" empty active={!user.avatar_frame} onClick={async () => { await removeShopItem(user.id, "frame"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }} />
                     {["frame_royal", "frame_violet", "frame_ruby", "frame_ancient", "frame_arcane"].map((id) => {
                       const labels: Record<string, string> = { frame_royal: "Царская", frame_violet: "Боярская", frame_ruby: "Рубиновая", frame_ancient: "Древнее сіяніе", frame_arcane: "Чародѣйскій" };
-                      const rings: Record<string, string> = { frame_royal: "ring-yellow-500", frame_violet: "ring-violet-500", frame_ruby: "ring-red-500", frame_ancient: "ring-yellow-400 animate-[glow-pulse_2s_ease-in-out_infinite]", frame_arcane: "ring-purple-500 animate-[glow-pulse_2.5s_ease-in-out_infinite]" };
+                      const rings: Record<string, string> = { frame_royal: "ring-2 ring-yellow-500", frame_violet: "ring-2 ring-violet-500", frame_ruby: "ring-2 ring-red-500", frame_ancient: "ring-2 ring-yellow-400 animate-[glow-pulse_2s_ease-in-out_infinite]", frame_arcane: "ring-2 ring-purple-500 animate-[glow-pulse_2.5s_ease-in-out_infinite]" };
                       return (
                         <FrameOption key={id} name={labels[id]} frameClass={rings[id]} active={user.avatar_frame === id}
                           onClick={async () => { await applyShopItem(user.id, id, "frame"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }} />

@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, useCallback, ReactNode } from "react";
-import { Portal } from "./Portal";
+import { Portal } from "@shared/ui/Portal";
 import { Volume2, Crown, Calendar } from "lucide-react";
 import { PB_URL } from "@shared/api/pb";
 
