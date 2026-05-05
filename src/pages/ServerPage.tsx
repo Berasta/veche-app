@@ -1,5 +1,6 @@
 import { useAppDispatch, useAppSelector } from "@store/hooks";
 import { fetchChannels } from "@store/slices/channelsSlice";
+import { fetchServerMembers } from "@store/slices/membersSlice";
 import { useParams, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { GramotaArea } from "@components/server/GramotaArea";
@@ -20,6 +21,7 @@ export const ServerPage = () => {
   useEffect(() => {
     if (serverId) {
       dispatch(fetchChannels(serverId));
+      dispatch(fetchServerMembers(serverId));
     }
   }, [dispatch, serverId]);
 
