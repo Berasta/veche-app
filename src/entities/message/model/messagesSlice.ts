@@ -11,11 +11,6 @@ export interface Message {
   edited_at: string | null;
   is_deleted: boolean;
   created: string;
-  author_name: string;
-  author_avatar: string | null;
-  author_avatar_url: string | null;
-  author_banner?: string;
-  author_frame?: string;
   images: string[];
 }
 
@@ -42,41 +37,30 @@ const PAGE_SIZE = 50;
 // Загрузка первой страницы сообщений при открытии канала
 export const fetchMessages = createAsyncThunk(
   "messages/fetch",
-  async (channelId: string, { getState }) => {
-    const [serverId] = channelId.split("_");
-    const state = getState() as any;
-    const members = state.members?.byServer?.[serverId]?.members ?? [];
-
+  async (channelId: string) => {
     const result = await pb.collection("messages").getList(1, PAGE_SIZE, {
       filter: `channel_id = "${channelId}" && is_deleted = false`,
       sort: "-created",
-      expand: "user_id",
     });
 
     return {
       channelId,
-      items: result.items.map((r) => normalizeMessage(r, members)),
+      items: result.items.map(normalizeMessage),
       hasMore: result.totalPages > 1,
     };
   },
 );
 
-// Подгрузка старых сообщений (infinite scroll вверх)
 export const fetchMoreMessages = createAsyncThunk(
   "messages/fetchMore",
-  async ({ channelId, before }: { channelId: string; before: string }, { getState }) => {
-    const [serverId] = channelId.split("_");
-    const state = getState() as any;
-    const members = state.members?.byServer?.[serverId]?.members ?? [];
-
+  async ({ channelId, before }: { channelId: string; before: string }) => {
     const result = await pb.collection("messages").getList(1, PAGE_SIZE, {
       filter: `channel_id = "${channelId}" && is_deleted = false && created < "${before}"`,
       sort: "-created",
-      expand: "user_id",
     });
 
     return {
-      items: result.items.map((r) => normalizeMessage(r, members)),
+      items: result.items.map(normalizeMessage),
       hasMore: result.totalPages > 1,
     };
   },
@@ -94,7 +78,7 @@ export const sendMessage = createAsyncThunk(
       files.forEach((f) => formData.append("images", f));
     }
 
-    const record = await pb.collection("messages").create(formData, { expand: "user_id" });
+    const record = await pb.collection("messages").create(formData);
 
     return normalizeMessage(record);
   },
@@ -110,7 +94,6 @@ export const editMessage = createAsyncThunk(
         content: content.trim(),
         edited_at: new Date().toISOString(),
       },
-      { expand: "user_id" },
     );
 
     return normalizeMessage(record);
@@ -156,9 +139,7 @@ export const subscribeToChannel = (channelId: string, dispatch: any) => {
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function normalizeMessage(record: any, members: any[] = []): Message {
-  const author = record.expand?.user_id;
-  const member = members.find((m: any) => m.userId === record.user_id);
+function normalizeMessage(record: any): Message {
   const images: string[] = [];
   if (record.images) {
     const names = Array.isArray(record.images) ? record.images : [record.images];
@@ -166,16 +147,6 @@ function normalizeMessage(record: any, members: any[] = []): Message {
       if (name) images.push(`${PB_URL}/api/files/${record.collectionId}/${record.id}/${name}`);
     });
   }
-
-  // Берём аватар из стора если есть, иначе из expand
-  const username = member?.username || author?.name || author?.username || "Пользователь";
-  const avatarUrl = member?.avatarUrl || (author?.avatar && author?.collectionId
-    ? `${PB_URL}/api/files/${author.collectionId}/${author.id}/${author.avatar}`
-    : author?.avatar
-      ? `${PB_URL}/api/files/_pb_users_auth_/${author.id}/${author.avatar}`
-      : null);
-  const banner = member?.banner || author?.banner || undefined;
-
   return {
     id: record.id,
     channel_id: record.channel_id,
@@ -184,11 +155,6 @@ function normalizeMessage(record: any, members: any[] = []): Message {
     edited_at: record.edited_at || null,
     is_deleted: record.is_deleted || false,
     created: record.created,
-    author_name: username,
-    author_avatar: member?.avatarUrl || author?.avatar || null,
-    author_avatar_url: avatarUrl,
-    author_banner: banner,
-    author_frame: member?.avatarFrame || undefined,
     images,
   };
 }
