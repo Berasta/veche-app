@@ -15,8 +15,13 @@
 }
 
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 4px var(--glow-color, rgb(234, 179, 8)); }
-  50% { box-shadow: 0 0 12px var(--glow-color, rgb(234, 179, 8)); }
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+}
+
+@keyframes glow-ring {
+  0%, 100% { box-shadow: 0 0 4px currentColor, 0 0 0 2px currentColor; }
+  50% { box-shadow: 0 0 12px currentColor, 0 0 0 2px currentColor; }
 }
 
 @keyframes aurora {
