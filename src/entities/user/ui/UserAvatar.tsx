@@ -9,7 +9,6 @@ export interface UserAvatarData {
   avatarUrl?: string | null;
   avatarFrame?: string;
   avatarAccessory?: string;
-  bannerSkin?: string;
   role?: string;
   roleColor?: string;
   isSpeaking?: boolean;
@@ -44,7 +43,6 @@ export function UserAvatar({ user, size = "md", showName, isSpeaking, onClick, c
   const frame = user.avatarFrame || (user as any).frame;
   const frameClass = frame ? getFrameClass(frame) : "";
   const speaking = isSpeaking ?? user.isSpeaking;
-  const accessory = user.avatarAccessory || (() => { try { return localStorage.getItem("avatarAccessory") || undefined; } catch { return undefined; } })();
 
   return (
     <div
@@ -70,8 +68,8 @@ export function UserAvatar({ user, size = "md", showName, isSpeaking, onClick, c
           <div className={`absolute inset-0 rounded-full pointer-events-none ${frameClass}`} />
         )}
         {/* Accessory overlay (ears, etc.) */}
-        {accessory && (
-          <AccessoryOverlay type={accessory} size={size} />
+        {user.avatarAccessory && (
+          <AccessoryOverlay type={user.avatarAccessory} size={size} />
         )}
         {/* Speaking ring (on top of frame) */}
         {speaking && (

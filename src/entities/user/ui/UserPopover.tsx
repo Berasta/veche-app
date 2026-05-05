@@ -19,7 +19,6 @@ interface UserPopoverProps extends UserProfile {
   volume?: number;
   onVolumeChange?: (volume: number) => void;
   frame?: string;
-  bannerSkin?: string;
   children: ReactNode;
 }
 
@@ -29,15 +28,6 @@ const POPOVER_WIDTH = 256;
 const POPOVER_HEIGHT = 220;
 const GAP = 8;
 const BANNER_COLLECTION = "_pb_users_auth_";
-
-const BANNER_SKIN_CLASSES: Record<string, string> = {
-  banner_golden: "bg-gradient-to-r from-yellow-400/60 via-amber-500/60 to-orange-600/60",
-  banner_crimson: "bg-gradient-to-r from-red-600/60 via-rose-700/60 to-purple-800/60",
-  banner_azure: "bg-gradient-to-r from-blue-500/60 via-cyan-600/60 to-teal-700/60",
-  banner_emerald: "bg-gradient-to-r from-emerald-500/60 via-green-600/60 to-teal-800/60",
-  banner_aurora: "bg-gradient-to-r from-green-400/50 via-blue-500/50 to-purple-600/50 animate-[aurora_4s_ease-in-out_infinite] bg-[length:200%_100%]",
-  banner_inferno: "bg-gradient-to-r from-red-600/50 via-orange-500/50 to-yellow-400/50 animate-[shimmer_3s_ease-in-out_infinite] bg-[length:200%_100%]",
-};
 
 const FRAME_CLASSES: Record<string, string> = {
   frame_royal: "ring-2 ring-yellow-500",
@@ -148,32 +138,27 @@ function AvatarCircle({
 
 function BannerSection({
   bannerUrl,
-  bannerSkin,
   bannerPos,
   children,
 }: {
   bannerUrl: string | null;
-  bannerSkin?: string;
   bannerPos: { x: number; y: number } | null;
   children: ReactNode;
 }) {
-  const skinClass = bannerSkin ? BANNER_SKIN_CLASSES[bannerSkin] : "";
   return (
     <div className="relative w-full aspect-[2.5/1] rounded-t-2xl overflow-hidden bg-black/10">
-      {/* Custom banner image */}
       {bannerUrl && (
         <img
           src={bannerUrl}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
-          style={bannerPos ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` } : undefined}
+          style={
+            bannerPos
+              ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` }
+              : undefined
+          }
         />
       )}
-      {/* Banner skin overlay (semi-transparent gradient/pattern) */}
-      {skinClass && (
-        <div className={`absolute inset-0 ${skinClass}`} />
-      )}
-      {/* Dark gradient for readability */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/10" />
       {children}
     </div>
@@ -256,7 +241,6 @@ export function UserPopover({
   username,
   avatarUrl,
   bannerId,
-  bannerSkin,
   role,
   roleColor,
   joinedAt,
@@ -299,7 +283,7 @@ export function UserPopover({
             className="fixed z-[100] w-64 bg-foreground/[0.02] backdrop-blur-xl rounded-2xl"
             style={{ top: popoverPos.top, left: popoverPos.left }}
           >
-            <BannerSection bannerUrl={bannerUrl} bannerSkin={bannerSkin} bannerPos={bannerPos}>
+            <BannerSection bannerUrl={bannerUrl} bannerPos={bannerPos}>
               <div className="absolute inset-0 flex items-center gap-2 p-3">
                 <AvatarCircle
                   avatarUrl={avatarUrl}
