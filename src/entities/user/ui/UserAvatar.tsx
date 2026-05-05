@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Crown } from "lucide-react";
+import { Crown, MicOff, EarOff } from "lucide-react";
 import { getFrameClass } from "./UserPopover";
 
 export interface UserAvatarData {
@@ -70,12 +70,16 @@ export function UserAvatar({ user, size = "md", showName, isSpeaking, onClick, c
         {speaking && (
           <div className="absolute inset-0 rounded-full ring-2 ring-primary ring-offset-1 ring-offset-background pointer-events-none" />
         )}
-        {/* Status dots */}
+        {/* Status icons */}
         {user.isDeafened && (
-          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-orange-500 ring-[1.5px] ring-background" />
+          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-orange-500 ring-[1.5px] ring-background flex items-center justify-center">
+            <EarOff className="w-2 h-2 text-white" />
+          </div>
         )}
         {!user.isDeafened && user.isMuted && (
-          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-red-500 ring-[1.5px] ring-background" />
+          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-500 ring-[1.5px] ring-background flex items-center justify-center">
+            <MicOff className="w-2 h-2 text-white" />
+          </div>
         )}
         {children}
       </div>
