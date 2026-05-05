@@ -7,7 +7,7 @@ export interface UserAvatarData {
   id: string;
   username: string;
   avatarUrl?: string | null;
-  frame?: string;
+  avatarFrame?: string;
   role?: string;
   roleColor?: string;
   isSpeaking?: boolean;
@@ -37,7 +37,8 @@ interface UserAvatarProps {
 
 export function UserAvatar({ user, size = "md", showName, isSpeaking, onClick, children }: UserAvatarProps) {
   const s = SIZE_MAP[size];
-  const frameClass = user.frame ? getFrameClass(user.frame) : "";
+  const frame = user.avatarFrame || (user as any).frame;
+  const frameClass = frame ? getFrameClass(frame) : "";
   const speaking = isSpeaking ?? user.isSpeaking;
 
   return (

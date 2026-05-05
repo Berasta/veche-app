@@ -14,7 +14,7 @@ export interface MessageHeaderProps {
 }
 
 export function MessageHeader({ author, avatar, time, userId, role, roleColor, bannerId, joinedAt, frame }: MessageHeaderProps) {
-  const user: UserAvatarData = { id: userId || "", username: author, avatarUrl: avatar, frame, role, roleColor };
+  const user: UserAvatarData = { id: userId || "", username: author, avatarUrl: avatar, avatarFrame: frame, role, roleColor };
 
   return (
     <div className="flex items-center gap-2 mb-1">
