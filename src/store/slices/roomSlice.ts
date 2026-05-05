@@ -25,6 +25,7 @@ interface RoomState {
     bitrate: number;
   };
   isDeafened: boolean;
+  callStartedAt: number | null;
 }
 
 const initialState: RoomState = {
@@ -40,6 +41,7 @@ const initialState: RoomState = {
   isScreenSharing: false,
   screenShareQuality: { resolution: "1080p", fps: 30, bitrate: 8 },
   isDeafened: false,
+  callStartedAt: null,
 };
 
 const roomSlice = createSlice({
@@ -60,6 +62,7 @@ const roomSlice = createSlice({
       state.activeChannelId = action.payload.channelId;
       state.activeChannelName = action.payload.channelName;
       state.activeServerId = action.payload.serverId;
+      state.callStartedAt = Date.now();
     },
     setReconnecting(state, action: PayloadAction<boolean>) {
       state.reconnecting = action.payload;
@@ -112,6 +115,9 @@ const roomSlice = createSlice({
     setDeafened(state, action: PayloadAction<boolean>) {
       state.isDeafened = action.payload;
     },
+    setCallStartedAt(state, action: PayloadAction<number | null>) {
+      state.callStartedAt = action.payload;
+    },
   },
 });
 
@@ -128,6 +134,7 @@ export const {
   setScreenSharing,
   setScreenShareQuality,
   setDeafened,
+  setCallStartedAt,
 } = roomSlice.actions;
 
 export default roomSlice.reducer;

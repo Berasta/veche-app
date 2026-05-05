@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { Volume2, User, ArrowLeft, MicOff, Monitor } from "lucide-react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { Volume2, User, ArrowLeft, MicOff, Monitor, Clock } from "lucide-react";
 import { ScreenShareModal, type ShareOptions } from "./ScreenShareModal";
 import { PageHeader } from "../ui/PageHeader";
 import { IconButton } from "../ui/IconButton";
@@ -16,6 +16,7 @@ import {
   selectSpeakingCount,
   selectVolumes,
   selectError,
+  selectCallStartedAt,
 } from "@store/selectors/roomSelectors";
 import {
   leaveChannel,
@@ -60,6 +61,22 @@ export function VoiceChat() {
   const isScreenSharing = useAppSelector(selectIsScreenSharing);
   const speakingCount = useAppSelector(selectSpeakingCount);
   const volumes = useAppSelector(selectVolumes);
+
+  const callStartedAt = useAppSelector(selectCallStartedAt);
+  const [callDuration, setCallDuration] = useState("");
+
+  useEffect(() => {
+    if (!callStartedAt) { setCallDuration(""); return; }
+    const tick = () => {
+      const sec = Math.floor((Date.now() - callStartedAt) / 1000);
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      setCallDuration(`${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [callStartedAt]);
 
   const [showScreenShareModal, setShowScreenShareModal] = useState(false);
   const { userDataMap, roleMap, joinedAtMap } = useVoiceData(serverId, participants.map((p) => p.identity));
@@ -114,9 +131,17 @@ export function VoiceChat() {
         icon={Volume2}
         title={channelName || "Глашатаи"}
         subtitle={
-          participants.length > 0
-            ? `${participants.length} участниковъ`
-            : undefined
+          <span className="flex items-center gap-2">
+            {callDuration && (
+              <span className="flex items-center gap-1 text-muted-foreground/70">
+                <Clock size={11} strokeWidth={1.5} />
+                {callDuration}
+              </span>
+            )}
+            {participants.length > 0 && (
+              <span>{participants.length} участник{participants.length === 1 ? "" : participants.length < 5 ? "а" : "ов"}</span>
+            )}
+          </span>
         }
         onMenuClick={handleCollapse}
         actions={
