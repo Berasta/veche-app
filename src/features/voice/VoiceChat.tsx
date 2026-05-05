@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Volume2, User, ArrowLeft, MicOff, Monitor, Clock } from "lucide-react";
-import { UserAvatar, type UserAvatarData } from "@shared/ui/UserAvatar";
+import { UserAvatar, type UserAvatarData } from "@entities/user/ui/UserAvatar";
 import { ScreenShareModal, type ShareOptions } from "./ScreenShareModal";
 import { PageHeader } from "@shared/ui/PageHeader";
 import { IconButton } from "@shared/ui/IconButton";
@@ -31,7 +31,7 @@ import {
 import { setScreenShareQuality } from "@entities/room/model/roomSlice";
 import { useVoiceData } from "@shared/hooks/useVoiceData";
 import { useOverlay } from "@shared/hooks/useOverlay";
-import { UserContextMenu } from "@shared/ui/UserContextMenu";
+import { UserContextMenu } from "@entities/user/ui/UserContextMenu";
 
 interface VoiceMemberData {
   id: string;

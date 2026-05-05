@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { X, Users } from "lucide-react";
-import { UserPopover } from "@shared/ui/UserPopover";
-import { UserAvatar, type UserAvatarData } from "@shared/ui/UserAvatar";
+import { UserPopover } from "@entities/user/ui/UserPopover";
+import { UserAvatar, type UserAvatarData } from "@entities/user/ui/UserAvatar";
 import { MembersSkeleton } from "@shared/ui/Skeleton";
 import { useAppSelector, useAppDispatch } from "@app/hooks";
 import { useIsMobile } from "@shared/ui/use-mobile";

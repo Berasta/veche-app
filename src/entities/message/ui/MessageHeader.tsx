@@ -1,5 +1,5 @@
-import { UserPopover } from "@shared/ui/UserPopover";
-import { UserAvatar, type UserAvatarData } from "@shared/ui/UserAvatar";
+import { UserPopover } from "@entities/user/ui/UserPopover";
+import { UserAvatar, type UserAvatarData } from "@entities/user/ui/UserAvatar";
 
 export interface MessageHeaderProps {
   author: string;

@@ -5,13 +5,13 @@ import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, Keyboard, U
 import { ThemeSwitcher } from "@features/theme/ThemeSwitcher";
 import { VoiceSettings } from "@features/voice/VoiceSettings";
 import { HotkeySettings } from "@features/voice/HotkeySettings";
-import { BannerRepositionDialog } from "@shared/ui/BannerRepositionDialog";
+import { BannerRepositionDialog } from "@entities/user/ui/BannerRepositionDialog";
 import { Shop } from "../features/shop/Shop";
 import { useAuth } from "@entities/user/model/useAuth";
 import { pb, PB_URL } from "@shared/api/pb";
 import { fetchCurrentUser, logout } from "@entities/user/model/authSlice";
 import { useAppDispatch } from "@app/hooks";
-import { UserAvatar, type UserAvatarData } from "@shared/ui/UserAvatar";
+import { UserAvatar, type UserAvatarData } from "@entities/user/ui/UserAvatar";
 import { Portal } from "@shared/ui/Portal";
 import { applyShopItem, removeShopItem } from "@entities/user/model/userApi";
 
