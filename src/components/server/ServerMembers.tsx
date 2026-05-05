@@ -143,63 +143,41 @@ function ServerMembersContent({ serverId, onClose, showHeader }: { serverId: str
 }
 
 export function ServerMembers({ serverId, isOpen, onClose, inline }: ServerMembersProps) {
-  const [animState, setAnimState] = useState<"closed" | "entering" | "open" | "leaving">("closed");
   const panelRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-
-  useEffect(() => {
-    if (inline) return;
-    if (isOpen) {
-      setAnimState("entering");
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setAnimState("open"));
-      });
-    } else {
-      setAnimState("leaving");
-      const timer = setTimeout(() => setAnimState("closed"), 200);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen, inline]);
 
   if (inline) {
     return <ServerMembersContent serverId={serverId} onClose={onClose} showHeader={false} />;
   }
 
-  if (animState === "closed") return null;
-
-  const panelVisible = animState === "open";
-
-  if (isMobile) {
-    const translateY = panelVisible ? "translate-y-0" : "translate-y-full";
+  // Desktop: always shown as a static sidebar panel
+  if (!isMobile) {
     return (
-      <>
-        <div className="fixed inset-0 bg-black/50 z-[60]" onClick={onClose} />
-        <div
-          ref={panelRef}
-          className={`fixed bottom-0 left-0 right-0 z-[70] bg-sidebar backdrop-blur-xl border-t border-sidebar-border rounded-t-2xl max-h-[85vh] flex flex-col transition-transform duration-300 ease-out ${translateY}`}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="flex justify-center pt-2 pb-1 flex-shrink-0">
-            <div className="w-10 h-1 rounded-full bg-sidebar-border/50" />
-          </div>
-          <ServerMembersContent serverId={serverId} onClose={onClose} />
-        </div>
-      </>
-    );
-  }
-
-  const translateX = panelVisible ? "translate-x-0" : "translate-x-full";
-  return (
-    <div className="fixed inset-0 z-[60] flex" onClick={onClose}>
-      <div className="flex-1 bg-black/20 transition-opacity duration-200" />
-      <div
-        ref={panelRef}
-        className={`w-[85vw] md:w-72 bg-background/60 backdrop-blur-xl flex flex-col transition-transform duration-200 ease-out relative ${translateX}`}
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="w-72 bg-background/60 backdrop-blur-xl flex flex-col flex-shrink-0 relative">
         <div className="absolute left-0 top-0 bottom-0 w-px bg-foreground/5 pointer-events-none" />
         <ServerMembersContent serverId={serverId} onClose={onClose} />
       </div>
-    </div>
+    );
+  }
+
+  // Mobile: bottom drawer
+  return (
+    <>
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-[60]" onClick={onClose} />
+          <div
+            ref={panelRef}
+            className="fixed bottom-0 left-0 right-0 z-[70] bg-background/60 backdrop-blur-xl rounded-t-2xl max-h-[85vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-center pt-2 pb-1 flex-shrink-0">
+              <div className="w-10 h-1 rounded-full bg-foreground/10" />
+            </div>
+            <ServerMembersContent serverId={serverId} onClose={onClose} />
+          </div>
+        </>
+      )}
+    </>
   );
 }
