@@ -57,21 +57,14 @@ export function ActiveVoiceBar() {
   return (
     <>
       {error && (
-        <div className="px-4 py-1.5 bg-destructive/10 text-destructive text-xs text-center">
+        <div className="px-4 py-1.5 bg-red-500/10 text-red-500 text-xs text-center">
           {error}
         </div>
       )}
-      <div className="h-10 bg-card border-t border-border flex items-center px-3 gap-2 z-50">
-        {/* Reconnecting banner */}
-        {reconnecting && (
-          <div className="absolute inset-x-0 -top-5 h-5 bg-yellow-500/10 text-yellow-600 text-[10px] flex items-center justify-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
-            Переподключение...
-          </div>
-        )}
+      <div className="h-10 bg-foreground/[0.02] backdrop-blur-xl flex items-center px-3 gap-2 z-50">
 
         {connecting ? (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-1">
+          <div className="flex items-center gap-2 text-xs text-foreground/40 flex-1">
             <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
             Подключение къ каналу...
           </div>
@@ -87,10 +80,10 @@ export function ActiveVoiceBar() {
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-medium text-foreground truncate">
+                  <span className="text-xs font-medium text-foreground/80 truncate">
                     {channelName}
                   </span>
-                  <span className="text-[10px] text-muted-foreground/60 flex-shrink-0">
+                  <span className="text-[10px] text-foreground/30 flex-shrink-0">
                     {participants.length} уч.
                   </span>
                   {speakingCount > 0 && (
@@ -107,10 +100,10 @@ export function ActiveVoiceBar() {
               <button
                 onClick={() => dispatch(toggleMute())}
                 title={isMuted ? "Включить микрофон" : "Выключить микрофон"}
-                className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${
+                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
                   isMuted
-                    ? "bg-red-500/20 text-red-500"
-                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                    ? "bg-red-500/15 text-red-500"
+                    : "hover:bg-foreground/5 text-foreground/30 hover:text-foreground/60"
                 }`}
               >
                 {isMuted ? <MicOff size={13} /> : <Mic size={13} />}
@@ -119,10 +112,10 @@ export function ActiveVoiceBar() {
               <button
                 onClick={() => dispatch(toggleDeafen())}
                 title={isDeafened ? "Включить звукъ" : "Оглушити"}
-                className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${
+                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
                   isDeafened
-                    ? "bg-red-500/20 text-red-500"
-                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                    ? "bg-red-500/15 text-red-500"
+                    : "hover:bg-foreground/5 text-foreground/30 hover:text-foreground/60"
                 }`}
               >
                 {isDeafened ? <EarOff size={13} /> : <Ear size={13} />}
@@ -135,10 +128,10 @@ export function ActiveVoiceBar() {
                     : setShowScreenModal(true)
                 }
                 title={isScreenSharing ? "Остановить показъ" : "Показать экранъ"}
-                className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${
+                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
                   isScreenSharing
-                    ? "bg-blue-500/20 text-blue-500"
-                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                    ? "bg-blue-500/15 text-blue-500"
+                    : "hover:bg-foreground/5 text-foreground/30 hover:text-foreground/60"
                 }`}
               >
                 {isScreenSharing ? <MonitorOff size={13} /> : <Monitor size={13} />}
@@ -148,18 +141,18 @@ export function ActiveVoiceBar() {
                 <button
                   onClick={() => navigate(`/app/server/${activeServerId}/voice/${activeChannelId}`)}
                   title="Раскрыть звонокъ"
-                  className="w-7 h-7 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
+                  className="w-7 h-7 rounded-lg hover:bg-foreground/5 text-foreground/30 hover:text-foreground/60 flex items-center justify-center transition-colors"
                 >
                   <Maximize2 size={13} />
                 </button>
               )}
 
-              <div className="w-px h-4 bg-border mx-1" />
+              <div className="w-px h-4 bg-foreground/10 mx-1" />
 
               <button
                 onClick={() => dispatch(leaveChannel())}
                 title="Покинуть каналъ"
-                className="w-7 h-7 rounded-md hover:bg-red-500/20 text-muted-foreground hover:text-red-500 flex items-center justify-center transition-colors"
+                className="w-7 h-7 rounded-lg hover:bg-red-500/10 text-foreground/30 hover:text-red-500 flex items-center justify-center transition-colors"
               >
                 <PhoneOff size={13} />
               </button>
