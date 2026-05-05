@@ -338,7 +338,7 @@ export function Settings() {
                         frame_arcane: "ring-2 ring-transparent animate-[frame-arcane_2.5s_ease-in-out_infinite]",
                         frame_rainbow: "ring-2 ring-transparent animate-[frame-rainbow_3s_linear_infinite]",
                         frame_neon: "ring-2 ring-transparent animate-[frame-neon_1.5s_ease-in-out_infinite]",
-                        frame_fire: "ring-2 ring-transparent animate-[frame-flame_1.2s_ease-in-out_infinite]",
+                        frame_fire: "ring-2 ring-transparent animate-[frame-flame_3s_ease-in-out_infinite]",
                         frame_ice: "ring-2 ring-transparent animate-[frame-ice_3s_ease-in-out_infinite]",
                         frame_shadow: "ring-2 ring-transparent animate-[frame-shadow_2s_ease-in-out_infinite]",
                         frame_shine: "ring-2 ring-transparent animate-[frame-shine_3s_linear_infinite]",
