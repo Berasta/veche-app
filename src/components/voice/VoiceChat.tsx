@@ -179,10 +179,10 @@ export function VoiceChat() {
           {isScreenSharing && sharerName && sharingIdentity ? (
             <ScreenShareDisplay sharerName={sharerName} sharerIdentity={sharingIdentity} />
           ) : (
-            <div className="flex-1 flex items-center justify-center rounded-lg border border-dashed border-border/40 bg-black/5">
+            <div className="flex-1 flex items-center justify-center rounded-xl border border-dashed border-foreground/10 bg-black/5">
               <div className="text-center">
-                <Volume2 className="w-12 h-12 text-muted-foreground/20 mx-auto mb-3" strokeWidth={1.5} />
-                <p className="text-sm text-muted-foreground/40">Нѣтъ демонстрации экрана</p>
+                <Volume2 className="w-12 h-12 text-foreground/10 mx-auto mb-3" strokeWidth={1.5} />
+                <p className="text-sm text-foreground/20">Нѣтъ демонстрации экрана</p>
               </div>
             </div>
           )}
@@ -190,10 +190,10 @@ export function VoiceChat() {
 
         {/* Participants sidebar */}
         {members.length > 0 && (
-          <div className="w-full md:w-56 lg:w-64 border-t md:border-t-0 md:border-l border-border flex flex-col bg-card/20">
-            <div className="px-4 py-2.5 border-b border-border flex items-center gap-2 flex-shrink-0">
-              <User className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={2} />
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          <div className="w-full md:w-56 lg:w-64 flex flex-col bg-background/40">
+            <div className="px-4 py-2.5 flex items-center gap-2 flex-shrink-0">
+              <User className="w-3.5 h-3.5 text-foreground/30" strokeWidth={1.5} />
+              <span className="text-xs font-semibold text-foreground/30 uppercase tracking-wider">
                 {members.length} участник{members.length === 1 ? "" : members.length < 5 ? "а" : "ов"}
                 {speakingCount > 0 && (
                   <span className="text-green-500 ml-1.5 font-normal normal-case">
@@ -206,14 +206,14 @@ export function VoiceChat() {
               {members.map((m) => (
                 <UserContextMenu key={m.id} serverId={serverId} userId={m.id} username={m.name} isVoiceParticipant>
                   <div
-                    className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-colors cursor-pointer group
-                      ${m.isSpeaking ? "bg-primary/10" : "hover:bg-muted/30"}
+                    className={`flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-colors cursor-pointer group
+                      ${m.isSpeaking ? "bg-foreground/[0.06]" : "hover:bg-foreground/[0.03]"}
                     `}
                   >
                     {/* Avatar */}
                     <div className="relative flex-shrink-0">
                       <div className={`w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold
-                        ${m.avatarUrl ? "" : m.isSpeaking ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}
+                        ${m.avatarUrl ? "" : m.isSpeaking ? "bg-foreground/10 text-foreground/60" : "bg-foreground/5 text-foreground/30"}
                       `}>
                         {m.avatarUrl ? (
                           <img src={m.avatarUrl} alt="" className="w-full h-full object-cover" />
@@ -237,7 +237,7 @@ export function VoiceChat() {
                     {/* Name + role */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className={`text-sm truncate ${m.isSpeaking ? "text-foreground font-medium" : "text-muted-foreground"}`}
+                        <span className={`text-sm truncate ${m.isSpeaking ? "text-foreground/80 font-medium" : "text-foreground/40"}`}
                           style={m.roleColor && m.isSpeaking ? { color: m.roleColor } : undefined}>
                           {m.name}
                         </span>
@@ -253,7 +253,7 @@ export function VoiceChat() {
                       value={m.volume}
                       onClick={(e) => e.stopPropagation()}
                       onChange={(e) => dispatch(setParticipantVolume({ identity: m.id, volume: Number(e.target.value) }))}
-                      className="w-16 h-1 rounded-full appearance-none cursor-pointer bg-muted/50 opacity-0 group-hover:opacity-100 transition-opacity [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:cursor-pointer"
+                      className="w-16 h-1 rounded-full appearance-none cursor-pointer bg-foreground/10 opacity-0 group-hover:opacity-100 transition-opacity [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-foreground/30 [&::-webkit-slider-thumb]:cursor-pointer"
                       aria-label="Громкость"
                     />
                   </div>

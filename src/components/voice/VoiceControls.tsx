@@ -28,71 +28,52 @@ export function VoiceControls({
   onDisconnect,
 }: VoiceControlsProps) {
   return (
-    <div className="border-t border-border bg-card/30 backdrop-blur-xl px-4 py-3">
-      <div className="flex items-center justify-center gap-2 max-w-lg mx-auto">
-        {/* Микрофон */}
+    <div className="bg-foreground/[0.02] backdrop-blur-xl px-4 py-2.5">
+      <div className="flex items-center justify-center gap-2">
         <button
           onClick={onToggleMute}
           title={isMuted ? "Включити микрофонъ" : "Выключити микрофонъ"}
-          className={`
-            w-12 h-12 rounded-full flex items-center justify-center transition-all
-            ${
-              isMuted
-                ? "bg-red-500/20 text-red-500 hover:bg-red-500/30"
-                : "bg-muted/50 text-foreground hover:bg-muted"
-            }
-          `}
+          className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
+            isMuted
+              ? "bg-red-500/15 text-red-500"
+              : "text-foreground/30 hover:text-foreground/60 hover:bg-foreground/5"
+          }`}
         >
-          {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
+          {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
         </button>
 
-        {/* Оглушение */}
         <button
           onClick={onToggleDeafen}
           title={isDeafened ? "Включити звукъ" : "Оглушити"}
-          className={`
-            w-12 h-12 rounded-full flex items-center justify-center transition-all
-            ${
-              isDeafened
-                ? "bg-red-500/20 text-red-500 hover:bg-red-500/30"
-                : "bg-muted/50 text-foreground hover:bg-muted"
-            }
-          `}
+          className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
+            isDeafened
+              ? "bg-red-500/15 text-red-500"
+              : "text-foreground/30 hover:text-foreground/60 hover:bg-foreground/5"
+          }`}
         >
-          {isDeafened ? <EarOff size={20} /> : <Ear size={20} />}
+          {isDeafened ? <EarOff size={16} /> : <Ear size={16} />}
         </button>
 
-        {/* Демонстрация экрана */}
         <button
           onClick={onToggleScreenShare}
-          title={
+          title={isScreenSharing ? "Остановити показъ" : "Показати свой экранъ"}
+          className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
             isScreenSharing
-              ? "Остановити показъ"
-              : "Показати свой экранъ"
-          }
-          className={`
-            w-12 h-12 rounded-full flex items-center justify-center transition-all
-            ${
-              isScreenSharing
-                ? "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30"
-                : "bg-muted/50 text-foreground hover:bg-muted"
-            }
-          `}
+              ? "bg-blue-500/15 text-blue-500"
+              : "text-foreground/30 hover:text-foreground/60 hover:bg-foreground/5"
+          }`}
         >
-          {isScreenSharing ? (
-            <MonitorOff size={20} />
-          ) : (
-            <Monitor size={20} />
-          )}
+          {isScreenSharing ? <MonitorOff size={16} /> : <Monitor size={16} />}
         </button>
 
-        {/* Выход */}
+        <div className="w-px h-5 bg-foreground/10" />
+
         <button
           onClick={onDisconnect}
           title="Покинути голосовую палату"
-          className="w-12 h-12 rounded-full bg-red-500/20 text-red-500 hover:bg-red-500/30 flex items-center justify-center transition-all"
+          className="w-9 h-9 rounded-xl flex items-center justify-center text-foreground/30 hover:text-red-500 hover:bg-red-500/10 transition-colors"
         >
-          <PhoneOff size={20} />
+          <PhoneOff size={16} />
         </button>
       </div>
     </div>
