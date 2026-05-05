@@ -29,7 +29,6 @@ import {
 } from "@store/selectors/messagesSelectors";
 import { fetchReactions, addReaction, removeReaction } from "@api/reactionApi";
 import { pb } from "@api/pb";
-import { useAppDispatch } from "@store/hooks";
 import { fetchServerMembers, selectServerMembers } from "@store/slices/membersSlice";
 import { useAuth } from "@store/hooks/useAuth";
 import { useTypingBroadcast } from "@hooks/useTyping";
