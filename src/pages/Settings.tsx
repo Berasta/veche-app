@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, Keyboard, User, ArrowLeft, Trash2, Crop } from "lucide-react";
+import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, Keyboard, User, ArrowLeft, Trash2, Crop, Gem } from "lucide-react";
 import { ThemeSwitcher } from "../components/ThemeSwitcher";
 import { VoiceSettings } from "../components/settings/VoiceSettings";
 import { HotkeySettings } from "../components/settings/HotkeySettings";
 import { BannerRepositionDialog } from "../components/BannerRepositionDialog";
+import { Shop } from "../features/shop/Shop";
 import { useAuth } from "@store/hooks/useAuth";
 import { pb, PB_URL } from "@api/pb";
 import { fetchCurrentUser, logout } from "@store/slices/authSlice";
@@ -15,6 +16,7 @@ const TABS = [
   { id: "profile", label: "Профиль", icon: User },
   { id: "theme", label: "Тема", icon: Palette },
   { id: "voice", label: "Голосъ", icon: Headphones },
+  { id: "shop", label: "Магазинъ", icon: Gem },
   { id: "hotkeys", label: "Клавиши", icon: Keyboard },
 ];
 
@@ -280,6 +282,13 @@ export function Settings() {
                 <h3 className="text-sm font-medium text-foreground/80">Горячiя клавиши</h3>
               </div>
               <HotkeySettings />
+            </div>
+          )}
+
+          {/* Shop tab */}
+          {activeTab === "shop" && (
+            <div className="bg-foreground/[0.02] backdrop-blur-sm rounded-xl p-4">
+              <Shop />
             </div>
           )}
 
