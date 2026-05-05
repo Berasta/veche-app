@@ -27,62 +27,67 @@ const initialState: MembersState = {
 
 export const fetchServerMembers = createAsyncThunk(
   "members/fetch",
-  async (serverId: string) => {
-    const [sm, roleMap] = await Promise.all([
-      pb.collection("server_members").getFullList({
-        filter: `server_id = "${serverId}"`,
-        expand: "user_id",
-      }),
-      getRoleMap(serverId),
-    ]);
-
-    const seen = new Set<string>();
-    const members: MemberData[] = [];
-
-    for (const entry of sm as any[]) {
-      const user = entry.expand?.user_id;
-      if (!user || seen.has(user.id)) continue;
-      seen.add(user.id);
-      const role = roleMap[user.id];
-      members.push({
-        id: entry.id,
-        userId: user.id,
-        username: user.username || user.email || "Пользователь",
-        avatarUrl: user.avatar
-          ? `${PB_URL}/api/files/${user.collectionId || "_pb_users_auth_"}/${user.id}/${user.avatar}`
-          : null,
-        banner: user.banner || undefined,
-        joinedAt: entry.created || "",
-        role: role?.name,
-        roleColor: role?.color,
-      });
-    }
-
-    // Include owner if not already in members
+  async (serverId: string, { rejectWithValue }) => {
     try {
-      const server = await pb.collection("servers").getOne(serverId);
-      const ownerId = (server as any).owner_id;
-      if (ownerId && !seen.has(ownerId)) {
-        try {
-          const owner = await pb.collection("users").getOne(ownerId);
-          const role = roleMap[ownerId];
-          members.push({
-            id: "",
-            userId: ownerId,
-            username: owner.username || "Владыка",
-            avatarUrl: owner.avatar
-              ? `${PB_URL}/api/files/${(owner as any).collectionId || "_pb_users_auth_"}/${ownerId}/${owner.avatar}`
-              : null,
-            banner: owner.banner || undefined,
-            joinedAt: "",
-            role: role?.name,
-            roleColor: role?.color,
-          });
-        } catch {}
-      }
-    } catch {}
+      const [sm, roleMap] = await Promise.all([
+        pb.collection("server_members").getFullList({
+          filter: `server_id = "${serverId}"`,
+          expand: "user_id",
+        }),
+        getRoleMap(serverId),
+      ]);
 
-    return { serverId, members };
+      const seen = new Set<string>();
+      const members: MemberData[] = [];
+
+      for (const entry of sm as any[]) {
+        const user = entry.expand?.user_id;
+        if (!user || seen.has(user.id)) continue;
+        seen.add(user.id);
+        const role = roleMap[user.id];
+        members.push({
+          id: entry.id,
+          userId: user.id,
+          username: user.username || user.email || "Пользователь",
+          avatarUrl: user.avatar
+            ? `${PB_URL}/api/files/${user.collectionId || "_pb_users_auth_"}/${user.id}/${user.avatar}`
+            : null,
+          banner: user.banner || undefined,
+          joinedAt: entry.created || "",
+          role: role?.name,
+          roleColor: role?.color,
+        });
+      }
+
+      // Include owner if not already in members
+      try {
+        const server = await pb.collection("servers").getOne(serverId);
+        const ownerId = (server as any).owner_id;
+        if (ownerId && !seen.has(ownerId)) {
+          try {
+            const owner = await pb.collection("users").getOne(ownerId);
+            const role = roleMap[ownerId];
+            members.push({
+              id: "",
+              userId: ownerId,
+              username: owner.username || "Владыка",
+              avatarUrl: owner.avatar
+                ? `${PB_URL}/api/files/${(owner as any).collectionId || "_pb_users_auth_"}/${ownerId}/${owner.avatar}`
+                : null,
+              banner: owner.banner || undefined,
+              joinedAt: "",
+              role: role?.name,
+              roleColor: role?.color,
+            });
+          } catch {}
+        }
+      } catch {}
+
+      return { serverId, members };
+    } catch (err) {
+      console.error("fetchServerMembers error:", err);
+      return rejectWithValue(err);
+    }
   },
 );
 
