@@ -1,24 +1,26 @@
 import { Toaster } from "sonner";
-import { useAppDispatch } from "@app/hooks";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
 import { fetchCurrentUser } from "@entities/user/model/authSlice";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { RouterProvider } from "react-router";
 import { router } from "./router";
 
 export const App = () => {
   const dispatch = useAppDispatch();
+  const token = useAppSelector((s) => s.auth.token);
+  const fetched = useRef(false);
+  const mounted = useRef(false);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        await dispatch(fetchCurrentUser());
-      } catch (error) {
-        console.error("Failed to fetch current user:", error);
-      }
-    };
+    // Prevent double-fetch in React StrictMode
+    if (mounted.current) return;
+    mounted.current = true;
 
-    fetchUser();
-  }, []);
+    if (fetched.current) return;
+    fetched.current = true;
+
+    dispatch(fetchCurrentUser());
+  }, [dispatch]);
 
   return (
     <>
