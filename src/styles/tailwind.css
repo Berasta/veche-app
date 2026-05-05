@@ -89,3 +89,95 @@
   0%, 100% { box-shadow: 0 0 2px rgba(255,255,255,0.02), 0 0 0 2px rgba(255,255,255,0.05); }
   50% { box-shadow: 0 0 14px rgba(255,255,255,0.12), 0 0 0 2px rgba(255,255,255,0.2); }
 }
+
+/* ✨ Shine sweep — световая полоса скользит по кругу */
+@keyframes frame-shine {
+  0% { box-shadow: 0 0 0 2px rgba(255,215,0,0.3), inset 0 2px 6px -1px rgba(255,215,0,0.6); }
+  25% { box-shadow: 0 0 0 2px rgba(255,215,0,0.3), inset 2px 0 6px -1px rgba(255,215,0,0.6); }
+  50% { box-shadow: 0 0 0 2px rgba(255,215,0,0.3), inset 0 -2px 6px -1px rgba(255,215,0,0.6); }
+  75% { box-shadow: 0 0 0 2px rgba(255,215,0,0.3), inset -2px 0 6px -1px rgba(255,215,0,0.6); }
+  100% { box-shadow: 0 0 0 2px rgba(255,215,0,0.3), inset 0 2px 6px -1px rgba(255,215,0,0.6); }
+}
+
+/* 🌊 Multi-aura — расширяющиеся кольца */
+@keyframes frame-aura {
+  0% { box-shadow: 0 0 0 2px rgba(99,102,241,0.6), 0 0 0 6px rgba(99,102,241,0.2), 0 0 0 10px rgba(99,102,241,0.05); }
+  50% { box-shadow: 0 0 0 2px rgba(99,102,241,0.9), 0 0 0 8px rgba(99,102,241,0.3), 0 0 0 14px rgba(99,102,241,0.08); }
+  100% { box-shadow: 0 0 0 2px rgba(99,102,241,0.6), 0 0 0 6px rgba(99,102,241,0.2), 0 0 0 10px rgba(99,102,241,0.05); }
+}
+
+/* 🌈 Holographic — перелив через многослойную тень */
+@keyframes frame-holo {
+  0% { box-shadow: 0 0 0 2px #ec4899, 0 0 10px rgba(236,72,153,0.3); }
+  20% { box-shadow: 0 0 0 2px #a855f7, 0 0 10px rgba(168,85,247,0.3); }
+  40% { box-shadow: 0 0 0 2px #3b82f6, 0 0 10px rgba(59,130,246,0.3); }
+  60% { box-shadow: 0 0 0 2px #22c55e, 0 0 10px rgba(34,197,94,0.3); }
+  80% { box-shadow: 0 0 0 2px #eab308, 0 0 10px rgba(234,179,8,0.3); }
+  100% { box-shadow: 0 0 0 2px #ec4899, 0 0 10px rgba(236,72,153,0.3); }
+}
+
+/* ⚡ Pulsar — резкие вспышки */
+@keyframes frame-pulsar {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(239,68,68,0.2), 0 0 0 5px rgba(239,68,68,0.05); }
+  10% { box-shadow: 0 0 0 2px rgba(239,68,68,0.9), 0 0 0 8px rgba(239,68,68,0.3), 0 0 20px rgba(239,68,68,0.5); }
+  13% { box-shadow: 0 0 0 1px rgba(239,68,68,0.2), 0 0 0 5px rgba(239,68,68,0.05); }
+  20% { box-shadow: 0 0 0 3px rgba(239,68,68,0.8), 0 0 0 10px rgba(239,68,68,0.3), 0 0 25px rgba(239,68,68,0.6); }
+  23% { box-shadow: 0 0 0 1px rgba(239,68,68,0.2), 0 0 0 5px rgba(239,68,68,0.05); }
+  40% { box-shadow: 0 0 0 2px rgba(239,68,68,0.6), 0 0 0 6px rgba(239,68,68,0.2); }
+  45% { box-shadow: 0 0 0 3px rgba(239,68,68,1), 0 0 0 12px rgba(239,68,68,0.4), 0 0 30px rgba(239,68,68,0.7); }
+  48% { box-shadow: 0 0 0 1px rgba(239,68,68,0.2), 0 0 0 5px rgba(239,68,68,0.05); }
+}
+
+/* 🟢 Matrix rain — полосатый градиент (имитация) */
+@keyframes frame-matrix {
+  0% { box-shadow: 0 0 0 2px #22c55e, 0 2px 6px 0 rgba(34,197,94,0.6); }
+  20% { box-shadow: 0 0 0 2px #22c55e, 1px 2px 6px 0 rgba(34,197,94,0.4); }
+  40% { box-shadow: 0 0 0 2px #22c55e, 0 0 6px 0 rgba(34,197,94,0.6); }
+  60% { box-shadow: 0 0 0 2px #22c55e, -1px -2px 6px 0 rgba(34,197,94,0.4); }
+  80% { box-shadow: 0 0 0 2px #22c55e, 0 -2px 6px 0 rgba(34,197,94,0.6); }
+  100% { box-shadow: 0 0 0 2px #22c55e, 0 2px 6px 0 rgba(34,197,94,0.6); }
+}
+
+/* ✦ Stardust — мерцающие точки через множественные тени */
+@keyframes frame-stardust {
+  0% { box-shadow:
+      0 0 0 2px rgba(255,255,255,0.15),
+      6px -6px 3px -4px rgba(255,255,255,0.4),
+      -5px 5px 3px -4px rgba(255,255,255,0.1),
+      7px 5px 3px -4px rgba(255,255,255,0.1);
+  }
+  25% { box-shadow:
+      0 0 0 2px rgba(255,255,255,0.15),
+      6px -6px 3px -4px rgba(255,255,255,0.1),
+      -5px 5px 3px -4px rgba(255,255,255,0.4),
+      7px 5px 3px -4px rgba(255,255,255,0.1);
+  }
+  50% { box-shadow:
+      0 0 0 2px rgba(255,255,255,0.15),
+      6px -6px 3px -4px rgba(255,255,255,0.1),
+      -5px 5px 3px -4px rgba(255,255,255,0.1),
+      7px 5px 3px -4px rgba(255,255,255,0.4);
+  }
+  75% { box-shadow:
+      0 0 0 2px rgba(255,255,255,0.15),
+      6px -6px 3px -4px rgba(255,255,255,0.1),
+      -5px 5px 3px -4px rgba(255,255,255,0.1),
+      7px 5px 3px -4px rgba(255,255,255,0.1);
+  }
+  100% { box-shadow:
+      0 0 0 2px rgba(255,255,255,0.15),
+      6px -6px 3px -4px rgba(255,255,255,0.4),
+      -5px 5px 3px -4px rgba(255,255,255,0.1),
+      7px 5px 3px -4px rgba(255,255,255,0.1);
+  }
+}
+
+/* ⚡ Electric arc — дуга пробегает по кругу */
+@keyframes frame-arc {
+  0% { box-shadow: 0 0 0 2px rgba(250,204,21,0.3), 0 2px 4px -1px rgba(250,204,21,0.8); }
+  20% { box-shadow: 0 0 0 2px rgba(250,204,21,0.3), 2px 1px 4px -1px rgba(250,204,21,0.8); }
+  40% { box-shadow: 0 0 0 2px rgba(250,204,21,0.3), 0 -1px 4px -1px rgba(250,204,21,0.8); }
+  60% { box-shadow: 0 0 0 2px rgba(250,204,21,0.3), -2px 0 4px -1px rgba(250,204,21,0.8); }
+  80% { box-shadow: 0 0 0 2px rgba(250,204,21,0.3), 0 2px 4px -1px rgba(250,204,21,0.8); }
+  100% { box-shadow: 0 0 0 2px rgba(250,204,21,0.3), 0 2px 4px -1px rgba(250,204,21,0.8); }
+}

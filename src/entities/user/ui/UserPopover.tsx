@@ -40,6 +40,13 @@ const FRAME_CLASSES: Record<string, string> = {
   frame_fire: "ring-2 ring-transparent animate-[frame-fire_1s_ease-in-out_infinite]",
   frame_ice: "ring-2 ring-transparent animate-[frame-ice_3s_ease-in-out_infinite]",
   frame_shadow: "ring-2 ring-transparent animate-[frame-shadow_2s_ease-in-out_infinite]",
+  frame_shine: "ring-2 ring-transparent animate-[frame-shine_3s_linear_infinite]",
+  frame_aura: "ring-2 ring-transparent animate-[frame-aura_2.5s_ease-in-out_infinite]",
+  frame_holo: "ring-2 ring-transparent animate-[frame-holo_4s_linear_infinite]",
+  frame_pulsar: "ring-2 ring-transparent animate-[frame-pulsar_3s_ease-in-out_infinite]",
+  frame_matrix: "ring-2 ring-transparent animate-[frame-matrix_2s_linear_infinite]",
+  frame_stardust: "ring-2 ring-transparent animate-[frame-stardust_4s_ease-in-out_infinite]",
+  frame_arc: "ring-2 ring-transparent animate-[frame-arc_2s_linear_infinite]",
 };
 
 export function getFrameClass(frame: string): string {
