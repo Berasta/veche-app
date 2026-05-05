@@ -208,7 +208,7 @@ export function Settings() {
                   {user && (
                     <UserAvatar
                       user={{ id: user.id, username: user.username, avatarUrl: user.avatar_url, avatarFrame: user.avatar_frame }}
-                      size="lg"
+                      size="2xl"
                     />
                   )}
                   <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">

@@ -17,13 +17,15 @@ export interface UserAvatarData {
   bannerId?: string;
 }
 
-type AvatarSize = "xs" | "sm" | "md" | "lg";
+type AvatarSize = "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
 
 const SIZE_MAP: Record<AvatarSize, { dim: string; text: string; icon: string }> = {
   xs: { dim: "w-5 h-5", text: "text-[9px]", icon: "w-2.5 h-2.5" },
   sm: { dim: "w-6 h-6", text: "text-[10px]", icon: "w-3 h-3" },
   md: { dim: "w-8 h-8", text: "text-xs", icon: "w-3.5 h-3.5" },
   lg: { dim: "w-10 h-10", text: "text-sm", icon: "w-4 h-4" },
+  xl: { dim: "w-14 h-14", text: "text-base", icon: "w-5 h-5" },
+  "2xl": { dim: "w-20 h-20", text: "text-xl", icon: "w-7 h-7" },
 };
 
 interface UserAvatarProps {
