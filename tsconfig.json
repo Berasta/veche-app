@@ -22,7 +22,8 @@
       "@routes/*": ["router/*"],
       "@hooks/*": ["hooks/*"],
       "@lib/*": ["lib/*"],
-      "@shared/*": ["shared/*"]
+      "@shared/*": ["shared/*"],
+      "@features/*": ["features/*"]
     }
   },
   "include": ["src"],
