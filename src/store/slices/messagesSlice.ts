@@ -41,16 +41,20 @@ const PAGE_SIZE = 50;
 // Загрузка первой страницы сообщений при открытии канала
 export const fetchMessages = createAsyncThunk(
   "messages/fetch",
-  async (channelId: string) => {
+  async (channelId: string, { getState }) => {
+    const [serverId] = channelId.split("_");
+    const state = getState() as any;
+    const members = state.members?.byServer?.[serverId]?.members ?? [];
+
     const result = await pb.collection("messages").getList(1, PAGE_SIZE, {
       filter: `channel_id = "${channelId}" && is_deleted = false`,
-      sort: "-created", // сначала новые
+      sort: "-created",
       expand: "user_id",
     });
 
     return {
       channelId,
-      items: result.items.map(normalizeMessage),
+      items: result.items.map((r) => normalizeMessage(r, members)),
       hasMore: result.totalPages > 1,
     };
   },
@@ -59,7 +63,11 @@ export const fetchMessages = createAsyncThunk(
 // Подгрузка старых сообщений (infinite scroll вверх)
 export const fetchMoreMessages = createAsyncThunk(
   "messages/fetchMore",
-  async ({ channelId, before }: { channelId: string; before: string }) => {
+  async ({ channelId, before }: { channelId: string; before: string }, { getState }) => {
+    const [serverId] = channelId.split("_");
+    const state = getState() as any;
+    const members = state.members?.byServer?.[serverId]?.members ?? [];
+
     const result = await pb.collection("messages").getList(1, PAGE_SIZE, {
       filter: `channel_id = "${channelId}" && is_deleted = false && created < "${before}"`,
       sort: "-created",
@@ -67,7 +75,7 @@ export const fetchMoreMessages = createAsyncThunk(
     });
 
     return {
-      items: result.items.map(normalizeMessage),
+      items: result.items.map((r) => normalizeMessage(r, members)),
       hasMore: result.totalPages > 1,
     };
   },
@@ -147,8 +155,9 @@ export const subscribeToChannel = (channelId: string, dispatch: any) => {
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function normalizeMessage(record: any): Message {
+function normalizeMessage(record: any, members: any[] = []): Message {
   const author = record.expand?.user_id;
+  const member = members.find((m: any) => m.userId === record.user_id);
   const images: string[] = [];
   if (record.images) {
     const names = Array.isArray(record.images) ? record.images : [record.images];
@@ -156,6 +165,16 @@ function normalizeMessage(record: any): Message {
       if (name) images.push(`${PB_URL}/api/files/${record.collectionId}/${record.id}/${name}`);
     });
   }
+
+  // Берём аватар из стора если есть, иначе из expand
+  const username = member?.username || author?.name || author?.username || "Пользователь";
+  const avatarUrl = member?.avatarUrl || (author?.avatar && author?.collectionId
+    ? `${PB_URL}/api/files/${author.collectionId}/${author.id}/${author.avatar}`
+    : author?.avatar
+      ? `${PB_URL}/api/files/_pb_users_auth_/${author.id}/${author.avatar}`
+      : null);
+  const banner = member?.banner || author?.banner || undefined;
+
   return {
     id: record.id,
     channel_id: record.channel_id,
@@ -164,14 +183,10 @@ function normalizeMessage(record: any): Message {
     edited_at: record.edited_at || null,
     is_deleted: record.is_deleted || false,
     created: record.created,
-    author_name: author?.name || author?.username || "Пользователь",
-    author_avatar: author?.avatar || null,
-    author_avatar_url: author?.avatar && author?.collectionId
-      ? `${PB_URL}/api/files/${author.collectionId}/${author.id}/${author.avatar}`
-      : author?.avatar
-        ? `${PB_URL}/api/files/_pb_users_auth_/${author.id}/${author.avatar}`
-        : null,
-    author_banner: author?.banner || undefined,
+    author_name: username,
+    author_avatar: member?.avatarUrl || author?.avatar || null,
+    author_avatar_url: avatarUrl,
+    author_banner: banner,
     images,
   };
 }
