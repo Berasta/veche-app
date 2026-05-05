@@ -314,7 +314,7 @@ export function Settings() {
               <div className="p-5 space-y-5">
                 {/* Avatar preview */}
                 <div className="flex flex-col items-center gap-3">
-                      <UserAvatar user={{ id: user.id, username: user.username, avatarUrl: user.avatar_url, avatarFrame: user.avatar_frame, avatarAccessory: user.avatar_accessory }} size="2xl" />
+                      <UserAvatar user={{ id: user.id, username: user.username, avatarUrl: user.avatar_url, avatarFrame: user.avatar_frame, avatarAccessory: user.avatar_accessory || localAccessory }} size="2xl" />
                   <span className="text-sm text-foreground/60">{user.username}</span>
                   <button onClick={() => { fileInputRef.current?.click(); setShowFrameSelector(false); }}
                     className="px-4 py-2 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground/60 hover:text-foreground text-sm font-medium transition-colors">
@@ -365,12 +365,13 @@ export function Settings() {
                 <div>
                   <p className="text-[10px] font-semibold text-foreground/30 uppercase tracking-widest mb-2">Украшенія на аватарку</p>
                   <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                    <FrameOption name="" empty active={!user.avatar_accessory} onClick={async () => { await removeShopItem(user.id, "accessory"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }} />
+                    <FrameOption name="" empty active={!(user.avatar_accessory || localAccessory)} onClick={async () => { await removeShopItem(user.id, "accessory"); localStorage.removeItem("avatarAccessory"); setLocalAccessory(undefined); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }} />
                     {["ears_cat", "ears_bunny", "crown", "halo", "glasses", "flower"].map((id) => {
                       const accLabels: Record<string, string> = { ears_cat: "Кошачьи уши", ears_bunny: "Заячьи уши", crown: "Корона", halo: "Нимбъ", glasses: "Очки", flower: "Цвѣтокъ" };
+                      const isActive = (user.avatar_accessory || localAccessory) === id;
                       return (
-                        <AccessoryOption key={id} name={accLabels[id]} active={user.avatar_accessory === id}
-                          onClick={async () => { await applyShopItem(user.id, id, "accessory"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }} />
+                        <AccessoryOption key={id} name={accLabels[id]} active={isActive}
+                          onClick={async () => { await applyShopItem(user.id, id, "accessory"); localStorage.setItem("avatarAccessory", id); setLocalAccessory(id); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }} />
                       );
                     })}
                   </div>
