@@ -15,13 +15,8 @@
     "baseUrl": "./src",
     "paths": {
       "@/*": ["./*"],
-      "@components/*": ["components/*"],
       "@pages/*": ["pages/*"],
-      "@api/*": ["api/*"],
-      "@store/*": ["store/*"],
       "@routes/*": ["router/*"],
-      "@hooks/*": ["hooks/*"],
-      "@lib/*": ["lib/*"],
       "@shared/*": ["shared/*"],
       "@features/*": ["features/*"],
       "@app/*": ["app/*"],
