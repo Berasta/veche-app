@@ -334,11 +334,11 @@ export function Settings() {
                       const rings: Record<string, string> = {
                         frame_royal: "ring-2 ring-yellow-500", frame_violet: "ring-2 ring-violet-500", frame_ruby: "ring-2 ring-red-500",
                         frame_ancient: "ring-2 ring-yellow-400", frame_arcane: "ring-2 ring-purple-500",
-                        frame_rainbow: "ring-2 ring-transparent",
+                        frame_rainbow: "ring-2 ring-pink-400",
                         frame_neon: "ring-[3px] ring-cyan-400",
                         frame_fire: "ring-2 ring-orange-500",
                         frame_ice: "ring-[3px] ring-sky-400",
-                        frame_shadow: "ring-2 ring-transparent"
+                        frame_shadow: "ring-2 ring-white/20"
                       };
                       return (
                         <FrameOption key={id} name={labels[id]} frameClass={rings[id]} active={user.avatar_frame === id}

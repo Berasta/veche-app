@@ -35,11 +35,11 @@ const FRAME_CLASSES: Record<string, string> = {
   frame_ruby: "ring-2 ring-red-500",
   frame_ancient: "ring-2 ring-yellow-400",
   frame_arcane: "ring-2 ring-purple-500",
-  frame_rainbow: "ring-2 ring-transparent",
+  frame_rainbow: "ring-2 ring-pink-400",
   frame_neon: "ring-[3px] ring-cyan-400",
   frame_fire: "ring-2 ring-orange-500",
   frame_ice: "ring-[3px] ring-sky-400",
-  frame_shadow: "ring-2 ring-transparent",
+  frame_shadow: "ring-2 ring-white/20",
 };
 
 export function getFrameClass(frame: string): string {
