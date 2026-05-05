@@ -10,6 +10,7 @@ export interface MemberData {
   banner?: string;
   avatarFrame?: string;
   bannerSkin?: string;
+  avatarAccessory?: string;
   joinedAt: string;
   role?: string;
   roleColor?: string;
@@ -57,6 +58,7 @@ export const fetchServerMembers = createAsyncThunk(
           banner: user.banner || undefined,
           avatarFrame: user.avatar_frame || undefined,
           bannerSkin: user.banner_skin || undefined,
+          avatarAccessory: user.avatar_accessory || undefined,
           joinedAt: entry.created || "",
           role: role?.name,
           roleColor: role?.color,
@@ -81,6 +83,7 @@ export const fetchServerMembers = createAsyncThunk(
               banner: owner.banner || undefined,
               avatarFrame: owner.avatar_frame || undefined,
               bannerSkin: owner.banner_skin || undefined,
+              avatarAccessory: owner.avatar_accessory || undefined,
               joinedAt: "",
               role: role?.name,
               roleColor: role?.color,

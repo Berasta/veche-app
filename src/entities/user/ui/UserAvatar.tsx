@@ -1,13 +1,14 @@
-import { forwardRef, ReactNode } from "react";
+import { ReactNode } from "react";
 import { Crown } from "lucide-react";
-import { pb } from "@shared/api/pb";
 import { getFrameClass } from "./UserPopover";
+import { AccessoryOverlay } from "./AccessoryOverlay";
 
 export interface UserAvatarData {
   id: string;
   username: string;
   avatarUrl?: string | null;
   avatarFrame?: string;
+  avatarAccessory?: string;
   role?: string;
   roleColor?: string;
   isSpeaking?: boolean;
@@ -65,6 +66,10 @@ export function UserAvatar({ user, size = "md", showName, isSpeaking, onClick, c
         {/* Frame overlay on top of avatar */}
         {frameClass && (
           <div className={`absolute inset-0 rounded-full pointer-events-none ${frameClass}`} />
+        )}
+        {/* Accessory overlay (ears, etc.) */}
+        {user.avatarAccessory && (
+          <AccessoryOverlay type={user.avatarAccessory} size={size} />
         )}
         {/* Speaking ring (on top of frame) */}
         {speaking && (

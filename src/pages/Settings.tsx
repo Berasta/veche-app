@@ -357,6 +357,21 @@ export function Settings() {
                     })}
                   </div>
                 </div>
+
+                {/* Accessories */}
+                <div>
+                  <p className="text-[10px] font-semibold text-foreground/30 uppercase tracking-widest mb-2">Украшенія на аватарку</p>
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                    <FrameOption name="" empty active={!user.avatar_accessory} onClick={async () => { await removeShopItem(user.id, "accessory"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }} />
+                    {["ears_cat", "ears_bunny", "crown", "halo", "glasses", "flower"].map((id) => {
+                      const accLabels: Record<string, string> = { ears_cat: "Кошачьи уши", ears_bunny: "Заячьи уши", crown: "Корона", halo: "Нимбъ", glasses: "Очки", flower: "Цвѣтокъ" };
+                      return (
+                        <AccessoryOption key={id} name={accLabels[id]} active={user.avatar_accessory === id}
+                          onClick={async () => { await applyShopItem(user.id, id, "accessory"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }} />
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -397,6 +412,46 @@ function FrameOption({ name, frameClass, active, empty, onClick }: { name: strin
         </div>
       )}
       <span className="text-[10px] text-foreground/50 text-center leading-tight">{name || "Нѣтъ"}</span>
+    </button>
+  );
+}
+
+function AccessoryOption({ name, active, onClick }: { name: string; active: boolean; onClick: () => void }) {
+  return (
+    <button onClick={onClick}
+      className={`flex flex-col items-center gap-1.5 p-2.5 rounded-xl border transition-all ${
+        active ? "border-primary/30 bg-primary/[0.04]" : "border-foreground/5 bg-foreground/[0.02] hover:border-foreground/10"
+      }`}
+    >
+      <div className={`w-10 h-10 rounded-full bg-foreground/5 flex items-center justify-center overflow-hidden ${active ? "ring-2 ring-primary/50" : ""}`}>
+        <svg viewBox="0 0 100 100" className="w-8 h-8" fill="none">
+          <circle cx="50" cy="50" r="30" fill="#d4d4d4" opacity="0.3" />
+          {name?.includes("уши") || name?.includes("Уши") ? (
+            <>
+              <path d="M30 45 Q20 15 40 25 Q32 32 32 45Z" fill="#d4d4d4" opacity="0.7" />
+              <path d="M70 45 Q80 15 60 25 Q68 32 68 45Z" fill="#d4d4d4" opacity="0.7" />
+            </>
+          ) : name === "Корона" ? (
+            <path d="M25 55 L35 30 L45 45 L50 25 L55 45 L65 30 L75 55Z" fill="#fbbf24" opacity="0.8" />
+          ) : name === "Нимбъ" ? (
+            <ellipse cx="50" cy="35" rx="18" ry="5" fill="none" stroke="#fbbf24" strokeWidth="2" opacity="0.6" />
+          ) : name === "Очки" ? (
+            <>
+              <circle cx="38" cy="50" r="9" fill="none" stroke="#666" strokeWidth="1.5" />
+              <circle cx="62" cy="50" r="9" fill="none" stroke="#666" strokeWidth="1.5" />
+              <path d="M47 50 L53 50" stroke="#666" strokeWidth="1.5" />
+            </>
+          ) : name === "Цвѣтокъ" ? (
+            <>
+              {[0, 60, 120, 180, 240, 300].map((a) => (
+                <ellipse key={a} cx={70} cy={38} rx={2.5} ry={4} fill="#f472b6" opacity="0.7" transform={`rotate(${a} 70 38)`} />
+              ))}
+              <circle cx="70" cy="38" r="2.5" fill="#fbbf24" />
+            </>
+          ) : null}
+        </svg>
+      </div>
+      <span className="text-[9px] text-foreground/50 text-center leading-tight">{name}</span>
     </button>
   );
 }

@@ -1,7 +1,7 @@
 import { pb } from "@shared/api/pb";
 import { fetchCurrentUser } from "./authSlice";
 
-export type ShopItemType = "banner" | "frame";
+export type ShopItemType = "banner" | "frame" | "accessory";
 
 export interface ShopItem {
   id: string;
@@ -15,6 +15,8 @@ export async function applyShopItem(userId: string, itemId: string, itemType: Sh
     update.avatar_frame = itemId;
   } else if (itemType === "banner") {
     update.banner_skin = itemId;
+  } else if (itemType === "accessory") {
+    update.avatar_accessory = itemId;
   }
   await pb.collection("users").update(userId, update);
 }
@@ -25,6 +27,8 @@ export async function removeShopItem(userId: string, itemType: ShopItemType) {
     update.avatar_frame = null;
   } else if (itemType === "banner") {
     update.banner_skin = null;
+  } else if (itemType === "accessory") {
+    update.avatar_accessory = null;
   }
   await pb.collection("users").update(userId, update);
 }
