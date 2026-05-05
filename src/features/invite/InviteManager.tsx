@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Plus, Trash2, Copy, Calendar, Users, Clock, Loader2, Crown, User } from "lucide-react";
+import { toast } from "sonner";
 import { listInvites, createInvite, deleteInvite, type Invite } from "@shared/api/inviteApi";
 import { pb } from "@shared/api/pb";
 
@@ -159,4 +160,5 @@ function fmtDate(date: string | null) {
 
 function copyCode(code: string) {
   navigator.clipboard.writeText(`${window.location.origin}/invite/${code}`);
+  toast.success("Ссылка скопирована");
 }
