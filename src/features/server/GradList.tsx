@@ -191,37 +191,14 @@ export function GradList() {
         )}
 
         {showCreateServer && (
-          <Portal>
-            <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center" onClick={() => setShowCreateServer(false)}>
-              <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
-                <div className="px-5 py-4 border-b border-border">
-                  <h4 className="text-sm font-semibold text-foreground">Создати градъ</h4>
-                </div>
-                <div className="p-5 space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="relative flex-shrink-0 cursor-pointer group" onClick={() => avatarInputRef.current?.click()}>
-                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted ring-2 ring-border/50 flex items-center justify-center group-hover:opacity-80 transition-opacity">
-                        {newServerAvatar ? (
-                          <img src={URL.createObjectURL(newServerAvatar)} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          <Plus className="w-6 h-6 text-muted-foreground/50" strokeWidth={1.5} />
-                        )}
-                      </div>
-                      <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => setNewServerAvatar(e.target.files?.[0] || null)} />
-                    </div>
-                    <input autoFocus value={newServerName} onChange={(e) => setNewServerName(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter") handleCreateServer(); if (e.key === "Escape") setShowCreateServer(false); }}
-                      placeholder="Названіе новаго града"
-                      className="flex-1 bg-input-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/50" />
-                  </div>
-                </div>
-                <div className="px-5 py-4 border-t border-border flex items-center justify-end gap-2">
-                  <button onClick={() => setShowCreateServer(false)} className="px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground text-sm font-medium transition-colors">Отмѣна</button>
-                  <button onClick={handleCreateServer} disabled={!newServerName.trim() || creating} className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium transition-colors disabled:opacity-50">{creating ? "Созданіе..." : "Создати"}</button>
-                </div>
-              </div>
-            </div>
-          </Portal>
+          <CreateServerModal
+            newServerName={newServerName} setNewServerName={setNewServerName}
+            newServerAvatar={newServerAvatar} setNewServerAvatar={setNewServerAvatar}
+            creating={creating}
+            avatarInputRef={avatarInputRef}
+            onSave={handleCreateServer}
+            onClose={() => setShowCreateServer(false)}
+          />
         )}
       </>
     );
@@ -235,37 +212,15 @@ export function GradList() {
       )}
 
       {showCreateServer && (
-        <Portal>
-          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center" onClick={() => setShowCreateServer(false)}>
-            <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
-              <div className="px-5 py-4 border-b border-border">
-                <h4 className="text-sm font-semibold text-foreground">Создати градъ</h4>
-              </div>
-              <div className="p-5 space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="relative flex-shrink-0 cursor-pointer group" onClick={() => avatarInputRef.current?.click()}>
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted ring-2 ring-border/50 flex items-center justify-center group-hover:opacity-80 transition-opacity">
-                      {newServerAvatar ? (
-                        <img src={URL.createObjectURL(newServerAvatar)} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <Plus className="w-6 h-6 text-muted-foreground/50" strokeWidth={1.5} />
-                      )}
-                    </div>
-                    <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => setNewServerAvatar(e.target.files?.[0] || null)} />
-                  </div>
-                  <input autoFocus value={newServerName} onChange={(e) => setNewServerName(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") handleCreateServer(); if (e.key === "Escape") setShowCreateServer(false); }}
-                    placeholder="Названіе новаго града"
-                    className="flex-1 bg-input-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/50" />
-                </div>
-              </div>
-              <div className="px-5 py-4 border-t border-border flex items-center justify-end gap-2">
-                <button onClick={() => setShowCreateServer(false)} className="px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground text-sm font-medium transition-colors">Отмѣна</button>
-                <button onClick={handleCreateServer} disabled={!newServerName.trim() || creating} className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium transition-colors disabled:opacity-50">{creating ? "Созданіе..." : "Создати"}</button>
-              </div>
-            </div>
-          </div>
-        </Portal>
+        <CreateServerModal
+          newServerName={newServerName} setNewServerName={setNewServerName}
+          newServerAvatar={newServerAvatar} setNewServerAvatar={setNewServerAvatar}
+          creating={creating}
+          avatarInputRef={avatarInputRef}
+          onSave={handleCreateServer}
+          onClose={() => setShowCreateServer(false)}
+        />
+      )}
       )}
 
       {/* SIDEBAR */}
@@ -308,5 +263,48 @@ export function GradList() {
         </div>
       </div>
     </>
+  );
+}
+
+function CreateServerModal({
+  newServerName, setNewServerName, newServerAvatar, setNewServerAvatar, creating, avatarInputRef, onSave, onClose
+}: {
+  newServerName: string; setNewServerName: (v: string) => void;
+  newServerAvatar: File | null; setNewServerAvatar: (f: File | null) => void;
+  creating: boolean; avatarInputRef: React.RefObject<HTMLInputElement | null>;
+  onSave: () => void; onClose: () => void;
+}) {
+  return (
+    <Portal>
+      <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+        <div className="bg-background/80 backdrop-blur-xl rounded-2xl w-full max-w-sm overflow-hidden" onClick={(e) => e.stopPropagation()}>
+          <div className="p-5 space-y-4">
+            <h4 className="text-sm font-medium text-foreground/80">Создати градъ</h4>
+            <div className="flex items-center gap-3">
+              <div className="relative flex-shrink-0 cursor-pointer group" onClick={() => avatarInputRef.current?.click()}>
+                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-foreground/5 ring-2 ring-foreground/10 flex items-center justify-center group-hover:opacity-70 transition-opacity">
+                  {newServerAvatar ? (
+                    <img src={URL.createObjectURL(newServerAvatar)} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <Plus className="w-6 h-6 text-foreground/20" strokeWidth={1.5} />
+                  )}
+                </div>
+                <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => setNewServerAvatar(e.target.files?.[0] || null)} />
+              </div>
+              <input autoFocus value={newServerName} onChange={(e) => setNewServerName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") onSave(); if (e.key === "Escape") onClose(); }}
+                placeholder="Названіе новаго града"
+                className="flex-1 bg-foreground/5 rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-foreground/20 outline-none focus:ring-1 focus:ring-foreground/20" />
+            </div>
+            <div className="flex items-center justify-end gap-2">
+              <button onClick={onClose} className="px-4 py-2 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground/60 hover:text-foreground text-sm transition-colors">Отмѣна</button>
+              <button onClick={onSave} disabled={!newServerName.trim() || creating} className="px-4 py-2 rounded-xl bg-foreground/10 hover:bg-foreground/15 text-foreground/80 text-sm transition-colors disabled:opacity-30">
+                {creating ? "Созданіе..." : "Создати"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Portal>
   );
 }
