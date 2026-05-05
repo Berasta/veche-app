@@ -17,7 +17,7 @@ interface Props {
   participantAvatars?: string[];
 }
 
-export function Palata({ channelId, channelName, index, participantCount = 0 }: Props) {
+export function Palata({ channelId, channelName, index, participantCount = 0, participantAvatars }: Props) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { serverId } = useParams();
