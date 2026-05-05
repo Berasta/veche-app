@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { ScrollText } from "lucide-react";
+import { ScrollText, Users } from "lucide-react";
 import { groupMessages } from "@shared/lib/groupMessages";
 import { formatMessageTime } from "@shared/lib/formatTime";
 import { GramotaInput, type GramotaInputHandle } from "@features/send-message/GramotaInput";
