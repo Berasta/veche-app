@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { Shield, Plus, Trash2, Pencil } from "lucide-react";
 import { listRoles, createRole, updateRole, deleteRole, listAssignments, setUserRole, removeUserRole, type ServerRole, type RoleAssignment, PERMISSIONS } from "@shared/api/rolesApi";
 import { pb, PB_URL } from "@shared/api/pb";
@@ -57,7 +58,7 @@ export function RolesManager({ serverId }: { serverId: string }) {
         <Portal>
           <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowCreate(false)}>
             <div className="bg-background/80 backdrop-blur-xl rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-              <RoleForm onSave={async (d) => { await createRole(serverId, d); setShowCreate(false); load(); }} onCancel={() => setShowCreate(false)} />
+              <RoleForm onSave={async (d) => { await createRole(serverId, d); toast.success("Роль создана"); setShowCreate(false); load(); }} onCancel={() => setShowCreate(false)} />
             </div>
           </div>
         </Portal>
@@ -71,7 +72,7 @@ export function RolesManager({ serverId }: { serverId: string }) {
           <Portal key={editingRoleId}>
             <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setEditingRoleId(null)}>
               <div className="bg-background/80 backdrop-blur-xl rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-                <RoleForm initial={role} onSave={async (d) => { await updateRole(role.id, d); setEditingRoleId(null); load(); }} onCancel={() => setEditingRoleId(null)} />
+                <RoleForm initial={role} onSave={async (d) => { await updateRole(role.id, d); toast.success("Роль обновлена"); setEditingRoleId(null); load(); }} onCancel={() => setEditingRoleId(null)} />
               </div>
             </div>
           </Portal>
@@ -97,7 +98,7 @@ export function RolesManager({ serverId }: { serverId: string }) {
                         className="w-6 h-6 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors">
                         <Pencil className="w-3 h-3" strokeWidth={1.5} />
                       </button>
-                      <button onClick={async () => { await deleteRole(role.id); load(); }}
+                      <button onClick={async () => { await deleteRole(role.id); toast.success("Роль удалена"); load(); }}
                         className="w-6 h-6 rounded-lg hover:bg-red-500/10 flex items-center justify-center text-foreground/30 hover:text-red-500/70 transition-colors">
                         <Trash2 className="w-3 h-3" strokeWidth={1.5} />
                       </button>
