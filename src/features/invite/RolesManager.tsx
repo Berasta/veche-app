@@ -59,7 +59,7 @@ export function RolesManager({ serverId }: { serverId: string }) {
           <p className="text-sm text-foreground/30 text-center py-6">Нетъ ролей</p>
         ) : (
           roles.map((role) => (
-            <div key={role.id} className="rounded-xl overflow-hidden bg-foreground/[0.02]">
+            <div key={role.id} className="rounded-xl overflow-hidden bg-foreground/[0.02] group">
               {editingRoleId === role.id ? (
                 <RoleForm initial={role} onSave={async (d) => { await updateRole(role.id, d); setEditingRoleId(null); load(); }} onCancel={() => setEditingRoleId(null)} />
               ) : (
