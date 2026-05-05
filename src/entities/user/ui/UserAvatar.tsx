@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 import { Crown } from "lucide-react";
 import { getFrameClass } from "./UserPopover";
-import { AccessoryOverlay } from "./AccessoryOverlay";
 
 export interface UserAvatarData {
   id: string;
