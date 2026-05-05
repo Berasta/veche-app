@@ -311,7 +311,7 @@ export function Settings() {
               <div className="p-5 space-y-5">
                 {/* Avatar preview */}
                 <div className="flex flex-col items-center gap-3">
-                  <UserAvatar user={{ id: user.id, username: user.username, avatarUrl: user.avatar_url, avatarFrame: user.avatar_frame }} size="2xl" />
+                      <UserAvatar user={{ id: user.id, username: user.username, avatarUrl: user.avatar_url, avatarFrame: user.avatar_frame, avatarAccessory: user.avatar_accessory }} size="2xl" />
                   <span className="text-sm text-foreground/60">{user.username}</span>
                   <button onClick={() => { fileInputRef.current?.click(); setShowFrameSelector(false); }}
                     className="px-4 py-2 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground/60 hover:text-foreground text-sm font-medium transition-colors">
