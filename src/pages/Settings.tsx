@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, Keyboard, User, ArrowLeft, Trash2, Crop, Gem } from "lucide-react";
+import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, Keyboard, User, ArrowLeft, Trash2, Crop, Gem, Loader2 } from "lucide-react";
 import { ThemeSwitcher } from "@features/theme/ThemeSwitcher";
 import { VoiceSettings } from "@features/voice/VoiceSettings";
 import { HotkeySettings } from "@features/voice/HotkeySettings";
@@ -11,6 +11,7 @@ import { useAuth } from "@entities/user/model/useAuth";
 import { pb, PB_URL } from "@shared/api/pb";
 import { fetchCurrentUser, logout } from "@entities/user/model/authSlice";
 import { useAppDispatch } from "@app/hooks";
+import { UserAvatar, type UserAvatarData } from "@shared/ui/UserAvatar";
 
 const TABS = [
   { id: "profile", label: "Профиль", icon: User },
@@ -204,11 +205,11 @@ export function Settings() {
               {/* Avatar & Name */}
               <div className="relative -mt-12 flex flex-col md:flex-row items-start md:items-end gap-3 md:gap-4">
                 <div className="relative group cursor-pointer" onClick={triggerFileSelect}>
-                  <div className="w-20 md:w-24 h-20 md:h-24 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center ring-4 ring-background overflow-hidden transition-opacity group-hover:opacity-80">
+                  <div className="w-20 md:w-24 h-20 md:h-24 rounded-full bg-foreground/5 ring-4 ring-background overflow-hidden transition-opacity group-hover:opacity-80 flex items-center justify-center">
                     {user?.avatar_url ? (
                       <img src={user.avatar_url} alt="avatar" className="w-full h-full object-cover" />
                     ) : (
-                      <Crown className="w-10 md:w-12 h-10 md:h-12 text-primary" strokeWidth={2} />
+                      <Crown className="w-10 md:w-12 h-10 md:h-12 text-foreground/30" strokeWidth={1.5} />
                     )}
                   </div>
                   <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
@@ -222,26 +223,26 @@ export function Settings() {
                     <div className="flex items-center gap-2">
                       <input ref={inputRef} type="text" value={nickname} onChange={(e) => setNickname(e.target.value)}
                         onKeyDown={handleKeyDown} disabled={saving}
-                        className="bg-input-background border border-border rounded-md px-3 py-1.5 text-lg font-semibold text-foreground w-full outline-none focus:ring-2 focus:ring-primary/50" />
+                        className="flex-1 bg-foreground/5 rounded-xl px-3 py-2 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20" />
                       <button onClick={saveNickname} disabled={saving}
-                        className="w-8 h-8 rounded-md bg-primary/20 text-primary hover:bg-primary/30 flex items-center justify-center transition-colors flex-shrink-0" title="Сохранити">
-                        <Check className="w-4 h-4" strokeWidth={2} />
+                        className="w-8 h-8 rounded-xl bg-foreground/10 text-foreground/60 hover:text-foreground flex items-center justify-center transition-colors flex-shrink-0" title="Сохранити">
+                        {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" strokeWidth={1.5} />}
                       </button>
                       <button onClick={cancelEditing} disabled={saving}
-                        className="w-8 h-8 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors flex-shrink-0" title="Отмѣна">
-                        <X className="w-4 h-4" strokeWidth={2} />
+                        className="w-8 h-8 rounded-xl hover:bg-foreground/5 text-foreground/30 hover:text-foreground/60 flex items-center justify-center transition-colors flex-shrink-0" title="Отмѣна">
+                        <X className="w-3.5 h-3.5" strokeWidth={1.5} />
                       </button>
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 group">
-                      <h2 className="text-xl md:text-2xl font-bold text-foreground truncate">{user?.username}</h2>
+                      <h2 className="text-xl md:text-2xl font-bold text-foreground/80 truncate">{user?.username}</h2>
                       <button onClick={startEditing}
-                        className="w-7 h-7 rounded-md opacity-0 group-hover:opacity-100 hover:bg-muted/50 text-muted-foreground hover:text-foreground flex items-center justify-center transition-all flex-shrink-0" title="Измѣнити имя">
-                        <Edit2 className="w-3.5 h-3.5" strokeWidth={2} />
+                        className="w-7 h-7 rounded-xl opacity-0 group-hover:opacity-100 hover:bg-foreground/5 text-foreground/30 hover:text-foreground/60 flex items-center justify-center transition-all flex-shrink-0" title="Измѣнити имя">
+                        <Edit2 className="w-3.5 h-3.5" strokeWidth={1.5} />
                       </button>
                     </div>
                   )}
-                  <p className="text-left text-sm text-muted-foreground mt-0.5">{user?.id}</p>
+                  <p className="text-xs text-foreground/20 mt-1 font-mono">{user?.id}</p>
                 </div>
               </div>
 
