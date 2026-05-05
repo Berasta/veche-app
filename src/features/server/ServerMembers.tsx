@@ -66,7 +66,7 @@ function MembersPanel({
                   {group.members.map((member) => (
                     <div key={member.userId} className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-foreground/[0.03] transition-colors">
                       <UserPopover username={member.username} avatarUrl={member.avatarUrl} bannerId={member.banner} userId={member.userId} role={member.role} roleColor={member.roleColor} joinedAt={member.joinedAt} volume={volumes[member.userId]} onVolumeChange={(v) => onVolumeChange?.(member.userId, v)} frame={member.avatarFrame}>
-                        <UserAvatar user={member as UserAvatarData} size="md" />
+                        <UserAvatar user={member as UserAvatarData} size="md" showName />
                       </UserPopover>
                     </div>
                   ))}

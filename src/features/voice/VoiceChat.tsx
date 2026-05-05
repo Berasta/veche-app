@@ -211,7 +211,7 @@ export function VoiceChat() {
                       ${m.isSpeaking ? "bg-foreground/[0.06]" : "hover:bg-foreground/[0.03]"}
                     `}
                   >
-                    <UserAvatar user={m as UserAvatarData} size="md" isSpeaking={m.isSpeaking} />
+                    <UserAvatar user={m as UserAvatarData} size="md" isSpeaking={m.isSpeaking} showName />
 
                     {/* Speaking wave bars */}
                     {m.isSpeaking && (
