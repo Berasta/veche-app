@@ -40,38 +40,39 @@ function MembersPanel({
   return (
     <>
       {showHeader && (
-        <div className="h-11 px-4 flex items-center border-b border-sidebar-border flex-shrink-0">
-          <Users className="w-4 h-4 text-primary mr-2" strokeWidth={2} />
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex-1">
+        <div className="h-11 px-4 flex items-center flex-shrink-0 relative">
+          <Users className="w-3.5 h-3.5 text-foreground/30 mr-2" strokeWidth={1.5} />
+          <span className="text-[10px] font-semibold text-foreground/30 uppercase tracking-wider flex-1">
             Люди града — {members.length}
           </span>
-          <button onClick={onClose} className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
-            <X className="w-3.5 h-3.5" strokeWidth={2} />
+          <button onClick={onClose} className="w-7 h-7 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors">
+            <X className="w-3.5 h-3.5" strokeWidth={1.5} />
           </button>
+          <div className="absolute bottom-0 left-3 right-3 h-px bg-foreground/5" />
         </div>
       )}
       <div className="flex-1 overflow-y-auto p-2">
         {loading ? <MembersSkeleton /> : members.length === 0 ? (
-          <div className="text-sm text-muted-foreground text-center py-8">Нѣтъ людей въ градѣ</div>
+          <div className="text-sm text-foreground/30 text-center py-8">Нѣтъ людей въ градѣ</div>
         ) : (
           <div className="space-y-3 pb-4">
             {groupedMembers.map((group) => (
               <div key={group.roleName}>
                 <div className="flex items-center gap-1.5 px-1 mb-1">
                   {group.roleColor && <div className="w-2 h-2 rounded-full" style={{ backgroundColor: group.roleColor }} />}
-                  <span className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest">{group.roleName} — {group.members.length}</span>
+                  <span className="text-[10px] font-semibold text-foreground/25 uppercase tracking-widest">{group.roleName} — {group.members.length}</span>
                 </div>
                 <div className="space-y-0.5">
                   {group.members.map((member) => (
-                    <div key={member.id} className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-sidebar-accent/50 transition-colors">
+                    <div key={member.id} className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-foreground/[0.03] transition-colors">
                       <UserPopover username={member.username} avatarUrl={member.avatarUrl} bannerId={member.banner} userId={member.id} role={roleMap[member.id]?.name} roleColor={roleMap[member.id]?.color} joinedAt={member.joinedAt} volume={volumes[member.id]} onVolumeChange={(v) => onVolumeChange?.(member.id, v)}>
                         <div className="w-7 h-7 flex-shrink-0">
-                          <div className="w-full h-full rounded-full overflow-hidden bg-sidebar/50 flex items-center justify-center cursor-pointer">
-                            {member.avatarUrl ? <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" /> : <User className="w-3.5 h-3.5 text-sidebar-foreground/50" strokeWidth={2} />}
+                          <div className="w-full h-full rounded-full overflow-hidden bg-foreground/5 flex items-center justify-center cursor-pointer">
+                            {member.avatarUrl ? <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" /> : <User className="w-3.5 h-3.5 text-foreground/30" strokeWidth={1.5} />}
                           </div>
                         </div>
                       </UserPopover>
-                      <span className="text-sm truncate text-sidebar-foreground" style={roleMap[member.id]?.color ? { color: roleMap[member.id].color } : {}}>{member.username}</span>
+                      <span className="text-sm truncate text-foreground/60" style={roleMap[member.id]?.color ? { color: roleMap[member.id].color } : {}}>{member.username}</span>
                     </div>
                   ))}
                 </div>
@@ -264,9 +265,10 @@ export function ServerMembers({ serverId, isOpen, onClose, inline }: ServerMembe
       <div className="flex-1 bg-black/20 transition-opacity duration-200" />
       <div
         ref={panelRef}
-        className={`w-[85vw] md:w-72 bg-card border-l border-border shadow-2xl flex flex-col transition-transform duration-200 ease-out ${translateX}`}
+        className={`w-[85vw] md:w-72 bg-background/60 backdrop-blur-xl flex flex-col transition-transform duration-200 ease-out relative ${translateX}`}
         onClick={(e) => e.stopPropagation()}
       >
+        <div className="absolute left-0 top-0 bottom-0 w-px bg-foreground/5 pointer-events-none" />
         <ServerMembersContent serverId={serverId} onClose={onClose} />
       </div>
     </div>
