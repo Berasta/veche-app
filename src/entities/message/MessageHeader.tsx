@@ -1,4 +1,4 @@
-import { UserPopover } from "../ui/UserPopover";
+import { UserPopover, getFrameClass } from "@shared/ui/UserPopover";
 
 export interface MessageHeaderProps {
   author: string;
@@ -19,9 +19,9 @@ export function MessageHeader({ author, avatar, time, userId, role, roleColor, b
     <div className="flex items-center gap-2 mb-1">
       <UserPopover username={author} avatarUrl={avatar} bannerId={bannerId} userId={userId} role={role} roleColor={roleColor} joinedAt={joinedAt} frame={frame}>
         <div className="flex items-center gap-1.5 cursor-pointer">
-          <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 bg-muted flex items-center justify-center">
+          <div className={`w-6 h-6 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center ${frame ? getFrameClass(frame) : "bg-muted"}`}>
             {avatar ? (
-              <img src={avatar} alt="" className="w-full h-full object-cover" />
+              <img src={avatar} alt="" className="w-full h-full object-cover rounded-full" />
             ) : (
               <span className="text-[10px] font-bold text-muted-foreground">{initials}</span>
             )}

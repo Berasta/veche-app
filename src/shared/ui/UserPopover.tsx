@@ -37,7 +37,7 @@ const FRAME_CLASSES: Record<string, string> = {
   frame_arcane: "ring-2 ring-purple-500 animate-[glow-pulse_2.5s_ease-in-out_infinite]",
 };
 
-function getFrameClass(frame: string): string {
+export function getFrameClass(frame: string): string {
   return FRAME_CLASSES[frame] || "ring-2 ring-card";
 }
 
