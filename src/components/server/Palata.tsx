@@ -62,7 +62,7 @@ export function Palata({ channelId, channelName, index, participantCount = 0 }: 
         <Volume2
           size={14}
           strokeWidth={1.5}
-          className={isActive ? "text-green-500" : "text-foreground/30"}
+          className={isActive ? "text-primary" : "text-foreground/30"}
         />
       )}
       <span className="flex-1 min-w-0 truncate">{channelName}</span>
@@ -83,7 +83,7 @@ export function Palata({ channelId, channelName, index, participantCount = 0 }: 
         </div>
       )}
       {isActive && (
-        <span className="text-xs text-green-500 flex-shrink-0 ml-1">●</span>
+        <span className="text-xs text-primary flex-shrink-0 ml-1">●</span>
       )}
     </motion.button>
   );

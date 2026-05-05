@@ -74,9 +74,9 @@ export function ActiveVoiceBar() {
             {/* Channel info */}
             <div className="flex items-center gap-2 min-w-0 flex-1">
               <div className="relative flex-shrink-0">
-                <Volume2 size={14} className="text-green-500" />
+                <Volume2 size={14} className="text-primary" />
                 {speakingCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                  <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
                 )}
               </div>
               <div className="min-w-0">
@@ -88,8 +88,8 @@ export function ActiveVoiceBar() {
                     {participants.length} уч.
                   </span>
                   {speakingCount > 0 && (
-                    <span className="text-[10px] text-green-500 flex-shrink-0 font-medium">
-                      · {speakingCount} говоритъ
+                    <span className="text-[10px] text-primary flex-shrink-0 font-medium">
+                      · {speakingCount}
                     </span>
                   )}
                 </div>

@@ -142,15 +142,15 @@ export function VoiceChat() {
             )}
             {connectionQuality !== "unknown" && (
               <span className={`flex items-center gap-1 text-[10px] ${
-                connectionQuality === "excellent" ? "text-green-500" :
-                connectionQuality === "good" ? "text-green-400" :
+                connectionQuality === "excellent" ? "text-primary" :
+                connectionQuality === "good" ? "text-primary/70" :
                 connectionQuality === "poor" ? "text-yellow-500" :
                 connectionQuality === "lost" ? "text-red-500" :
                 "text-muted-foreground/50"
               }`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${
-                  connectionQuality === "excellent" ? "bg-green-500" :
-                  connectionQuality === "good" ? "bg-green-400" :
+                  connectionQuality === "excellent" ? "bg-primary" :
+                  connectionQuality === "good" ? "bg-primary/70" :
                   connectionQuality === "poor" ? "bg-yellow-500" :
                   connectionQuality === "lost" ? "bg-red-500" :
                   "bg-muted-foreground/30"
@@ -196,8 +196,8 @@ export function VoiceChat() {
               <span className="text-xs font-semibold text-foreground/30 uppercase tracking-wider">
                 {members.length} участник{members.length === 1 ? "" : members.length < 5 ? "а" : "ов"}
                 {speakingCount > 0 && (
-                  <span className="text-green-500 ml-1.5 font-normal normal-case">
-                    · {speakingCount} говоритъ
+                  <span className="text-primary ml-1.5 font-normal normal-case">
+                    · {speakingCount}
                   </span>
                 )}
               </span>

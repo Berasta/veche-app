@@ -107,7 +107,7 @@ export function VoiceMemberCard({ member, index, volume, onVolumeChange, role, r
       {/* Статусы */}
       <div className="flex items-center gap-2">
         {member.isSpeaking && (
-          <span className="text-xs text-green-500 font-medium">Говоритъ</span>
+          <span className="text-xs text-primary font-medium">Говоритъ</span>
         )}
       </div>
 
