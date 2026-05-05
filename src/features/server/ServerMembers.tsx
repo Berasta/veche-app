@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { X, Users, User } from "lucide-react";
+import { X, Users } from "lucide-react";
 import { UserPopover } from "@shared/ui/UserPopover";
+import { UserAvatar, type UserAvatarData } from "@shared/ui/UserAvatar";
 import { MembersSkeleton } from "@shared/ui/Skeleton";
 import { useAppSelector, useAppDispatch } from "@app/hooks";
 import { useIsMobile } from "@shared/ui/use-mobile";
@@ -65,13 +66,8 @@ function MembersPanel({
                   {group.members.map((member) => (
                     <div key={member.userId} className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-foreground/[0.03] transition-colors">
                       <UserPopover username={member.username} avatarUrl={member.avatarUrl} bannerId={member.banner} userId={member.userId} role={member.role} roleColor={member.roleColor} joinedAt={member.joinedAt} volume={volumes[member.userId]} onVolumeChange={(v) => onVolumeChange?.(member.userId, v)} frame={member.avatarFrame}>
-                        <div className="w-7 h-7 flex-shrink-0">
-                          <div className="w-full h-full rounded-full overflow-hidden bg-foreground/5 flex items-center justify-center cursor-pointer">
-                            {member.avatarUrl ? <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" /> : <User className="w-3.5 h-3.5 text-foreground/30" strokeWidth={1.5} />}
-                          </div>
-                        </div>
+                        <UserAvatar user={member as UserAvatarData} size="md" />
                       </UserPopover>
-                      <span className="text-sm truncate text-foreground/60" style={member.roleColor ? { color: member.roleColor } : {}}>{member.username}</span>
                     </div>
                   ))}
                 </div>

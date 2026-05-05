@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Volume2, User, ArrowLeft, MicOff, Monitor, Clock } from "lucide-react";
+import { UserAvatar, type UserAvatarData } from "@shared/ui/UserAvatar";
 import { ScreenShareModal, type ShareOptions } from "./ScreenShareModal";
 import { PageHeader } from "@shared/ui/PageHeader";
 import { IconButton } from "@shared/ui/IconButton";
@@ -210,46 +211,16 @@ export function VoiceChat() {
                       ${m.isSpeaking ? "bg-foreground/[0.06]" : "hover:bg-foreground/[0.03]"}
                     `}
                   >
-                    {/* Avatar */}
-                    <div className="relative flex-shrink-0">
-                      <div className={`w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold
-                        ${m.avatarUrl ? "" : m.isSpeaking ? "bg-foreground/10 text-foreground/60" : "bg-foreground/5 text-foreground/30"}
-                      `}>
-                        {m.avatarUrl ? (
-                          <img src={m.avatarUrl} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          m.name.charAt(0).toUpperCase()
-                        )}
-                      </div>
-                      {/* Muted badge */}
-                      {m.isMuted && !m.isDeafened && (
-                        <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-red-500 flex items-center justify-center ring-[1.5px] ring-background">
-                          <MicOff className="w-2 h-2 text-white" />
-                        </div>
-                      )}
-                      {m.isDeafened && (
-                        <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-orange-500 flex items-center justify-center ring-[1.5px] ring-background">
-                          <MicOff className="w-2 h-2 text-white" />
-                        </div>
-                      )}
-                    </div>
+                    <UserAvatar user={m as UserAvatarData} size="md" isSpeaking={m.isSpeaking} />
 
-                    {/* Name + role */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className={`text-sm truncate ${m.isSpeaking ? "text-foreground/80 font-medium" : "text-foreground/40"}`}
-                          style={m.roleColor && m.isSpeaking ? { color: m.roleColor } : undefined}>
-                          {m.name}
-                        </span>
-                        {m.isSpeaking && (
-                          <span className="flex items-center gap-px h-3 flex-shrink-0">
-                            <span className="w-0.5 bg-primary rounded-full animate-[speak_0.4s_ease-in-out_infinite_0ms]" />
-                            <span className="w-0.5 bg-primary rounded-full animate-[speak_0.4s_ease-in-out_infinite_100ms]" />
-                            <span className="w-0.5 bg-primary rounded-full animate-[speak_0.4s_ease-in-out_infinite_200ms]" />
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                    {/* Speaking wave bars */}
+                    {m.isSpeaking && (
+                      <span className="flex items-center gap-px h-3 flex-shrink-0">
+                        <span className="w-0.5 bg-primary rounded-full animate-[speak_0.4s_ease-in-out_infinite_0ms]" />
+                        <span className="w-0.5 bg-primary rounded-full animate-[speak_0.4s_ease-in-out_infinite_100ms]" />
+                        <span className="w-0.5 bg-primary rounded-full animate-[speak_0.4s_ease-in-out_infinite_200ms]" />
+                      </span>
+                    )}
 
                     {/* Volume */}
                     <input

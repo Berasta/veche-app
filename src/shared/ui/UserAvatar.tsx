@@ -30,14 +30,15 @@ interface UserAvatarProps {
   user: UserAvatarData;
   size?: AvatarSize;
   showName?: boolean;
+  isSpeaking?: boolean;
   onClick?: () => void;
   children?: ReactNode;
 }
 
-export function UserAvatar({ user, size = "md", showName, onClick, children }: UserAvatarProps) {
+export function UserAvatar({ user, size = "md", showName, isSpeaking, onClick, children }: UserAvatarProps) {
   const s = SIZE_MAP[size];
-  const initials = user.username.charAt(0).toUpperCase();
   const frameClass = user.frame ? getFrameClass(user.frame) : "";
+  const speaking = isSpeaking ?? user.isSpeaking;
 
   return (
     <div
@@ -46,7 +47,11 @@ export function UserAvatar({ user, size = "md", showName, onClick, children }: U
     >
       {/* Avatar with optional frame */}
       <div className={`relative flex-shrink-0 ${s.dim}`}>
-        <div className={`w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-foreground/5 ${frameClass} ${s.text} font-bold text-foreground/40`}>
+        {/* Speaking ring */}
+        {speaking && (
+          <span className={`absolute inset-0 rounded-full animate-ping bg-primary/20 ${s.dim}`} />
+        )}
+        <div className={`w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-foreground/5 ${frameClass} ${s.text} font-bold text-foreground/40 ${speaking ? "ring-2 ring-primary ring-offset-1 ring-offset-background" : ""}`}>
           {user.avatarUrl ? (
             <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
           ) : (
@@ -54,12 +59,12 @@ export function UserAvatar({ user, size = "md", showName, onClick, children }: U
           )}
         </div>
 
-        {/* Status icons */}
-        {user.isMuted && !user.isDeafened && (
-          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-red-500 ring-[1.5px] ring-background" />
-        )}
+        {/* Status dots */}
         {user.isDeafened && (
           <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-orange-500 ring-[1.5px] ring-background" />
+        )}
+        {!user.isDeafened && user.isMuted && (
+          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-red-500 ring-[1.5px] ring-background" />
         )}
         {children}
       </div>
@@ -68,9 +73,9 @@ export function UserAvatar({ user, size = "md", showName, onClick, children }: U
       {showName && (
         <span
           className={`truncate ${s.text} font-medium ${
-            user.isSpeaking ? "text-foreground/80" : "text-foreground/50"
+            speaking ? "text-foreground/80" : "text-foreground/50"
           }`}
-          style={user.isSpeaking && user.roleColor ? { color: user.roleColor } : undefined}
+          style={speaking && user.roleColor ? { color: user.roleColor } : undefined}
         >
           {user.username}
         </span>
