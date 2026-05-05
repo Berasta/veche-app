@@ -1,0 +1,421 @@
+import { useEffect, useState, useRef } from "react";
+import { useAppSelector } from "@store/hooks";
+import { useNavigate, useParams } from "react-router";
+import { Palata } from "./Palata";
+import { TextPalata } from "./TextPalata";
+import { useAuth } from "@store/hooks/useAuth";
+import { AppRoutes } from "@routes/routes";
+import { usePermissions } from "../../hooks/usePermissions";
+import { PERMISSIONS } from "@api/rolesApi";
+import { toast } from "sonner";
+import {
+  Volume2,
+  MessageSquare,
+  Plus,
+  UserPlus,
+  Settings,
+  Pencil,
+  Trash2,
+} from "lucide-react";
+import { pb, PB_URL } from "@api/pb";
+import { fetchChannels } from "@store/slices/channelsSlice";
+import { useAppDispatch } from "@store/hooks";
+import { Portal } from "@components/ui/Portal";
+import { InviteManager } from "@components/invite/InviteManager";
+import { CreateChannelModal } from "./CreateChannelModal";
+import { EditChannelModal } from "./EditChannelModal";
+import { ConfirmModal } from "@components/ui/ConfirmModal";
+
+interface PalataListProps {
+  onMobileItemClick?: () => void;
+}
+
+export function PalataList({ onMobileItemClick }: PalataListProps) {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { serverId } = useParams();
+  const { user } = useAuth();
+  const currentServer = useAppSelector((state) => state.servers.servers).find(
+    (server) => server.id === serverId,
+  );
+  const channels = useAppSelector((state) => state.channels.channels);
+  const isOwner = currentServer?.owner_id === user?.id;
+  const { can } = usePermissions(serverId);
+  const canManageChannels = isOwner || can(PERMISSIONS.MANAGE_CHANNELS);
+  const canManageInvites = isOwner || can(PERMISSIONS.MANAGE_INVITES);
+
+  const [showInvites, setShowInvites] = useState(false);
+  const [creatingType, setCreatingType] = useState<"text" | "voice" | null>(
+    null,
+  );
+  const [newChannelName, setNewChannelName] = useState("");
+  const [editingChannel, setEditingChannel] = useState<{ id: string; name: string } | null>(null);
+  const [deletingChannelId, setDeletingChannelId] = useState<string | null>(null);
+  const [participantCounts, setParticipantCounts] = useState<
+    Record<string, number>
+  >({});
+  const [participantAvatars, setParticipantAvatars] = useState<
+    Record<string, string[]>
+  >({});
+  const userBtnRef = useRef<HTMLButtonElement>(null);
+
+  // Fetch active participants for voice channels
+  useEffect(() => {
+    if (!serverId) return;
+    (async () => {
+      try {
+        const chs = await pb.collection("channels").getFullList({
+          filter: `server_id = "${serverId}"`,
+        });
+        const chIds = chs.map((c: any) => c.id);
+        if (chIds.length === 0) return;
+
+        const orFilter = chIds
+          .map((id: string) => `channel_id = "${id}"`)
+          .join(" || ");
+        const result = await pb.collection("channel_participants").getFullList({
+          filter: orFilter,
+          expand: "user_id",
+        });
+        const counts: Record<string, number> = {};
+        const avatars: Record<string, string[]> = {};
+        for (const p of result as any[]) {
+          const cid = p.channel_id;
+          counts[cid] = (counts[cid] || 0) + 1;
+          const user = p.expand?.user_id;
+          if (user?.avatar && user?.collectionId && user?.id) {
+            if (!avatars[cid]) avatars[cid] = [];
+            avatars[cid].push(`${PB_URL}/api/files/${user.collectionId}/${user.id}/${user.avatar}`);
+          }
+        }
+        setParticipantCounts(counts);
+        setParticipantAvatars(avatars);
+      } catch (err) {
+        console.error("Ошибка загрузки участников голосовых палат", err);
+      }
+    })();
+  }, [serverId, channels]);
+
+  // Realtime: обновляем счётчик при входе/выходе из голосовых палат
+  useEffect(() => {
+    if (!serverId) return;
+
+    pb.collection("channel_participants").subscribe("*", (e) => {
+      const channelId = e.record.channel_id;
+      setParticipantCounts((prev) => {
+        const next = { ...prev };
+        if (e.action === "create") {
+          next[channelId] = (next[channelId] || 0) + 1;
+        } else if (e.action === "delete") {
+          next[channelId] = Math.max(0, (next[channelId] || 0) - 1);
+        }
+        return next;
+      });
+    });
+
+    return () => { pb.collection("channel_participants").unsubscribe("*"); };
+  }, [serverId]);
+
+  const handleRenameChannel = async () => {
+    if (!editingChannel || !editingChannel.name.trim()) return;
+    try {
+      await pb.collection("channels").update(editingChannel.id, { name: editingChannel.name.trim() });
+      if (serverId) dispatch(fetchChannels(serverId));
+      setEditingChannel(null);
+    } catch (err) {
+      console.error("Ошибка переименованiя палаты", err);
+      toast.error("Не удалось переименовать палату");
+    }
+  };
+
+  const handleDeleteChannel = async () => {
+    if (!deletingChannelId) return;
+    try {
+      await pb.collection("channels").delete(deletingChannelId);
+      if (serverId) dispatch(fetchChannels(serverId));
+      setDeletingChannelId(null);
+    } catch (err) {
+      console.error("Ошибка удаленiя палаты", err);
+      toast.error("Не удалось удалить палату");
+    }
+  };
+
+  const handleCreateChannel = async () => {
+    const name = newChannelName.trim();
+    if (!name || !serverId || !creatingType) return;
+    try {
+      await pb.collection("channels").create({
+        name,
+        server_id: serverId,
+        type: creatingType,
+      });
+      dispatch(fetchChannels(serverId));
+      setNewChannelName("");
+      setCreatingType(null);
+    } catch (err) {
+      console.error("Ошибка созданiя палаты", err);
+    }
+  };
+
+  const content = (
+    <>
+      {/* Заголовок */}
+      <div className="h-14 px-5 flex items-center relative">
+        <div className="flex-1 min-w-0">
+          <div className="text-xs text-foreground/50 tracking-[0.15em] uppercase font-semibold truncate">
+            {currentServer?.name || "Градъ"}
+          </div>
+        </div>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          {canManageInvites && (
+            <button
+              onClick={() => setShowInvites(true)}
+              className="w-7 h-7 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
+              title="Приглашенiя"
+            >
+              <UserPlus className="w-3.5 h-3.5" strokeWidth={1.5} />
+            </button>
+          )}
+
+            {isOwner && serverId && (
+              <button
+                onClick={() => navigate(AppRoutes.SERVER_SETTINGS.replace(":serverId", serverId))}
+                className="w-7 h-7 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
+                title="Настройки града"
+              >
+                <Settings className="w-3.5 h-3.5" strokeWidth={1.5} />
+              </button>
+            )}
+          </div>
+        <div className="absolute bottom-0 left-3 right-3 h-px bg-foreground/5" />
+      </div>
+
+      {/* Список палат */}
+      <div className="flex-1 overflow-y-auto px-3 py-4">
+        {(channels.filter((c) => c.type === "text").length > 0 || canManageChannels) && (
+          <div className="mb-5">
+            <div className="flex items-center gap-2 px-2 mb-2">
+              <MessageSquare size={11} className="text-foreground/30" strokeWidth={1.5} />
+              <span className="text-[10px] font-semibold text-foreground/30 uppercase tracking-[0.15em] flex-1">
+                Текстовыя
+              </span>
+              {canManageChannels && (
+                <button
+                  onClick={() => { setCreatingType("text"); setNewChannelName(""); }}
+                  className="w-5 h-5 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/20 hover:text-foreground/50 transition-colors"
+                  title="Создати палату"
+                >
+                  <Plus className="w-3 h-3" strokeWidth={1.5} />
+                </button>
+              )}
+            </div>
+            <div className="space-y-0.5">
+              {channels.filter((c) => c.type === "text").map((palata, index) => (
+                <div key={palata.id} className="group relative">
+                  <TextPalata index={index} channelId={palata.id} channelName={palata.name} serverId={palata.server_id} />
+                  {canManageChannels && (
+                    <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-0.5 bg-background/80 backdrop-blur-sm rounded-xl p-0.5">
+                      <button onClick={() => setEditingChannel({ id: palata.id, name: palata.name })}
+                        className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
+                        title="Переименовати">
+                        <Pencil className="w-3 h-3" strokeWidth={1.5} />
+                      </button>
+                      <button onClick={() => setDeletingChannelId(palata.id)}
+                        className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-destructive/60 transition-colors"
+                        title="Удалити">
+                        <Trash2 className="w-3 h-3" strokeWidth={1.5} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {(channels.filter((c) => c.type === "voice" || !c.type).length > 0 || canManageChannels) && (
+          <div>
+            <div className="flex items-center gap-2 px-2 mb-2">
+              <Volume2 size={11} className="text-foreground/30" strokeWidth={1.5} />
+              <span className="text-[10px] font-semibold text-foreground/30 uppercase tracking-[0.15em] flex-1">
+                Голосовыя
+              </span>
+              {canManageChannels && (
+                <button
+                  onClick={() => { setCreatingType("voice"); setNewChannelName(""); }}
+                  className="w-5 h-5 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/20 hover:text-foreground/50 transition-colors"
+                  title="Создати палату"
+                >
+                  <Plus className="w-3 h-3" strokeWidth={1.5} />
+                </button>
+              )}
+            </div>
+            <div className="space-y-0.5">
+              {channels.filter((c) => c.type === "voice" || !c.type).map((palata, index) => (
+                <div key={palata.id} className="group relative">
+                  <Palata index={index} channelId={palata.id} channelName={palata.name}
+                    participantCount={participantCounts[palata.id] || 0}
+                    participantAvatars={participantAvatars[palata.id]} />
+                  {canManageChannels && (
+                    <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-0.5 bg-background/80 backdrop-blur-sm rounded-xl p-0.5">
+                      <button onClick={() => setEditingChannel({ id: palata.id, name: palata.name })}
+                        className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
+                        title="Переименовати">
+                        <Pencil className="w-3 h-3" strokeWidth={1.5} />
+                      </button>
+                      <button onClick={() => setDeletingChannelId(palata.id)}
+                        className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-destructive/60 transition-colors"
+                        title="Удалити">
+                        <Trash2 className="w-3 h-3" strokeWidth={1.5} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {channels.length === 0 && (
+          <p className="text-xs text-muted-foreground text-center py-4">
+            Нѣтъ палатъ въ сёмъ градѣ
+          </p>
+        )}
+      </div>
+
+      {/* User */}
+      <div className="relative px-2 py-2 mt-auto">
+        <div className="absolute top-0 left-3 right-3 h-px bg-foreground/5" />
+        <button
+          ref={userBtnRef}
+          onClick={() => { navigate(AppRoutes.SETTINGS); onMobileClose?.(); }}
+          className="flex items-center gap-2.5 w-full rounded-xl px-2.5 py-2 transition-all hover:bg-foreground/[0.03] group cursor-pointer"
+        >
+          <div className="relative flex-shrink-0">
+            <div className="w-8 h-8 rounded-xl overflow-hidden bg-foreground/5 flex items-center justify-center text-xs font-bold text-foreground/40 group-hover:text-foreground/70 transition-colors">
+              {user?.avatar_url ? (
+                <img src={user.avatar_url} className="w-full h-full object-cover" />
+              ) : (
+                user?.username ? user.username[0].toUpperCase() : "Г"
+              )}
+            </div>
+          </div>
+          <div className="flex-1 min-w-0 text-left">
+            <div className="text-xs font-medium text-foreground/60 truncate group-hover:text-foreground/80 transition-colors">
+              {user?.username || "Гость градскій"}
+            </div>
+          </div>
+          <div className="w-7 h-7 rounded-xl flex items-center justify-center text-foreground/20 hover:text-foreground/50 transition-colors opacity-0 group-hover:opacity-100" title="Настройки">
+            <Settings className="w-3.5 h-3.5" strokeWidth={1.5} />
+          </div>
+        </button>
+      </div>
+    </>
+  );
+
+  const modals = (
+    <>
+      {creatingType && (
+        <CreateChannelModal type={creatingType} value={newChannelName} onChange={setNewChannelName}
+          onSave={handleCreateChannel} onClose={() => setCreatingType(null)} />
+      )}
+
+      {editingChannel && (
+        <EditChannelModal name={editingChannel.name} onChange={(name) => setEditingChannel({ ...editingChannel, name })}
+          onSave={handleRenameChannel} onClose={() => setEditingChannel(null)} />
+      )}
+
+      {deletingChannelId && (
+        <ConfirmModal title="Удалити палату" confirmLabel="Удалити" confirmVariant="destructive"
+          onConfirm={handleDeleteChannel} onCancel={() => setDeletingChannelId(null)}>
+          <p className="text-sm text-muted-foreground">Вы увѣрены, что хотите удалить сію палату? Это дѣйствіе необратимо.</p>
+        </ConfirmModal>
+      )}
+
+      {/* Invite manager modal */}
+      {showInvites && serverId && (
+        <Portal>
+          <div
+            className="fixed inset-0 z-[70] bg-black/50 flex items-start justify-center pt-[10vh]"
+            onClick={() => setShowInvites(false)}
+          >
+            <div
+              className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[75vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-5">
+                <InviteManager serverId={serverId} />
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* Rename channel modal */}
+      {editingChannel && (
+        <Portal>
+          <div className="fixed inset-0 z-[70] bg-black/50 flex items-center justify-center" onClick={() => setEditingChannel(null)}>
+            <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <div className="px-5 py-4 border-b border-border">
+                <h4 className="text-sm font-semibold text-foreground">Переименовати палату</h4>
+              </div>
+              <div className="p-5">
+                <input
+                  autoFocus
+                  value={editingChannel.name}
+                  onChange={(e) => setEditingChannel({ ...editingChannel, name: e.target.value })}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleRenameChannel(); if (e.key === "Escape") setEditingChannel(null); }}
+                  className="w-full bg-input-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/50"
+                />
+              </div>
+              <div className="px-5 py-4 border-t border-border flex items-center justify-end gap-2">
+                <button onClick={() => setEditingChannel(null)} className="px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground text-sm font-medium transition-colors">Отмѣна</button>
+                <button onClick={handleRenameChannel} disabled={!editingChannel.name.trim()} className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium transition-colors">Сохранити</button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* Delete channel confirmation */}
+      {deletingChannelId && (
+        <Portal>
+          <div className="fixed inset-0 z-[70] bg-black/50 flex items-center justify-center" onClick={() => setDeletingChannelId(null)}>
+            <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <div className="px-5 py-4 border-b border-border">
+                <h4 className="text-sm font-semibold text-foreground">Удалити палату</h4>
+              </div>
+              <div className="p-5">
+                <p className="text-sm text-muted-foreground">Вы увѣрены, что хотите удалить сію палату? Это дѣйствіе необратимо.</p>
+              </div>
+              <div className="px-5 py-4 border-t border-border flex items-center justify-end gap-2">
+                <button onClick={() => setDeletingChannelId(null)} className="px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground text-sm font-medium transition-colors">Отмѣна</button>
+                <button onClick={handleDeleteChannel} className="px-4 py-2 rounded-lg bg-destructive hover:bg-destructive/80 text-destructive-foreground text-sm font-medium transition-colors">Удалити</button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+
+    </>
+  );
+
+  if (serverId) {
+    return (
+      <div className="h-full flex flex-col">
+        {content}
+        {modals}
+      </div>
+    );
+  }
+
+  // desktop without serverId — render inline + modals
+
+  return (
+    <div className="h-full w-60 bg-background/60 backdrop-blur-xl flex flex-col">
+      {content}
+      {modals}
+    </div>
+  );
+}
