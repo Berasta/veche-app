@@ -13,7 +13,7 @@ export const ServerPage = () => {
   const navigate = useNavigate();
   const { serverId, channelId } = useParams();
   const isMobile = useIsMobile();
-  const [showMembers, setShowMembers] = useState(false);
+  const [showMembers, setShowMembers] = useState(true);
 
   const channels = useAppSelector((state) => state.channels.channels);
   const serverChannels = channels.filter((c) => c.server_id === serverId);
