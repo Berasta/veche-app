@@ -38,7 +38,7 @@ const FRAME_CLASSES: Record<string, string> = {
   frame_rainbow: "ring-2 ring-transparent animate-[rainbow-ring_3s_linear_infinite]",
   frame_neon: "ring-[3px] ring-cyan-400 animate-[glow-pulse_1.5s_ease-in-out_infinite] shadow-[0_0_10px_rgba(34,211,238,0.5)]",
   frame_fire: "ring-2 ring-orange-500 animate-[glow-pulse_1s_ease-in-out_infinite] shadow-[0_0_8px_rgba(249,115,22,0.6)]",
-  frame_ice: "ring-2 ring-blue-300 animate-[glow-pulse_3s_ease-in-out_infinite] shadow-[0_0_8px_rgba(147,197,253,0.4)]",
+  frame_ice: "ring-[3px] ring-sky-400 animate-[glow-pulse_3s_ease-in-out_infinite] shadow-[0_0_8px_rgba(56,189,248,0.5)]",
   frame_shadow: "ring-2 ring-transparent animate-[shadow-fade_2s_ease-in-out_infinite]",
 };
 
