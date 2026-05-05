@@ -104,6 +104,8 @@ export async function getCurrentUser(): Promise<AuthMeResponse> {
         ? `${PB_URL}/api/files/${user.collectionId}/${user.id}/${user.avatar}`
         : undefined,
       banner: user.banner || undefined,
+      avatar_frame: user.avatar_frame || undefined,
+      banner_skin: user.banner_skin || undefined,
       created_at: user.created,
     },
   };
