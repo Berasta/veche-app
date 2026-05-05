@@ -362,11 +362,15 @@ function FrameOption({ name, frameClass, active, empty, onClick }: { name: strin
       }`}
     >
       {empty ? (
-        <div className={`w-10 h-10 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/30 ${active ? "ring-2 ring-primary/50" : ""}`}>
+        <div className={`w-12 h-12 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/30 ${active ? "ring-2 ring-primary/50" : ""}`}>
           <X className="w-4 h-4" strokeWidth={1.5} />
         </div>
       ) : (
-        <div className={`w-10 h-10 rounded-full bg-foreground/5 ${frameClass || ""} ${active ? "ring-2 ring-primary/50" : ""}`} />
+        <div className={`w-12 h-12 rounded-full bg-card shadow-sm ${frameClass || ""} ring-offset-2 ring-offset-background ${active ? "ring-2 ring-primary/50" : ""}`}>
+          <div className="w-full h-full rounded-full flex items-center justify-center text-xs font-bold text-foreground/20">
+            {name?.slice(0, 2)}
+          </div>
+        </div>
       )}
       <span className="text-[10px] text-foreground/50 text-center leading-tight">{name || "Нѣтъ"}</span>
     </button>
