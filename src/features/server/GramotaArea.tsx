@@ -62,9 +62,6 @@ export function GramotaArea({
   const [reactionMap, setReactionMap] = useState<
     Record<string, ReactionGroup[]>
   >({});
-  const [joinedAtMap, setJoinedAtMap] = useState<
-    Record<string, string>
-  >({});
   const [joinedAtMap, setJoinedAtMap] = useState<Record<string, string>>({});
   const [isDragging, setIsDragging] = useState(false);
   const { startTyping, stopTyping } = useTypingBroadcast(channelId);
