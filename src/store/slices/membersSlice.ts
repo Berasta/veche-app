@@ -33,7 +33,7 @@ export const fetchServerMembers = createAsyncThunk(
         pb.collection("server_members").getFullList({
           filter: `server_id = "${serverId}"`,
           expand: "user_id",
-        }),
+        }, { $autoCancel: false }),
         getRoleMap(serverId),
       ]);
 
