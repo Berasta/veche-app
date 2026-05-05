@@ -7,14 +7,20 @@ import { fetchCurrentUser } from "@entities/user/authSlice";
 import { applyShopItem, removeShopItem } from "@entities/user/userApi";
 
 const SHOP_ITEMS = [
-  { id: "frame_royal", name: "Царская оправа", desc: "Золотая рамка вокругъ аватара", type: "frame" as const, preview: "ring-yellow-500" },
-  { id: "frame_violet", name: "Боярская оправа", desc: "Фіолетовая рамка вокругъ аватара", type: "frame" as const, preview: "ring-violet-500" },
-  { id: "frame_ruby", name: "Рубиновая оправа", desc: "Червлёная рамка вокругъ аватара", type: "frame" as const, preview: "ring-red-500" },
-  { id: "frame_emerald", name: "Изумрудная оправа", desc: "Зелёная рамка вокругъ аватара", type: "frame" as const, preview: "ring-emerald-500" },
+  // Static frames
+  { id: "frame_royal", name: "Царская оправа", desc: "Золотая рамка для аватара", type: "frame" as const, preview: "ring-yellow-500" },
+  { id: "frame_violet", name: "Боярская оправа", desc: "Фіолетовая рамка для аватара", type: "frame" as const, preview: "ring-violet-500" },
+  { id: "frame_ruby", name: "Рубиновая оправа", desc: "Червлёная рамка для аватара", type: "frame" as const, preview: "ring-red-500" },
+  // Animated frames
+  { id: "frame_ancient", name: "Древнее сіяніе", desc: "Мерцающая золотая рамка ✨", type: "frame" as const, animated: true, preview: "ring-yellow-400 animate-[glow-pulse_2s_ease-in-out_infinite]" },
+  { id: "frame_arcane", name: "Чародѣйскій ореолъ", desc: "Переливающаяся фіолетовая рамка", type: "frame" as const, animated: true, preview: "ring-purple-500 animate-[glow-pulse_2.5s_ease-in-out_infinite]" },
+  // Static banners
   { id: "banner_golden", name: "Златая хоругвь", desc: "Золотой градиентъ для профиля", type: "banner" as const, preview: "from-yellow-400 via-amber-500 to-orange-600" },
   { id: "banner_crimson", name: "Червлёная хоругвь", desc: "Багряный узоръ для профиля", type: "banner" as const, preview: "from-red-600 via-rose-700 to-purple-800" },
   { id: "banner_azure", name: "Лазурная хоругвь", desc: "Лазурный сводъ для профиля", type: "banner" as const, preview: "from-blue-500 via-cyan-600 to-teal-700" },
-  { id: "banner_emerald", name: "Изумрудная хоругвь", desc: "Изумрудное поле для профиля", type: "banner" as const, preview: "from-emerald-500 via-green-600 to-teal-800" },
+  // Animated banners
+  { id: "banner_aurora", name: "Сѣверное сіяніе", desc: "Анимированное полярное сіяніе 🌌", type: "banner" as const, animated: true, preview: "bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 animate-[aurora_4s_ease-in-out_infinite] bg-[length:200%_100%]" },
+  { id: "banner_inferno", name: "Адское пламя", desc: "Пульсирующее пламя 🔥", type: "banner" as const, animated: true, preview: "bg-gradient-to-r from-red-600 via-orange-500 to-yellow-400 animate-[shimmer_3s_ease-in-out_infinite] bg-[length:200%_100%]" },
 ];
 
 export function Shop() {
