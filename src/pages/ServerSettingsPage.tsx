@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import { toast } from "sonner";
-import { ArrowLeft, Crown, Image } from "lucide-react";
+import { ArrowLeft, Crown, Image, Loader2, Check } from "lucide-react";
 import { pb, PB_URL } from "@shared/api/pb";
 import { useAppSelector } from "@app/hooks";
 import { PageHeader } from "@shared/ui/PageHeader";
@@ -34,8 +34,7 @@ export function ServerSettingsPage() {
       await pb.collection("servers").update(serverId, formData);
       const updated = await pb.collection("servers").getOne(serverId);
       setAvatarUrl(updated.avatar ? `${PB_URL}/api/files/${updated.collectionId}/${updated.id}/${updated.avatar}` : null);
-    } catch (err) {
-      console.error("Ошибка загрузки аватара града", err);
+    } catch {
       toast.error("Не удалось загрузить аватарку града");
     }
   };
@@ -46,8 +45,7 @@ export function ServerSettingsPage() {
     try {
       await pb.collection("servers").update(serverId, { name: name.trim() });
       navigate(`/app/server/${serverId}`);
-    } catch (err) {
-      console.error("Ошибка сохраненiя града", err);
+    } catch {
       toast.error("Не удалось сохранить настройки града");
     } finally { setSaving(false); }
   };
@@ -59,55 +57,61 @@ export function ServerSettingsPage() {
         title="Настройки града"
         onMenuClick={() => navigate(`/app/server/${serverId}`)}
         actions={
-          <button onClick={() => navigate(`/app/server/${serverId}`)} className="w-8 h-8 rounded-md hover:bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-4 h-4" strokeWidth={2} />
+          <button onClick={() => navigate(`/app/server/${serverId}`)}
+            className="w-8 h-8 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors">
+            <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
           </button>
         }
       />
 
       <div className="flex-1 overflow-y-auto p-4 md:p-6">
-        <div className="max-w-2xl mx-auto space-y-6">
+        <div className="max-w-2xl mx-auto space-y-5">
+
           {/* Avatar */}
-          <div className="bg-card/40 border border-border rounded-lg p-5">
-            <p className="text-sm font-semibold text-foreground mb-3">Аватарка града</p>
+          <div className="bg-foreground/[0.02] rounded-xl p-5">
+            <p className="text-xs text-foreground/50 uppercase tracking-wider font-semibold mb-3">Аватарка града</p>
             <div className="flex items-center gap-4">
-              <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-muted flex-shrink-0">
+              <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-foreground/5 flex-shrink-0 flex items-center justify-center">
                 {avatarUrl ? (
                   <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-muted-foreground">
-                    {server?.name?.charAt(0)?.toUpperCase() || "Г"}
-                  </div>
+                  <Crown className="w-8 h-8 text-foreground/20" strokeWidth={1.5} />
                 )}
               </div>
               <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-              <button onClick={() => fileInputRef.current?.click()} className="px-3 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition-colors">
-                <Image className="w-4 h-4 inline mr-1.5" strokeWidth={2} /> Загрузити
+              <button onClick={() => fileInputRef.current?.click()}
+                className="px-4 py-2 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground/60 hover:text-foreground text-sm font-medium transition-colors">
+                <Image className="w-4 h-4 inline mr-1.5" strokeWidth={1.5} /> Загрузити
               </button>
             </div>
           </div>
 
           {/* Name */}
-          <div className="bg-card/40 border border-border rounded-lg p-5">
-            <p className="text-sm font-semibold text-foreground mb-3">Названіе града</p>
+          <div className="bg-foreground/[0.02] rounded-xl p-5">
+            <p className="text-xs text-foreground/50 uppercase tracking-wider font-semibold mb-3">Названіе града</p>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-input-background border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/50"
+              className="w-full bg-foreground/5 rounded-xl px-4 py-2.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20"
             />
           </div>
 
           {/* Roles */}
           {serverId && (
-            <div className="bg-card/40 border border-border rounded-lg p-5">
+            <div className="bg-foreground/[0.02] rounded-xl p-5">
               <RolesManager serverId={serverId} />
             </div>
           )}
 
           {/* Actions */}
-          <div className="flex items-center gap-3 pt-2">
-            <button onClick={() => navigate(`/app/server/${serverId}`)} className="px-4 py-2.5 rounded-lg bg-muted hover:bg-muted/80 text-foreground text-sm font-medium transition-colors">Отмѣна</button>
-            <button onClick={handleSave} disabled={saving || !name.trim()} className="px-4 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium transition-colors disabled:opacity-50">
+          <div className="flex items-center gap-2 pt-2">
+            <button onClick={() => navigate(`/app/server/${serverId}`)}
+              className="flex-1 px-4 py-2.5 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground/60 hover:text-foreground text-sm font-medium transition-colors">
+              Отмѣна
+            </button>
+            <button onClick={handleSave} disabled={saving || !name.trim()}
+              className="flex-1 px-4 py-2.5 rounded-xl bg-foreground/10 hover:bg-foreground/15 text-foreground/80 text-sm font-medium transition-colors disabled:opacity-30">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin inline" /> : <Check className="w-4 h-4 inline mr-1" strokeWidth={1.5} />}
               {saving ? "Сохраненіе..." : "Сохранити"}
             </button>
           </div>
