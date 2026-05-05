@@ -205,13 +205,12 @@ export function Settings() {
               {/* Avatar & Name */}
               <div className="relative -mt-12 flex flex-col md:flex-row items-start md:items-end gap-3 md:gap-4">
                 <div className="relative group cursor-pointer" onClick={triggerFileSelect}>
-                  <div className="w-20 md:w-24 h-20 md:h-24 rounded-full bg-foreground/5 ring-4 ring-background overflow-hidden transition-opacity group-hover:opacity-80 flex items-center justify-center">
-                    {user?.avatar_url ? (
-                      <img src={user.avatar_url} alt="avatar" className="w-full h-full object-cover" />
-                    ) : (
-                      <Crown className="w-10 md:w-12 h-10 md:h-12 text-foreground/30" strokeWidth={1.5} />
-                    )}
-                  </div>
+                  {user && (
+                    <UserAvatar
+                      user={{ id: user.id, username: user.username, avatarUrl: user.avatar_url, avatarFrame: user.avatar_frame }}
+                      size="lg"
+                    />
+                  )}
                   <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                     <Edit2 className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" strokeWidth={2} />
                   </div>

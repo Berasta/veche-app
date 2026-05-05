@@ -22,6 +22,8 @@ export interface AuthUser {
   email: string;
   avatar_url?: string;
   banner?: string;
+  avatar_frame?: string;
+  banner_skin?: string;
   created_at?: string;
 }
 
