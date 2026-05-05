@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { X, Users, User } from "lucide-react";
 import { UserPopover } from "@components/ui/UserPopover";
 import { MembersSkeleton } from "@components/ui/Skeleton";
