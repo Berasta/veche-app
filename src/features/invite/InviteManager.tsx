@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Link as LinkIcon, Clock, Infinity, UserPlus } from "lucide-react";
-import { InviteCard } from "./InviteCard";
-import { InviteOptions } from "./InviteOptions";
+import { Plus, Link as LinkIcon, Trash2, Copy, Calendar, Users, Clock, Infinity, Loader2 } from "lucide-react";
 import { listInvites, createInvite, deleteInvite, type Invite } from "@shared/api/inviteApi";
 
 interface InviteManagerProps {
@@ -9,167 +7,128 @@ interface InviteManagerProps {
 }
 
 const expiryOptions = [
-  { value: "3600", label: "1 часъ", icon: Clock },
-  { value: "86400", label: "1 день", icon: Clock },
-  { value: "604800", label: "Недѣля", icon: Clock },
-  { value: "2592000", label: "30 дней", icon: Clock },
-  { value: "0", label: "Никогда", icon: Infinity },
+  { value: "3600", label: "1 час" },
+  { value: "86400", label: "1 день" },
+  { value: "604800", label: "Недѣля" },
+  { value: "2592000", label: "30 дней" },
+  { value: "0", label: "Никогда" },
 ];
 
 const useOptions = [
-  { value: "1", label: "1 разъ" },
-  { value: "5", label: "5 разъ" },
-  { value: "10", label: "10 разъ" },
-  { value: "25", label: "25 разъ" },
-  { value: "0", label: "Безлимитъ" },
+  { value: "1", label: "1 раз" },
+  { value: "5", label: "5 раз" },
+  { value: "10", label: "10 раз" },
+  { value: "25", label: "25 раз" },
+  { value: "0", label: "Безлимит" },
 ];
 
 export function InviteManager({ serverId }: InviteManagerProps) {
   const [invites, setInvites] = useState<Invite[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreate, setShowCreate] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [expiry, setExpiry] = useState("86400");
   const [maxUses, setMaxUses] = useState("0");
-  const [error, setError] = useState<string | null>(null);
 
   const loadInvites = useCallback(async () => {
     setLoading(true);
-    try {
-      const data = await listInvites(serverId);
-      setInvites(data);
-      setError(null);
-    } catch (err: any) {
-      setError(err?.message || "Не удалось загрузить приглашенiя");
-    } finally {
-      setLoading(false);
-    }
+    try { setInvites(await listInvites(serverId)); }
+    catch { /* ignore */ }
+    finally { setLoading(false); }
   }, [serverId]);
 
-  useEffect(() => {
-    loadInvites();
-  }, [loadInvites]);
+  useEffect(() => { loadInvites(); }, [loadInvites]);
 
   const handleCreate = async () => {
-    setError(null);
+    setCreating(true);
     try {
       let expiresAt: string | null = null;
       const expiryNum = Number(expiry);
-      if (expiryNum > 0) {
-        expiresAt = new Date(Date.now() + expiryNum * 1000).toISOString();
-      }
-
+      if (expiryNum > 0) expiresAt = new Date(Date.now() + expiryNum * 1000).toISOString();
       const useLimit = Number(maxUses);
-      await createInvite({
-        server_id: serverId,
-        expires_at: expiresAt,
-        max_uses: useLimit > 0 ? useLimit : null,
-      });
-      setShowCreate(false);
-      setExpiry("86400");
-      setMaxUses("0");
+      await createInvite({ server_id: serverId, expires_at: expiresAt, max_uses: useLimit > 0 ? useLimit : null });
+      setExpiry("86400"); setMaxUses("0");
       loadInvites();
-    } catch (err: any) {
-      setError(err?.message || "Не удалось создать приглашенiе");
-    }
+    } catch { /* ignore */ }
+    finally { setCreating(false); }
   };
 
   const handleDelete = async (id: string) => {
-    try {
-      await deleteInvite(id);
-      loadInvites();
-    } catch (err) {
-      console.error("Ошибка удаленiя приглашенiя", err);
-    }
+    try { await deleteInvite(id); loadInvites(); }
+    catch { /* ignore */ }
   };
 
   const handleCopy = (code: string) => {
-    const inviteUrl = `${window.location.origin}/invite/${code}`;
-    // Note: /invite/ is handled by the meta server for OG tags,
-    // then redirects to /join/CODE for the SPA
-    navigator.clipboard.writeText(inviteUrl);
+    navigator.clipboard.writeText(`${window.location.origin}/invite/${code}`);
   };
 
-  const formatExpiryDate = (date: string | null) => {
+  const fmtDate = (date: string | null) => {
     if (!date) return "никогда";
-    return new Date(date).toLocaleDateString("ru-RU", {
-      day: "numeric",
-      month: "long",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return new Date(date).toLocaleDateString("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
   };
 
   return (
     <div>
-      {error && (
-        <div className="mb-4 p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive">
-          {error}
-        </div>
-      )}
-
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <UserPlus className="w-5 h-5 text-primary" strokeWidth={2} />
-          <h3 className="text-base font-semibold text-foreground">Приглашенiя</h3>
-        </div>
-        <button
-          onClick={() => setShowCreate(!showCreate)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition-colors"
-        >
-          <Plus className="w-4 h-4" strokeWidth={2} />
-          <span>Создати</span>
+      {/* Create invite bar */}
+      <div className="flex items-center gap-2 mb-4">
+        <button onClick={() => handleCreate()}
+          disabled={creating}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-foreground/5 hover:bg-foreground/10 text-foreground/60 hover:text-foreground text-sm transition-colors disabled:opacity-30">
+          {creating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />}
+          Создати
         </button>
       </div>
 
-      {/* Create form */}
-      {showCreate && (
-        <div className="p-4 bg-card/60 border border-border rounded-lg mb-4 space-y-4">
-          <InviteOptions
-            title="Срокъ дѣйствiя"
-            options={expiryOptions}
-            selected={expiry}
-            onSelect={setExpiry}
-          />
-          <InviteOptions
-            title="Максимумъ использованiй"
-            options={useOptions}
-            selected={maxUses}
-            onSelect={setMaxUses}
-          />
-          <button
-            onClick={handleCreate}
-            className="w-full px-4 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition-colors"
-          >
-            <LinkIcon className="w-4 h-4 inline mr-1.5" strokeWidth={2} />
-            Создати ссылку-приглашенiе
+      {/* Options */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {expiryOptions.map((o) => (
+          <button key={o.value} onClick={() => setExpiry(o.value)}
+            className={`px-2.5 py-1 rounded-lg text-[11px] transition-colors ${
+              expiry === o.value ? "bg-foreground/10 text-foreground/80" : "text-foreground/30 hover:text-foreground/50 hover:bg-foreground/[0.03]"
+            }`}>
+            {o.label}
           </button>
-        </div>
-      )}
+        ))}
+        <span className="text-[10px] text-foreground/20 leading-none self-center mx-1">·</span>
+        {useOptions.map((o) => (
+          <button key={o.value} onClick={() => setMaxUses(o.value)}
+            className={`px-2.5 py-1 rounded-lg text-[11px] transition-colors ${
+              maxUses === o.value ? "bg-foreground/10 text-foreground/80" : "text-foreground/30 hover:text-foreground/50 hover:bg-foreground/[0.03]"
+            }`}>
+            {o.label}
+          </button>
+        ))}
+      </div>
 
-      {/* Invites list */}
+      {/* List */}
       {loading ? (
-        <div className="text-sm text-muted-foreground py-4 text-center">
-          Загрузка приглашенiй...
-        </div>
+        <div className="text-sm text-foreground/30 py-4 text-center">Загрузка...</div>
       ) : invites.length === 0 ? (
-        <div className="text-sm text-muted-foreground py-4 text-center">
-          Нѣтъ приглашенiй. Создайте первое!
-        </div>
+        <div className="text-sm text-foreground/30 py-8 text-center">Нѣтъ приглашенiй</div>
       ) : (
-        <div className="space-y-2">
-          {invites.map((invite, i) => (
-            <InviteCard
-              key={invite.id}
-              code={invite.code}
-              expiresAt={invite.expires_at}
-              maxUses={invite.max_uses}
-              uses={invite.use_count}
-              index={i}
-              onCopy={() => handleCopy(invite.code)}
-              onDelete={() => handleDelete(invite.id)}
-              formatExpiryDate={formatExpiryDate}
-            />
+        <div className="space-y-1">
+          {invites.map((inv, i) => (
+            <div key={inv.id}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-foreground/[0.02] transition-colors group"
+              style={{ animationDelay: `${i * 30}ms` }}
+            >
+              <code className="text-xs font-mono text-foreground/60 min-w-[8ch]">{inv.code}</code>
+              <span className="text-[11px] text-foreground/30 flex items-center gap-1">
+                <Calendar className="w-3 h-3" strokeWidth={1.5} /> {fmtDate(inv.expires_at)}
+              </span>
+              <span className="text-[11px] text-foreground/30 flex items-center gap-1">
+                <Users className="w-3 h-3" strokeWidth={1.5} /> {inv.use_count}{inv.max_uses ? `/${inv.max_uses}` : ""}
+              </span>
+              <div className="ml-auto flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onClick={() => handleCopy(inv.code)}
+                  className="w-7 h-7 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors">
+                  <Copy className="w-3 h-3" strokeWidth={1.5} />
+                </button>
+                <button onClick={() => handleDelete(inv.id)}
+                  className="w-7 h-7 rounded-lg hover:bg-red-500/10 flex items-center justify-center text-foreground/30 hover:text-red-500/70 transition-colors">
+                  <Trash2 className="w-3 h-3" strokeWidth={1.5} />
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       )}
