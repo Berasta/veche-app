@@ -128,7 +128,6 @@ export const joinChannel = createAsyncThunk(
 
     // Если в другом канале — сначала выходим
     if (activeRoom) {
-    if (activeChannelIdForCleanup) await removeChannelParticipant(activeChannelIdForCleanup);
     releaseWakeLock();
     await activeRoom.disconnect();
     cleanupAudio();
@@ -222,7 +221,6 @@ export const joinChannel = createAsyncThunk(
 
       room.on(RoomEvent.Disconnected, () => {
         releaseWakeLock();
-        if (activeChannelIdForCleanup) removeChannelParticipant(activeChannelIdForCleanup);
         cleanupAudio();
         cleanupScreenShare();
         activeRoom = null;
@@ -242,8 +240,7 @@ export const joinChannel = createAsyncThunk(
       await room.connect(res.ws_url, res.token);
       await room.localParticipant.setMicrophoneEnabled(true);
 
-      // 5. Регистрируем участника в канале + блокируем экран
-      await addChannelParticipant(channelId);
+      // 5. Блокируем экран (участник регистрируется через LiveKit webhook)
       requestWakeLock();
       activeChannelIdForCleanup = channelId;
 
@@ -260,8 +257,6 @@ export const joinChannel = createAsyncThunk(
 export const leaveChannel = createAsyncThunk(
   "room/leave",
   async (_, { dispatch }) => {
-    if (activeChannelIdForCleanup) await removeChannelParticipant(activeChannelIdForCleanup);
-
     if (activeRoom) {
       await activeRoom.disconnect();
       cleanupAudio();
