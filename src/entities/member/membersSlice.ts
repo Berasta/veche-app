@@ -8,6 +8,8 @@ export interface MemberData {
   username: string;
   avatarUrl: string | null;
   banner?: string;
+  avatarFrame?: string;
+  bannerSkin?: string;
   joinedAt: string;
   role?: string;
   roleColor?: string;
@@ -53,6 +55,8 @@ export const fetchServerMembers = createAsyncThunk(
             ? `${PB_URL}/api/files/${user.collectionId || "_pb_users_auth_"}/${user.id}/${user.avatar}`
             : null,
           banner: user.banner || undefined,
+          avatarFrame: user.avatar_frame || undefined,
+          bannerSkin: user.banner_skin || undefined,
           joinedAt: entry.created || "",
           role: role?.name,
           roleColor: role?.color,
@@ -75,6 +79,8 @@ export const fetchServerMembers = createAsyncThunk(
                 ? `${PB_URL}/api/files/${(owner as any).collectionId || "_pb_users_auth_"}/${ownerId}/${owner.avatar}`
                 : null,
               banner: owner.banner || undefined,
+              avatarFrame: owner.avatar_frame || undefined,
+              bannerSkin: owner.banner_skin || undefined,
               joinedAt: "",
               role: role?.name,
               roleColor: role?.color,

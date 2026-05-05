@@ -18,6 +18,7 @@ export interface UserProfile {
 interface UserPopoverProps extends UserProfile {
   volume?: number;
   onVolumeChange?: (volume: number) => void;
+  frame?: string;
   children: ReactNode;
 }
 
@@ -26,9 +27,19 @@ interface UserPopoverProps extends UserProfile {
 const POPOVER_WIDTH = 256;
 const POPOVER_HEIGHT = 220;
 const GAP = 8;
-const HOVER_DELAY_MS = 200;
-const HOVER_LEAVE_MS = 150;
 const BANNER_COLLECTION = "_pb_users_auth_";
+
+const FRAME_CLASSES: Record<string, string> = {
+  frame_royal: "ring-2 ring-yellow-500",
+  frame_violet: "ring-2 ring-violet-500",
+  frame_ruby: "ring-2 ring-red-500",
+  frame_ancient: "ring-2 ring-yellow-400 animate-[glow-pulse_2s_ease-in-out_infinite]",
+  frame_arcane: "ring-2 ring-purple-500 animate-[glow-pulse_2.5s_ease-in-out_infinite]",
+};
+
+function getFrameClass(frame: string): string {
+  return FRAME_CLASSES[frame] || "ring-2 ring-card";
+}
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -81,18 +92,21 @@ function AvatarCircle({
   avatarUrl,
   username,
   size,
+  frame,
 }: {
   avatarUrl?: string | null;
   username: string;
   size: "sm" | "lg";
+  frame?: string;
 }) {
   const dim = size === "lg" ? "w-14 h-14" : "w-12 h-12";
-  const ring = size === "lg" ? "ring-[3px]" : "ring-[2px]";
   const iconSize = size === "lg" ? "w-7 h-7" : "w-6 h-6";
+
+  const frameClass = frame ? getFrameClass(frame) : "ring-[2px] ring-card";
 
   return (
     <div
-      className={`${dim} ${ring} rounded-full bg-card ring-card shadow-lg shadow-black/30 overflow-hidden flex-shrink-0`}
+      className={`${dim} rounded-full bg-card shadow-lg shadow-black/30 overflow-hidden flex-shrink-0 ${frameClass}`}
     >
       {avatarUrl ? (
         <img
@@ -217,6 +231,7 @@ export function UserPopover({
   role,
   roleColor,
   joinedAt,
+  frame,
   userId,
   children,
 }: UserPopoverProps) {
@@ -261,6 +276,7 @@ export function UserPopover({
                   avatarUrl={avatarUrl}
                   username={username}
                   size="sm"
+                  frame={frame}
                 />
                 <UsernameOverlay username={username} />
               </div>

@@ -19,6 +19,7 @@ interface GramotaMessageProps {
   authorRole?: string;
   authorRoleColor?: string;
   authorBanner?: string;
+  authorFrame?: string;
   authorJoinedAt?: string;
   isOwn?: boolean;
   edited?: boolean;
@@ -26,7 +27,7 @@ interface GramotaMessageProps {
   onDelete?: (messageId: string) => void;
 }
 
-export function GramotaMessage({ author, avatar, time, content, images, reactions, onReaction, messageId, authorId, authorRole, authorRoleColor, authorBanner, authorJoinedAt, isOwn, edited, onEdit, onDelete }: GramotaMessageProps) {
+export function GramotaMessage({ author, avatar, time, content, images, reactions, onReaction, messageId, authorId, authorRole, authorRoleColor, authorBanner, authorFrame, authorJoinedAt, isOwn, edited, onEdit, onDelete }: GramotaMessageProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(content);
@@ -59,7 +60,7 @@ export function GramotaMessage({ author, avatar, time, content, images, reaction
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.12, ease: 'easeOut' }}
     >
-      <MessageHeader author={author} avatar={avatar} time={time} userId={authorId} role={authorRole} roleColor={authorRoleColor} bannerId={authorBanner} joinedAt={authorJoinedAt} />
+      <MessageHeader author={author} avatar={avatar} time={time} userId={authorId} role={authorRole} roleColor={authorRoleColor} bannerId={authorBanner} joinedAt={authorJoinedAt} frame={authorFrame} />
       <MessageContent content={content} />
       {edited && <span className="text-[10px] text-foreground/30 ml-0.5">(измѣнено)</span>}
       {images && <MessageImages images={images} />}

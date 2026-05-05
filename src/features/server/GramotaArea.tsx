@@ -325,7 +325,7 @@ export function GramotaArea({
             )}
             <GramotaMessage
               author={msg.author_name}
-              avatar={showHeader ? msg.author_avatar_urlпоч : undefined}
+              avatar={showHeader ? msg.author_avatar_url : undefined}
               time={formatMessageTime(msg.created)}
               content={msg.content}
               images={msg.images.length > 0 ? msg.images : undefined}
@@ -336,6 +336,7 @@ export function GramotaArea({
               authorRole={roleMap[msg.user_id]?.name}
               authorRoleColor={roleMap[msg.user_id]?.color}
               authorBanner={msg.author_banner}
+              authorFrame={msg.author_frame}
               authorJoinedAt={joinedAtMap[msg.user_id]}
               isOwn={user?.id === msg.user_id}
               edited={!!msg.edited_at}

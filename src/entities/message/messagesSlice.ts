@@ -15,6 +15,7 @@ export interface Message {
   author_avatar: string | null;
   author_avatar_url: string | null;
   author_banner?: string;
+  author_frame?: string;
   images: string[];
 }
 
@@ -187,6 +188,7 @@ function normalizeMessage(record: any, members: any[] = []): Message {
     author_avatar: member?.avatarUrl || author?.avatar || null,
     author_avatar_url: avatarUrl,
     author_banner: banner,
+    author_frame: member?.avatarFrame || undefined,
     images,
   };
 }
