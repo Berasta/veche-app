@@ -18,6 +18,7 @@ interface RoomState {
   activeServerId: string | null;
   participants: Participant[];
   volumes: Record<string, number>;
+  connectionQuality: "excellent" | "good" | "poor" | "lost" | "unknown";
   isScreenSharing: boolean;
   screenShareQuality: {
     resolution: "1080p" | "720p" | "480p";
@@ -42,6 +43,7 @@ const initialState: RoomState = {
   screenShareQuality: { resolution: "1080p", fps: 30, bitrate: 8 },
   isDeafened: false,
   callStartedAt: null,
+  connectionQuality: "unknown",
 };
 
 const roomSlice = createSlice({
@@ -118,6 +120,9 @@ const roomSlice = createSlice({
     setCallStartedAt(state, action: PayloadAction<number | null>) {
       state.callStartedAt = action.payload;
     },
+    setConnectionQuality(state, action: PayloadAction<RoomState["connectionQuality"]>) {
+      state.connectionQuality = action.payload;
+    },
   },
 });
 
@@ -135,6 +140,7 @@ export const {
   setScreenShareQuality,
   setDeafened,
   setCallStartedAt,
+  setConnectionQuality,
 } = roomSlice.actions;
 
 export default roomSlice.reducer;

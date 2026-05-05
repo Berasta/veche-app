@@ -17,6 +17,7 @@ import {
   selectVolumes,
   selectError,
   selectCallStartedAt,
+  selectConnectionQuality,
 } from "@store/selectors/roomSelectors";
 import {
   leaveChannel,
@@ -63,6 +64,7 @@ export function VoiceChat() {
   const volumes = useAppSelector(selectVolumes);
 
   const callStartedAt = useAppSelector(selectCallStartedAt);
+  const connectionQuality = useAppSelector(selectConnectionQuality);
   const [callDuration, setCallDuration] = useState("");
 
   useEffect(() => {
@@ -136,6 +138,27 @@ export function VoiceChat() {
               <span className="flex items-center gap-1 text-muted-foreground/70">
                 <Clock size={11} strokeWidth={1.5} />
                 {callDuration}
+              </span>
+            )}
+            {connectionQuality !== "unknown" && (
+              <span className={`flex items-center gap-1 text-[10px] ${
+                connectionQuality === "excellent" ? "text-green-500" :
+                connectionQuality === "good" ? "text-green-400" :
+                connectionQuality === "poor" ? "text-yellow-500" :
+                connectionQuality === "lost" ? "text-red-500" :
+                "text-muted-foreground/50"
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  connectionQuality === "excellent" ? "bg-green-500" :
+                  connectionQuality === "good" ? "bg-green-400" :
+                  connectionQuality === "poor" ? "bg-yellow-500" :
+                  connectionQuality === "lost" ? "bg-red-500" :
+                  "bg-muted-foreground/30"
+                }`} />
+                {connectionQuality === "excellent" ? "Отличное" :
+                 connectionQuality === "good" ? "Хорошее" :
+                 connectionQuality === "poor" ? "Плохое" :
+                 connectionQuality === "lost" ? "Потеряно" : ""}
               </span>
             )}
             {participants.length > 0 && (

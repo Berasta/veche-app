@@ -14,6 +14,7 @@ import {
   setVolume,
   setScreenSharing,
   setDeafened,
+  setConnectionQuality,
 } from "../slices/roomSlice";
 import { RootState } from "../../store";
 
@@ -234,6 +235,11 @@ export const joinChannel = createAsyncThunk(
 
       room.on(RoomEvent.Reconnected, () => {
         dispatch(setReconnecting(false));
+      });
+
+      room.on(RoomEvent.ConnectionQualityChanged, (quality) => {
+        const labels = ["unknown", "poor", "good", "excellent", "lost"] as const;
+        dispatch(setConnectionQuality(labels[quality] ?? "unknown"));
       });
 
       // 4. Подключаемся

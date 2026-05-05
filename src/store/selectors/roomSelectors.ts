@@ -27,3 +27,4 @@ export const selectScreenShareQuality = (s: RootState) =>
 export const selectIsDeafened = (s: RootState) => s.room.isDeafened;
 export const selectReconnecting = (s: RootState) => s.room.reconnecting;
 export const selectCallStartedAt = (s: RootState) => s.room.callStartedAt;
+export const selectConnectionQuality = (s: RootState) => s.room.connectionQuality;
