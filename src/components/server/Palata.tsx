@@ -47,22 +47,22 @@ export function Palata({ channelId, channelName, index, participantCount = 0 }: 
       transition={{ delay: index * 0.03 }}
       whileHover={{ y: -2 }}
       className={`
-        cursor-pointer w-full px-2 py-1.5 rounded-md text-left
-        transition-all duration-100 flex items-center gap-2 group
+        cursor-pointer w-full px-2.5 py-2 rounded-xl text-left
+        transition-all duration-100 flex items-center gap-2.5 group
         ${
           isActive
-            ? "bg-muted text-foreground"
-            : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+            ? "bg-primary/8 text-foreground"
+            : "hover:bg-foreground/[0.03] text-foreground/60 hover:text-foreground/80"
         }
       `}
     >
       {isThisConnecting ? (
-        <Loader2 size={16} className="animate-spin" />
+        <Loader2 size={14} className="animate-spin text-foreground/30" />
       ) : (
         <Volume2
-          size={16}
-          strokeWidth={2}
-          className={isActive ? "text-green-500" : ""}
+          size={14}
+          strokeWidth={1.5}
+          className={isActive ? "text-green-500" : "text-foreground/30"}
         />
       )}
       <span className="flex-1 min-w-0 truncate">{channelName}</span>

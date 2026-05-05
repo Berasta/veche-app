@@ -59,11 +59,11 @@ export function ServerButton({
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         className={
-          `cursor-pointer w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200 relative overflow-hidden ` +
+          `cursor-pointer w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 relative overflow-hidden ` +
           (isSelected
-            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-            : "bg-card/50 hover:bg-primary/10 text-primary hover:rounded-xl") +
-          (isSelected ? "" : "hover:shadow-md")
+            ? "bg-primary/15 text-primary ring-1 ring-primary/30"
+            : "text-foreground/40 hover:text-foreground/70 hover:bg-foreground/5") +
+          (isSelected ? "" : "")
         }
         title={name}
         whileHover={{ scale: 1.05 }}
@@ -72,7 +72,7 @@ export function ServerButton({
         {avatarUrl ? (
           <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
         ) : (
-          <span className={`w-full h-full flex items-center justify-center text-sm font-bold bg-gradient-to-br ${colorClass} text-white`}>
+          <span className={`w-full h-full flex items-center justify-center text-xs font-bold bg-gradient-to-br ${colorClass} text-white`}>
             {initials}
           </span>
         )}
@@ -80,7 +80,7 @@ export function ServerButton({
         {/* Active indicator */}
         {isSelected && (
           <motion.div
-            className="absolute -left-3 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full"
+            className="absolute -left-2.5 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full"
             initial={{ scaleY: 0 }}
             animate={{ scaleY: 1 }}
             transition={{ duration: 0.2 }}

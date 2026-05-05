@@ -269,10 +269,10 @@ export function GradList() {
       )}
 
       {/* SIDEBAR */}
-      <div className="p-2 md:p-0 flex-shrink-0 border-r border-sidebar-border bg-sidebar/95 backdrop-blur-xl">
+      <div className="flex-shrink-0 bg-background/60 backdrop-blur-xl">
         <div className="flex h-full">
           {/* Список градов */}
-          <div className="flex flex-col p-2 gap-2 flex-shrink-0">
+          <div className="flex flex-col py-3 px-2 gap-3 flex-shrink-0">
             {servers && servers.length > 0 ? (
               servers.map((grad, index) => (
                 <ServerButton
@@ -287,16 +287,16 @@ export function GradList() {
             ) : (
               <>
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} className="w-12 h-12 rounded-lg" />
+                  <Skeleton key={i} className="w-11 h-11 rounded-2xl" />
                 ))}
               </>
             )}
             <button
               onClick={() => setShowCreateServer(true)}
-              className="w-12 h-12 rounded-lg border-2 border-dashed border-sidebar-border/50 flex items-center justify-center text-sidebar-foreground/50 hover:text-sidebar-foreground hover:border-sidebar-foreground/30 transition-all flex-shrink-0"
+              className="w-11 h-11 rounded-2xl border border-dashed border-foreground/10 flex items-center justify-center text-foreground/20 hover:text-foreground/60 hover:border-foreground/30 transition-all flex-shrink-0"
               title="Создати градъ"
             >
-              <Plus className="w-5 h-5" strokeWidth={2} />
+              <Plus className="w-4 h-4" strokeWidth={1.5} />
             </button>
           </div>
 

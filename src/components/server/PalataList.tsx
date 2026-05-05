@@ -160,149 +160,117 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
   const content = (
     <>
       {/* Заголовок */}
-      <div className="h-12 px-4 flex items-center border-b border-border bg-sidebar/30">
+      <div className="h-14 px-5 flex items-center">
         <div className="flex-1 min-w-0">
-          <div className="text-xs text-muted-foreground tracking-[0.1em] uppercase font-semibold truncate">
+          <div className="text-xs text-foreground/50 tracking-[0.15em] uppercase font-semibold truncate">
             {currentServer?.name || "Градъ"}
           </div>
         </div>
-        <div className="flex items-center gap-0.5 flex-shrink-0">
+        <div className="flex items-center gap-1 flex-shrink-0">
           {canManageInvites && (
             <button
               onClick={() => setShowInvites(true)}
-              className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+              className="w-7 h-7 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
               title="Приглашенiя"
             >
-              <UserPlus className="w-3.5 h-3.5" strokeWidth={2} />
+              <UserPlus className="w-3.5 h-3.5" strokeWidth={1.5} />
             </button>
           )}
 
             {isOwner && serverId && (
               <button
                 onClick={() => navigate(AppRoutes.SERVER_SETTINGS.replace(":serverId", serverId))}
-                className="w-7 h-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+                className="w-7 h-7 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
                 title="Настройки града"
               >
-                <Settings className="w-3.5 h-3.5" strokeWidth={2} />
+                <Settings className="w-3.5 h-3.5" strokeWidth={1.5} />
               </button>
             )}
           </div>
       </div>
 
       {/* Список палат */}
-      <div className="flex-1 overflow-y-auto px-2 py-3">
+      <div className="flex-1 overflow-y-auto px-3 py-4">
         {(channels.filter((c) => c.type === "text").length > 0 || canManageChannels) && (
-          <div className="mb-3">
-            <div className="flex items-center gap-1.5 px-1 mb-1.5">
-              <div className="w-4 h-4 rounded bg-muted/40 flex items-center justify-center">
-                <MessageSquare size={10} className="text-muted-foreground/60" strokeWidth={2} />
-              </div>
-              <span className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest flex-1">
+          <div className="mb-5">
+            <div className="flex items-center gap-2 px-2 mb-2">
+              <MessageSquare size={11} className="text-foreground/30" strokeWidth={1.5} />
+              <span className="text-[10px] font-semibold text-foreground/30 uppercase tracking-[0.15em] flex-1">
                 Текстовыя
               </span>
               {canManageChannels && (
                 <button
-                  onClick={() => {
-                    setCreatingType("text");
-                    setNewChannelName("");
-                  }}
-                  className="w-5 h-5 rounded hover:bg-sidebar-accent flex items-center justify-center text-muted-foreground/60 hover:text-sidebar-foreground transition-colors"
+                  onClick={() => { setCreatingType("text"); setNewChannelName(""); }}
+                  className="w-5 h-5 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/20 hover:text-foreground/50 transition-colors"
                   title="Создати палату"
                 >
-                  <Plus className="w-3 h-3" strokeWidth={2} />
+                  <Plus className="w-3 h-3" strokeWidth={1.5} />
                 </button>
               )}
             </div>
             <div className="space-y-0.5">
-              {channels
-                .filter((c) => c.type === "text")
-                .map((palata, index) => (
-                  <div key={palata.id} className="group relative">
-                    <TextPalata
-                      index={index}
-                      channelId={palata.id}
-                      channelName={palata.name}
-                      serverId={palata.server_id}
-                    />
-                    {canManageChannels && (
-                      <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-0.5 bg-sidebar/90 rounded-md p-0.5">
-                        <button
-                          onClick={() => setEditingChannel({ id: palata.id, name: palata.name })}
-                          className="w-5 h-5 rounded hover:bg-sidebar-accent flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-                          title="Переименовати"
-                        >
-                          <Pencil className="w-3 h-3" strokeWidth={2} />
-                        </button>
-                        <button
-                          onClick={() => setDeletingChannelId(palata.id)}
-                          className="w-5 h-5 rounded hover:bg-sidebar-accent flex items-center justify-center text-muted-foreground hover:text-destructive transition-colors"
-                          title="Удалити"
-                        >
-                          <Trash2 className="w-3 h-3" strokeWidth={2} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
+              {channels.filter((c) => c.type === "text").map((palata, index) => (
+                <div key={palata.id} className="group relative">
+                  <TextPalata index={index} channelId={palata.id} channelName={palata.name} serverId={palata.server_id} />
+                  {canManageChannels && (
+                    <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-0.5 bg-background/80 backdrop-blur-sm rounded-xl p-0.5">
+                      <button onClick={() => setEditingChannel({ id: palata.id, name: palata.name })}
+                        className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
+                        title="Переименовати">
+                        <Pencil className="w-3 h-3" strokeWidth={1.5} />
+                      </button>
+                      <button onClick={() => setDeletingChannelId(palata.id)}
+                        className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-destructive/60 transition-colors"
+                        title="Удалити">
+                        <Trash2 className="w-3 h-3" strokeWidth={1.5} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {(channels.filter((c) => c.type === "voice" || !c.type).length > 0 ||
-          canManageChannels) && (
+        {(channels.filter((c) => c.type === "voice" || !c.type).length > 0 || canManageChannels) && (
           <div>
-            <div className="flex items-center gap-1.5 px-1 mb-1.5">
-              <div className="w-4 h-4 rounded bg-muted/40 flex items-center justify-center">
-                <Volume2 size={10} className="text-muted-foreground/60" strokeWidth={2} />
-              </div>
-              <span className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest flex-1">
+            <div className="flex items-center gap-2 px-2 mb-2">
+              <Volume2 size={11} className="text-foreground/30" strokeWidth={1.5} />
+              <span className="text-[10px] font-semibold text-foreground/30 uppercase tracking-[0.15em] flex-1">
                 Голосовыя
               </span>
               {canManageChannels && (
                 <button
-                  onClick={() => {
-                    setCreatingType("voice");
-                    setNewChannelName("");
-                  }}
-                  className="w-5 h-5 rounded hover:bg-sidebar-accent flex items-center justify-center text-muted-foreground/60 hover:text-sidebar-foreground transition-colors"
+                  onClick={() => { setCreatingType("voice"); setNewChannelName(""); }}
+                  className="w-5 h-5 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/20 hover:text-foreground/50 transition-colors"
                   title="Создати палату"
                 >
-                  <Plus className="w-3 h-3" strokeWidth={2} />
+                  <Plus className="w-3 h-3" strokeWidth={1.5} />
                 </button>
               )}
             </div>
             <div className="space-y-0.5">
-              {channels
-                .filter((c) => c.type === "voice" || !c.type)
-                .map((palata, index) => (
-                  <div key={palata.id} className="group relative">
-                    <Palata
-                      index={index}
-                      channelId={palata.id}
-                      channelName={palata.name}
-                      participantCount={participantCounts[palata.id] || 0}
-                      participantAvatars={participantAvatars[palata.id]}
-                    />
-                    {canManageChannels && (
-                      <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-0.5 bg-sidebar/90 rounded-md p-0.5">
-                        <button
-                          onClick={() => setEditingChannel({ id: palata.id, name: palata.name })}
-                          className="w-5 h-5 rounded hover:bg-sidebar-accent flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-                          title="Переименовати"
-                        >
-                          <Pencil className="w-3 h-3" strokeWidth={2} />
-                        </button>
-                        <button
-                          onClick={() => setDeletingChannelId(palata.id)}
-                          className="w-5 h-5 rounded hover:bg-sidebar-accent flex items-center justify-center text-muted-foreground hover:text-destructive transition-colors"
-                          title="Удалити"
-                        >
-                          <Trash2 className="w-3 h-3" strokeWidth={2} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
+              {channels.filter((c) => c.type === "voice" || !c.type).map((palata, index) => (
+                <div key={palata.id} className="group relative">
+                  <Palata index={index} channelId={palata.id} channelName={palata.name}
+                    participantCount={participantCounts[palata.id] || 0}
+                    participantAvatars={participantAvatars[palata.id]} />
+                  {canManageChannels && (
+                    <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-0.5 bg-background/80 backdrop-blur-sm rounded-xl p-0.5">
+                      <button onClick={() => setEditingChannel({ id: palata.id, name: palata.name })}
+                        className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
+                        title="Переименовати">
+                        <Pencil className="w-3 h-3" strokeWidth={1.5} />
+                      </button>
+                      <button onClick={() => setDeletingChannelId(palata.id)}
+                        className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-destructive/60 transition-colors"
+                        title="Удалити">
+                        <Trash2 className="w-3 h-3" strokeWidth={1.5} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -315,32 +283,28 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
       </div>
 
       {/* User */}
-      <div className="border-t border-sidebar-border/50 pt-1.5 px-1.5 pb-1.5 mt-auto">
+      <div className="px-2 py-2 mt-auto">
         <button
           ref={userBtnRef}
           onClick={() => { navigate(AppRoutes.SETTINGS); onMobileClose?.(); }}
-          className="flex items-center gap-2 w-full rounded-lg p-2 transition-all hover:bg-sidebar-accent/50 group cursor-pointer"
+          className="flex items-center gap-2.5 w-full rounded-xl px-2.5 py-2 transition-all hover:bg-foreground/[0.03] group cursor-pointer"
         >
           <div className="relative flex-shrink-0">
-            <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-sidebar-border/50 group-hover:ring-primary/30 transition-all">
+            <div className="w-8 h-8 rounded-xl overflow-hidden bg-foreground/5 flex items-center justify-center text-xs font-bold text-foreground/40 group-hover:text-foreground/70 transition-colors">
               {user?.avatar_url ? (
                 <img src={user.avatar_url} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center text-xs font-bold text-sidebar-foreground">
-                  {user?.username ? user.username[0].toUpperCase() : "Г"}
-                </div>
+                user?.username ? user.username[0].toUpperCase() : "Г"
               )}
             </div>
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-500 border-2 border-sidebar" />
           </div>
           <div className="flex-1 min-w-0 text-left">
-            <div className="text-xs font-medium text-sidebar-foreground truncate">
+            <div className="text-xs font-medium text-foreground/60 truncate group-hover:text-foreground/80 transition-colors">
               {user?.username || "Гость градскій"}
             </div>
-            <div className="text-[10px] text-sidebar-foreground/50 truncate">В сети</div>
           </div>
-          <div className="w-7 h-7 rounded-md flex items-center justify-center text-sidebar-foreground/40 hover:text-sidebar-foreground transition-colors opacity-0 group-hover:opacity-100" title="Настройки">
-            <Settings className="w-3.5 h-3.5" strokeWidth={2} />
+          <div className="w-7 h-7 rounded-xl flex items-center justify-center text-foreground/20 hover:text-foreground/50 transition-colors opacity-0 group-hover:opacity-100" title="Настройки">
+            <Settings className="w-3.5 h-3.5" strokeWidth={1.5} />
           </div>
         </button>
       </div>
