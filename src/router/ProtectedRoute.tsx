@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from "react-router";
-import { useAuth } from "@store/hooks/useAuth";
+import { useAuth } from "@entities/user/useAuth";
 
 export function ProtectedRoute({
   redirectPath = "/auth/login",

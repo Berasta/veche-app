@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { ArrowLeft, Crown, Image, Shield } from "lucide-react";
-import { pb, PB_URL } from "@api/pb";
-import { useAppSelector } from "@store/hooks";
-import { PageHeader } from "@components/ui/PageHeader";
-import { RolesManager } from "@components/invite/RolesManager";
+import { pb, PB_URL } from "@shared/api/pb";
+import { useAppSelector } from "@app/hooks";
+import { PageHeader } from "@shared/ui/PageHeader";
+import { RolesManager } from "@features/invite/RolesManager";
 
 export function ServerSettingsPage() {
   const { serverId } = useParams();

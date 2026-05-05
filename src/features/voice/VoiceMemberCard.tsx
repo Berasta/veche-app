@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { MicOff, Monitor, EarOff } from "lucide-react";
 import { motion } from "motion/react";
-import { UserPopover } from "@components/ui/UserPopover";
+import { UserPopover } from "@shared/ui/UserPopover";
 
 export interface VoiceMember {
   id: string;

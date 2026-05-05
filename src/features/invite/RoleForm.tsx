@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Check } from "lucide-react";
-import { PERMISSIONS, type ServerRole } from "@api/rolesApi";
+import { PERMISSIONS, type ServerRole } from "@shared/api/rolesApi";
 
 const PERMISSION_META: Record<string, { label: string; desc: string }> = {
   [PERMISSIONS.MANAGE_CHANNELS]: { label: "Управление каналами", desc: "Создание, переименование и удаление палат" },

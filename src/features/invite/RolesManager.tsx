@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Shield, Plus, Trash2, Pencil } from "lucide-react";
-import { listRoles, createRole, updateRole, deleteRole, listAssignments, setUserRole, removeUserRole, type ServerRole, type RoleAssignment, PERMISSIONS } from "@api/rolesApi";
-import { pb, PB_URL } from "@api/pb";
+import { listRoles, createRole, updateRole, deleteRole, listAssignments, setUserRole, removeUserRole, type ServerRole, type RoleAssignment, PERMISSIONS } from "@shared/api/rolesApi";
+import { pb, PB_URL } from "@shared/api/pb";
 import { RoleForm } from "./RoleForm";
 
 const PERMISSION_META: Record<string, { label: string; desc: string }> = {

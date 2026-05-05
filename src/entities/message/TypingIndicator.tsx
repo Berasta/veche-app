@@ -1,6 +1,6 @@
-import { useAppSelector } from "@store/hooks";
-import { selectTypingUsers } from "@store/slices/typingSlice";
-import { useAuth } from "@store/hooks/useAuth";
+import { useAppSelector } from "@app/hooks";
+import { selectTypingUsers } from "@entities/typing/typingSlice";
+import { useAuth } from "@entities/user/useAuth";
 import { useEffect, useState } from "react";
 
 const USER_NAMES: Record<string, string> = {};

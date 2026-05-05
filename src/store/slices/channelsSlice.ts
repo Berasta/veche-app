@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import type { Channel } from "@api/serverApi";
-import * as serverApi from "@api/serverApi";
+import type { Channel } from "@shared/api/serverApi";
+import * as serverApi from "@shared/api/serverApi";
 
 export interface ChannelsState {
   channels: Channel[];

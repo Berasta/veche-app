@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Mic, MicOff, Headphones, HeadphoneOff } from "lucide-react";
-import { isTauri } from "@lib/tauri";
+import { isTauri } from "@shared/lib/tauri";
 
 interface OverlayState {
   isMuted: boolean;

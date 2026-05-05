@@ -1,9 +1,9 @@
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { getInviteByCode, incrementInviteUse } from "@api/inviteApi";
-import { addServerMember } from "@api/memberApi";
-import { pb } from "@api/pb";
+import { getInviteByCode, incrementInviteUse } from "@shared/api/inviteApi";
+import { addServerMember } from "@shared/api/memberApi";
+import { pb } from "@shared/api/pb";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
 
 function setMeta(title: string, description: string, image?: string) {

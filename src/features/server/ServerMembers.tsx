@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { X, Users, User } from "lucide-react";
-import { UserPopover } from "@components/ui/UserPopover";
-import { MembersSkeleton } from "@components/ui/Skeleton";
-import { useAppSelector, useAppDispatch } from "@store/hooks";
-import { useIsMobile } from "@components/ui/use-mobile";
-import { selectVolumes } from "@store/selectors/roomSelectors";
+import { UserPopover } from "@shared/ui/UserPopover";
+import { MembersSkeleton } from "@shared/ui/Skeleton";
+import { useAppSelector, useAppDispatch } from "@app/hooks";
+import { useIsMobile } from "@shared/ui/use-mobile";
+import { selectVolumes } from "@entities/room/roomSelectors";
 import { setParticipantVolume } from "@store/thunks/roomThunk";
-import { fetchServerMembers, selectServerMembers, selectServerMembersLoaded } from "@store/slices/membersSlice";
-import type { MemberData } from "@store/slices/membersSlice";
+import { fetchServerMembers, selectServerMembers, selectServerMembersLoaded } from "@entities/member/membersSlice";
+import type { MemberData } from "@entities/member/membersSlice";
 
 interface ServerMembersProps {
   serverId: string;

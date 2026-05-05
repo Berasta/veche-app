@@ -11,7 +11,7 @@ import { GramotaMessage } from "@entities/message/GramotaMessage";
 import { TypingIndicator } from "@entities/message/TypingIndicator";
 import { MessageSkeleton } from "@shared/ui/Skeleton";
 import type { ReactionGroup } from "@entities/message/ReactionsBar";
-import { useAppDispatch, useAppSelector } from "@store/hooks";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
 import {
   fetchMessages,
   fetchMoreMessages,
@@ -20,18 +20,18 @@ import {
   deleteMessage,
   clearMessages,
   subscribeToChannel,
-} from "@store/slices/messagesSlice";
+} from "@entities/message/messagesSlice";
 import {
   selectMessages,
   selectMessagesLoading,
   selectMessagesError,
   selectHasMore,
-} from "@store/selectors/messagesSelectors";
-import { fetchReactions, addReaction, removeReaction } from "@api/reactionApi";
-import { pb } from "@api/pb";
-import { fetchServerMembers, selectServerMembers } from "@store/slices/membersSlice";
-import { useAuth } from "@store/hooks/useAuth";
-import { useTypingBroadcast } from "@hooks/useTyping";
+} from "@entities/message/messagesSelectors";
+import { fetchReactions, addReaction, removeReaction } from "@shared/api/reactionApi";
+import { pb } from "@shared/api/pb";
+import { fetchServerMembers, selectServerMembers } from "@entities/member/membersSlice";
+import { useAuth } from "@entities/user/useAuth";
+import { useTypingBroadcast } from "@shared/hooks/useTyping";
 interface GramotaAreaProps {
   channelId?: string;
   channelName?: string;

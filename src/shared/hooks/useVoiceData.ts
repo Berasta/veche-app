@@ -1,8 +1,8 @@
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-import { getUserById } from "@api/userApi";
-import { getRoleMap } from "@api/rolesApi";
-import { pb } from "@api/pb";
+import { getUserById } from "@shared/api/userApi";
+import { getRoleMap } from "@shared/api/rolesApi";
+import { pb } from "@shared/api/pb";
 
 export function useVoiceData(serverId?: string, participantIds?: string[]) {
   const [userDataMap, setUserDataMap] = useState<Record<string, { username: string; avatarUrl?: string; banner?: string }>>({});

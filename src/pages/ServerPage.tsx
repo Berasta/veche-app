@@ -1,12 +1,12 @@
-import { useAppDispatch, useAppSelector } from "@store/hooks";
-import { fetchChannels } from "@store/slices/channelsSlice";
-import { fetchServerMembers, selectServerMembersLoaded } from "@store/slices/membersSlice";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
+import { fetchChannels } from "@entities/channel/channelsSlice";
+import { fetchServerMembers, selectServerMembersLoaded } from "@entities/member/membersSlice";
 import { Loader2 } from "lucide-react";
 import { useParams, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { GramotaArea } from "@features/server/GramotaArea";
 import { ServerMembers } from "@features/server/ServerMembers";
-import { useIsMobile } from "@components/ui/use-mobile";
+import { useIsMobile } from "@shared/ui/use-mobile";
 
 export const ServerPage = () => {
   const dispatch = useAppDispatch();

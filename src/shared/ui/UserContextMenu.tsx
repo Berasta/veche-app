@@ -12,10 +12,10 @@ if (typeof document !== "undefined" && !document.getElementById(styleId)) {
   `;
   document.head.appendChild(style);
 }
-import { usePermissions } from "@hooks/usePermissions";
-import { PERMISSIONS } from "@api/rolesApi";
-import { useAppDispatch, useAppSelector } from "@store/hooks";
-import { selectVolumes } from "@store/selectors/roomSelectors";
+import { usePermissions } from "@shared/hooks/usePermissions";
+import { PERMISSIONS } from "@shared/api/rolesApi";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
+import { selectVolumes } from "@entities/room/roomSelectors";
 import { setParticipantVolume } from "@store/thunks/roomThunk";
 
 interface UserContextMenuProps {

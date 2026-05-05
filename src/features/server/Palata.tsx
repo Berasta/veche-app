@@ -1,9 +1,9 @@
-import { useAppDispatch, useAppSelector } from "@store/hooks";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
 import {
   selectActiveChannelId,
   selectConnected,
   selectConnecting,
-} from "@store/selectors/roomSelectors";
+} from "@entities/room/roomSelectors";
 import { joinChannel } from "@store/thunks/roomThunk";
 import { Loader2, Volume2 } from "lucide-react";
 import { motion } from "motion/react";

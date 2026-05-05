@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Keyboard } from "lucide-react";
-import { isTauri } from "@lib/tauri";
+import { isTauri } from "@shared/lib/tauri";
 
 interface HotkeyEntry {
   id: string;

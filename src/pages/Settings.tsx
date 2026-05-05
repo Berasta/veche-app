@@ -7,10 +7,10 @@ import { VoiceSettings } from "../components/settings/VoiceSettings";
 import { HotkeySettings } from "../components/settings/HotkeySettings";
 import { BannerRepositionDialog } from "../components/BannerRepositionDialog";
 import { Shop } from "../features/shop/Shop";
-import { useAuth } from "@store/hooks/useAuth";
-import { pb, PB_URL } from "@api/pb";
-import { fetchCurrentUser, logout } from "@store/slices/authSlice";
-import { useAppDispatch } from "@store/hooks";
+import { useAuth } from "@entities/user/useAuth";
+import { pb, PB_URL } from "@shared/api/pb";
+import { fetchCurrentUser, logout } from "@entities/user/authSlice";
+import { useAppDispatch } from "@app/hooks";
 
 const TABS = [
   { id: "profile", label: "Профиль", icon: User },

@@ -6,7 +6,7 @@ import { IconButton } from "@shared/ui/IconButton";
 import { ScreenShareDisplay } from "./ScreenShareDisplay";
 import { VoiceControls } from "./VoiceControls";
 import { useNavigate, useParams } from "react-router";
-import { useAppDispatch, useAppSelector } from "@store/hooks";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
 import {
   selectActiveChannelName,
   selectParticipants,
@@ -18,7 +18,7 @@ import {
   selectError,
   selectCallStartedAt,
   selectConnectionQuality,
-} from "@store/selectors/roomSelectors";
+} from "@entities/room/roomSelectors";
 import {
   leaveChannel,
   toggleMute,
@@ -27,10 +27,10 @@ import {
   setParticipantVolume,
   screenShareElements,
 } from "@store/thunks/roomThunk";
-import { setScreenShareQuality } from "@store/slices/roomSlice";
-import { useVoiceData } from "@hooks/useVoiceData";
-import { useOverlay } from "@hooks/useOverlay";
-import { UserContextMenu } from "@components/ui/UserContextMenu";
+import { setScreenShareQuality } from "@entities/room/roomSlice";
+import { useVoiceData } from "@shared/hooks/useVoiceData";
+import { useOverlay } from "@shared/hooks/useOverlay";
+import { UserContextMenu } from "@shared/ui/UserContextMenu";
 
 interface VoiceMemberData {
   id: string;

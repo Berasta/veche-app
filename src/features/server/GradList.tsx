@@ -1,20 +1,20 @@
 import { toast } from "sonner";
 import { MessageSquare, Volume2, Users, Plus, X, Menu } from "lucide-react";
-import { Skeleton } from "@components/ui/Skeleton";
+import { Skeleton } from "@shared/ui/Skeleton";
 import { useEffect, useState, useRef } from "react";
 import { ServerButton } from "./ServerButton";
-import { useAppDispatch, useAppSelector } from "@store/hooks";
-import { fetchServers } from "@store/slices/serversSlice";
-import { useAuth } from "@store/hooks/useAuth";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
+import { fetchServers } from "@entities/server/serversSlice";
+import { useAuth } from "@entities/user/useAuth";
 import { useNavigate, useParams, useLocation } from "react-router";
 import { AppRoutes } from "@routes/routes";
-import { PalataList } from "@components/server/PalataList";
-import { ServerMembers } from "@components/server/ServerMembers";
-import { useMobileMenu } from "@components/layout/MobileMenuContext";
-import { selectParticipants } from "@store/selectors/roomSelectors";
-import { pb } from "@api/pb";
-import { Portal } from "@components/ui/Portal";
-import { useIsMobile } from "@components/ui/use-mobile";
+import { PalataList } from "@features/server/PalataList";
+import { ServerMembers } from "@features/server/ServerMembers";
+import { useMobileMenu } from "@app/layout/MobileMenuContext";
+import { selectParticipants } from "@entities/room/roomSelectors";
+import { pb } from "@shared/api/pb";
+import { Portal } from "@shared/ui/Portal";
+import { useIsMobile } from "@shared/ui/use-mobile";
 
 export function GradList() {
   const dispatch = useAppDispatch();

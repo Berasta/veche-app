@@ -1,6 +1,6 @@
 import { Toaster } from "sonner";
-import { useAppDispatch } from "@store/hooks";
-import { fetchCurrentUser } from "@store/slices/authSlice";
+import { useAppDispatch } from "@app/hooks";
+import { fetchCurrentUser } from "@entities/user/authSlice";
 import { useEffect } from "react";
 import { RouterProvider } from "react-router";
 import { router } from "./router";

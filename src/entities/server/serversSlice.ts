@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { Server } from '@api/serverApi';
-import * as serverApi from '@api/serverApi';
+import type { Server } from '@shared/api/serverApi';
+import * as serverApi from '@shared/api/serverApi';
 
 export interface ServersState {
   servers: Server[];

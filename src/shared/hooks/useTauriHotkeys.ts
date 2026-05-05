@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { isTauri } from "@lib/tauri";
+import { isTauri } from "@shared/lib/tauri";
 
 export interface HotkeyBinding {
   id: string;

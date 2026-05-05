@@ -51,14 +51,11 @@ export default defineConfig({
       "@pages": path.resolve(__dirname, "./src/pages"),
       "@routes": path.resolve(__dirname, "./src/router"),
       "@shared": path.resolve(__dirname, "./src/shared"),
+      "@store": path.resolve(__dirname, "./src/store"),
       "@features": path.resolve(__dirname, "./src/features"),
       "@app": path.resolve(__dirname, "./src/app"),
       "@entities": path.resolve(__dirname, "./src/entities"),
-      "@components": path.resolve(__dirname, "./src/components"),
-      "@api": path.resolve(__dirname, "./src/api"),
-      "@store": path.resolve(__dirname, "./src/store"),
-      "@hooks": path.resolve(__dirname, "./src/hooks"),
-      "@lib": path.resolve(__dirname, "./src/lib"),
+
     },
   },
 

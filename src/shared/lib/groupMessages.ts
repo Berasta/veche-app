@@ -1,4 +1,4 @@
-import type { Message } from "@store/slices/messagesSlice";
+import type { Message } from "@entities/message/messagesSlice";
 
 export interface GroupedMessage {
   msg: Message;

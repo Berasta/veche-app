@@ -5,8 +5,8 @@ import type {
   AuthResponse,
   LoginInput,
   RegisterInput,
-} from "@api/authApi";
-import * as authApi from "@api/authApi";
+} from "@shared/api/authApi";
+import * as authApi from "@shared/api/authApi";
 
 export interface AuthState {
   user: AuthUser | null;

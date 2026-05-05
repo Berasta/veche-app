@@ -1,11 +1,11 @@
 import { Mail, Lock, Eye, EyeOff, User } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { registerUser } from "@store/slices/authSlice";
+import { registerUser } from "@entities/user/authSlice";
 import type { RootState, AppDispatch } from "../store";
 import { useNavigate, useSearchParams } from "react-router";
 import { AppRoutes } from "@routes/routes";
-import { translatePbError } from "@api/pbErrors";
+import { translatePbError } from "@shared/api/pbErrors";
 
 export const RegisterPage = () => {
   const [username, setUsername] = useState("");

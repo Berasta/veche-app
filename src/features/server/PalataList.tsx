@@ -1,12 +1,12 @@
 import { useEffect, useState, useRef } from "react";
-import { useAppSelector } from "@store/hooks";
+import { useAppSelector } from "@app/hooks";
 import { useNavigate, useParams } from "react-router";
 import { Palata } from "./Palata";
 import { TextPalata } from "./TextPalata";
-import { useAuth } from "@store/hooks/useAuth";
+import { useAuth } from "@entities/user/useAuth";
 import { AppRoutes } from "@routes/routes";
 import { usePermissions } from "@shared/hooks/usePermissions";
-import { PERMISSIONS } from "@api/rolesApi";
+import { PERMISSIONS } from "@shared/api/rolesApi";
 import { toast } from "sonner";
 import {
   Volume2,
@@ -17,14 +17,14 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-import { pb, PB_URL } from "@api/pb";
-import { fetchChannels } from "@store/slices/channelsSlice";
-import { useAppDispatch } from "@store/hooks";
-import { Portal } from "@components/ui/Portal";
-import { InviteManager } from "@components/invite/InviteManager";
+import { pb, PB_URL } from "@shared/api/pb";
+import { fetchChannels } from "@entities/channel/channelsSlice";
+import { useAppDispatch } from "@app/hooks";
+import { Portal } from "@shared/ui/Portal";
+import { InviteManager } from "@features/invite/InviteManager";
 import { CreateChannelModal } from "./CreateChannelModal";
 import { EditChannelModal } from "./EditChannelModal";
-import { ConfirmModal } from "@components/ui/ConfirmModal";
+import { ConfirmModal } from "@shared/ui/ConfirmModal";
 
 interface PalataListProps {
   onMobileItemClick?: () => void;

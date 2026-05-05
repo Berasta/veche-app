@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { pb } from "@api/pb";
+import { pb } from "@shared/api/pb";
 
 type QueryFn<T> = () => Promise<T>;
 

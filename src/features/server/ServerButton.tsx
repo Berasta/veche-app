@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Portal } from "@components/ui/Portal";
+import { Portal } from "@shared/ui/Portal";
 import { useState, useRef } from "react";
 
 const serverColors = [

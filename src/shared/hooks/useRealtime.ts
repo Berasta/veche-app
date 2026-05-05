@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
-import { pb } from "@api/pb";
-import { useAppDispatch } from "@store/hooks";
-import { markActive } from "@store/slices/presenceSlice";
+import { pb } from "@shared/api/pb";
+import { useAppDispatch } from "@app/hooks";
+import { markActive } from "@entities/presence/presenceSlice";
 
 export function useRealtime() {
   const dispatch = useAppDispatch();

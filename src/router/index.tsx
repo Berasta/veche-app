@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router";
 import { LoginPage, RegisterPage, ServerPage, AppPage, OnboardingPage } from "@pages/index";
-import { AuthLayout } from "@components/layout/AuthLayout";
-import { AppLayout } from "@components/layout/AppLayout";
+import { AuthLayout } from "@app/layout/AuthLayout";
+import { AppLayout } from "@app/layout/AppLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { AppRoutes } from "./routes";
 import { OverlayPage } from "@pages/OverlayPage";
@@ -10,7 +10,7 @@ import { Loader2 } from "lucide-react";
 
 const Settings = lazy(() => import("@pages/Settings").then((m) => ({ default: m.Settings })));
 const ServerSettingsPage = lazy(() => import("@pages/ServerSettingsPage").then((m) => ({ default: m.ServerSettingsPage })));
-const VoiceChat = lazy(() => import("@components/voice/VoiceChat").then((m) => ({ default: m.VoiceChat })));
+const VoiceChat = lazy(() => import("@features/voice/VoiceChat").then((m) => ({ default: m.VoiceChat })));
 const InvitePage = lazy(() => import("@pages/InvitePage").then((m) => ({ default: m.InvitePage })));
 
 function Lazy({ children }: { children: React.ReactNode }) {

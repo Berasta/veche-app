@@ -1,4 +1,4 @@
-import { Portal } from "@components/ui/Portal";
+import { Portal } from "@shared/ui/Portal";
 
 interface Props {
   name: string;

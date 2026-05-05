@@ -1,11 +1,11 @@
 import { Crown, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "@store/slices/authSlice";
+import { loginUser } from "@entities/user/authSlice";
 import type { RootState, AppDispatch } from "@app/store";
 import { useNavigate, useSearchParams } from "react-router";
 import { AppRoutes } from "@routes/routes";
-import { translatePbError } from "@api/pbErrors";
+import { translatePbError } from "@shared/api/pbErrors";
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("");

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Plus, Link as LinkIcon, Clock, Infinity, UserPlus } from "lucide-react";
 import { InviteCard } from "./InviteCard";
 import { InviteOptions } from "./InviteOptions";
-import { listInvites, createInvite, deleteInvite, type Invite } from "@api/inviteApi";
+import { listInvites, createInvite, deleteInvite, type Invite } from "@shared/api/inviteApi";
 
 interface InviteManagerProps {
   serverId: string;

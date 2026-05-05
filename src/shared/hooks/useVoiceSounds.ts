@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
-import { useAppSelector } from "@store/hooks";
-import { selectParticipants } from "@store/selectors/roomSelectors";
-import { playJoinSound, playLeaveSound } from "@lib/sounds";
+import { useAppSelector } from "@app/hooks";
+import { selectParticipants } from "@entities/room/roomSelectors";
+import { playJoinSound, playLeaveSound } from "@shared/lib/sounds";
 
 export function useVoiceSounds() {
   const participants = useAppSelector(selectParticipants);

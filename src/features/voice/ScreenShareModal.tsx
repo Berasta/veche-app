@@ -1,8 +1,8 @@
 import { X, MonitorPlay, Settings } from "lucide-react";
 import { useState } from "react";
-import { useAppDispatch } from "@store/hooks";
+import { useAppDispatch } from "@app/hooks";
 import { toggleScreenShare } from "@store/thunks/roomThunk";
-import { setScreenShareQuality } from "@store/slices/roomSlice";
+import { setScreenShareQuality } from "@entities/room/roomSlice";
 
 const QUALITY_MAP = {
   low: { width: 854, height: 480 },
