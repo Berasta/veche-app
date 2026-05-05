@@ -35,6 +35,9 @@ export function Settings() {
   const [bannerPosition, setBannerPosition] = useState({ x: 50, y: 50 });
   const [repositionFile, setRepositionFile] = useState<{ url: string; filename: string } | null>(null);
   const [showFrameSelector, setShowFrameSelector] = useState(false);
+  const [localAccessory, setLocalAccessory] = useState<string | undefined>(() => {
+    try { return localStorage.getItem("avatarAccessory") || undefined; } catch { return undefined; }
+  });
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const bannerInputRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
