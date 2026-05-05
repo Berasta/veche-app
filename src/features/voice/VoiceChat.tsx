@@ -37,6 +37,7 @@ interface VoiceMemberData {
   id: string;
   name: string;
   avatarUrl?: string;
+  avatarFrame?: string;
   isSpeaking: boolean;
   isMuted: boolean;
   isDeafened: boolean;
@@ -90,6 +91,7 @@ export function VoiceChat() {
       id: p.identity,
       name: ud?.username || p.name,
       avatarUrl: ud?.avatarUrl,
+      avatarFrame: ud?.avatarFrame,
       isSpeaking: p.isSpeaking,
       isMuted: p.isMuted,
       isDeafened: p.isLocal ? isDeafened : false,

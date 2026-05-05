@@ -5,7 +5,7 @@ import { getRoleMap } from "@shared/api/rolesApi";
 import { pb } from "@shared/api/pb";
 
 export function useVoiceData(serverId?: string, participantIds?: string[]) {
-  const [userDataMap, setUserDataMap] = useState<Record<string, { username: string; avatarUrl?: string; banner?: string }>>({});
+  const [userDataMap, setUserDataMap] = useState<Record<string, { username: string; avatarUrl?: string; banner?: string; avatarFrame?: string }>>({});
   const [roleMap, setRoleMap] = useState<Record<string, { name: string; color: string }>>({});
   const [joinedAtMap, setJoinedAtMap] = useState<Record<string, string>>({});
 
@@ -17,10 +17,10 @@ export function useVoiceData(serverId?: string, participantIds?: string[]) {
     Promise.all(missing.map(async (id) => {
       try {
         const user = await getUserById(id);
-        return { id, data: { username: user.username, avatarUrl: user.avatar_url, banner: user.banner } };
+        return { id, data: { username: user.username, avatarUrl: user.avatar_url, banner: user.banner, avatarFrame: user.avatar_frame } };
       } catch (err) {
         console.error("Ошибка загрузки пользователя голосовой палаты", err);
-        return { id, data: { username: id, avatarUrl: undefined, banner: undefined } };
+        return { id, data: { username: id, avatarUrl: undefined, banner: undefined, avatarFrame: undefined } };
       }
     })).then((results) => {
       if (cancelled) return;
