@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from "@app/hooks";
-import { fetchChannels } from "@entities/channel/channelsSlice";
-import { fetchServerMembers, selectServerMembersLoaded } from "@entities/member/membersSlice";
+import { fetchChannels } from "@entities/channel/model/channelsSlice";
+import { fetchServerMembers, selectServerMembersLoaded } from "@entities/member/model/membersSlice";
 import { Loader2 } from "lucide-react";
 import { useParams, useNavigate } from "react-router";
 import { useEffect, useState } from "react";

@@ -3,7 +3,7 @@ import {
   selectActiveChannelId,
   selectConnected,
   selectConnecting,
-} from "@entities/room/roomSelectors";
+} from "@entities/room/model/roomSelectors";
 import { joinChannel } from "@store/thunks/roomThunk";
 import { Loader2, Volume2 } from "lucide-react";
 import { motion } from "motion/react";

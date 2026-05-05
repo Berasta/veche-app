@@ -15,7 +15,7 @@ if (typeof document !== "undefined" && !document.getElementById(styleId)) {
 import { usePermissions } from "@shared/hooks/usePermissions";
 import { PERMISSIONS } from "@shared/api/rolesApi";
 import { useAppDispatch, useAppSelector } from "@app/hooks";
-import { selectVolumes } from "@entities/room/roomSelectors";
+import { selectVolumes } from "@entities/room/model/roomSelectors";
 import { setParticipantVolume } from "@store/thunks/roomThunk";
 
 interface UserContextMenuProps {

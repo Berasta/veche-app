@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { getUserPermissions, PERMISSIONS } from "@shared/api/rolesApi";
-import { useAuth } from "@entities/user/useAuth";
+import { useAuth } from "@entities/user/model/useAuth";
 
 export function usePermissions(serverId?: string) {
   const { user } = useAuth();

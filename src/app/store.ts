@@ -1,12 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "../entities/user/authSlice";
-import serversReducer from "../entities/server/serversSlice";
-import channelsReducer from "../entities/channel/channelsSlice";
-import roomReducer from "../entities/room/roomSlice";
-import messagesReducer from "../entities/message/messagesSlice";
-import presenceReducer from "../store/slices/presenceSlice";
-import typingReducer from "../entities/typing/typingSlice";
-import membersReducer from "../entities/member/membersSlice";
+import authReducer from "../entities/user/model/authSlice";
+import serversReducer from "../entities/server/model/serversSlice";
+import channelsReducer from "../entities/channel/model/channelsSlice";
+import roomReducer from "../entities/room/model/roomSlice";
+import messagesReducer from "../entities/message/model/messagesSlice";
+import presenceReducer from "../entities/presence/model/presenceSlice";
+import typingReducer from "../entities/typing/model/typingSlice";
+import membersReducer from "../entities/member/model/membersSlice";
 
 export const store = configureStore({
   reducer: {

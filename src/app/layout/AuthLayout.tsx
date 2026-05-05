@@ -1,4 +1,4 @@
-import { useAuth } from "@entities/user/useAuth";
+import { useAuth } from "@entities/user/model/useAuth";
 import { useEffect } from "react";
 import { Outlet, useNavigate, useSearchParams } from "react-router";
 

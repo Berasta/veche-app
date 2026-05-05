@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { isTauri } from "@shared/lib/tauri";
 import { useAppSelector } from "@app/hooks";
-import { selectParticipants, selectIsMuted } from "@entities/room/roomSelectors";
+import { selectParticipants, selectIsMuted } from "@entities/room/model/roomSelectors";
 
 export function useOverlay() {
   const participants = useAppSelector(selectParticipants);

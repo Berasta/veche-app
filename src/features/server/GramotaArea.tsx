@@ -6,11 +6,11 @@ import { formatMessageTime } from "@shared/lib/formatTime";
 import { GramotaInput, type GramotaInputHandle } from "@features/send-message/GramotaInput";
 import { PageHeader } from "@shared/ui/PageHeader";
 import { IconButton } from "@shared/ui/IconButton";
-import { MessageList } from "@entities/message/MessageList";
-import { GramotaMessage } from "@entities/message/GramotaMessage";
-import { TypingIndicator } from "@entities/message/TypingIndicator";
+import { MessageList } from "@entities/message/ui/MessageList";
+import { GramotaMessage } from "@entities/message/ui/GramotaMessage";
+import { TypingIndicator } from "@entities/message/ui/TypingIndicator";
 import { MessageSkeleton } from "@shared/ui/Skeleton";
-import type { ReactionGroup } from "@entities/message/ReactionsBar";
+import type { ReactionGroup } from "@entities/message/ui/ReactionsBar";
 import { useAppDispatch, useAppSelector } from "@app/hooks";
 import {
   fetchMessages,
@@ -20,17 +20,17 @@ import {
   deleteMessage,
   clearMessages,
   subscribeToChannel,
-} from "@entities/message/messagesSlice";
+} from "@entities/message/model/messagesSlice";
 import {
   selectMessages,
   selectMessagesLoading,
   selectMessagesError,
   selectHasMore,
-} from "@entities/message/messagesSelectors";
+} from "@entities/message/model/messagesSelectors";
 import { fetchReactions, addReaction, removeReaction } from "@shared/api/reactionApi";
 import { pb } from "@shared/api/pb";
-import { fetchServerMembers, selectServerMembers } from "@entities/member/membersSlice";
-import { useAuth } from "@entities/user/useAuth";
+import { fetchServerMembers, selectServerMembers } from "@entities/member/model/membersSlice";
+import { useAuth } from "@entities/user/model/useAuth";
 import { useTypingBroadcast } from "@shared/hooks/useTyping";
 interface GramotaAreaProps {
   channelId?: string;

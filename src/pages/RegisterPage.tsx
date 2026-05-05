@@ -1,7 +1,7 @@
 import { Mail, Lock, Eye, EyeOff, User } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { registerUser } from "@entities/user/authSlice";
+import { registerUser } from "@entities/user/model/authSlice";
 import type { RootState, AppDispatch } from "../store";
 import { useNavigate, useSearchParams } from "react-router";
 import { AppRoutes } from "@routes/routes";

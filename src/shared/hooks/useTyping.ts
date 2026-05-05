@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useAppDispatch } from "@app/hooks";
-import { setTyping, cleanStaleTyping } from "@entities/typing/typingSlice";
-import { useAuth } from "@entities/user/useAuth";
+import { setTyping, cleanStaleTyping } from "@entities/typing/model/typingSlice";
+import { useAuth } from "@entities/user/model/useAuth";
 
 export function useTypingBroadcast(channelId?: string) {
   const dispatch = useAppDispatch();

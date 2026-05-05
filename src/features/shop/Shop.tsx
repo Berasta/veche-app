@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Gem, Sparkles, Crown, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@entities/user/useAuth";
+import { useAuth } from "@entities/user/model/useAuth";
 import { useAppDispatch } from "@app/hooks";
-import { fetchCurrentUser } from "@entities/user/authSlice";
-import { applyShopItem, removeShopItem } from "@entities/user/userApi";
+import { fetchCurrentUser } from "@entities/user/model/authSlice";
+import { applyShopItem, removeShopItem } from "@entities/user/model/userApi";
 
 const SHOP_ITEMS = [
   // Static frames

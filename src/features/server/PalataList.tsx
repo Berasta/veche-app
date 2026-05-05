@@ -3,7 +3,7 @@ import { useAppSelector } from "@app/hooks";
 import { useNavigate, useParams } from "react-router";
 import { Palata } from "./Palata";
 import { TextPalata } from "./TextPalata";
-import { useAuth } from "@entities/user/useAuth";
+import { useAuth } from "@entities/user/model/useAuth";
 import { AppRoutes } from "@routes/routes";
 import { usePermissions } from "@shared/hooks/usePermissions";
 import { PERMISSIONS } from "@shared/api/rolesApi";
@@ -18,7 +18,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { pb, PB_URL } from "@shared/api/pb";
-import { fetchChannels } from "@entities/channel/channelsSlice";
+import { fetchChannels } from "@entities/channel/model/channelsSlice";
 import { useAppDispatch } from "@app/hooks";
 import { Portal } from "@shared/ui/Portal";
 import { InviteManager } from "@features/invite/InviteManager";

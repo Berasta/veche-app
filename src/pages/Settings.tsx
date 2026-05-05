@@ -7,9 +7,9 @@ import { VoiceSettings } from "@features/voice/VoiceSettings";
 import { HotkeySettings } from "@features/voice/HotkeySettings";
 import { BannerRepositionDialog } from "@shared/ui/BannerRepositionDialog";
 import { Shop } from "../features/shop/Shop";
-import { useAuth } from "@entities/user/useAuth";
+import { useAuth } from "@entities/user/model/useAuth";
 import { pb, PB_URL } from "@shared/api/pb";
-import { fetchCurrentUser, logout } from "@entities/user/authSlice";
+import { fetchCurrentUser, logout } from "@entities/user/model/authSlice";
 import { useAppDispatch } from "@app/hooks";
 
 const TABS = [

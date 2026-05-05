@@ -1,1 +1,1 @@
-export { useAuth } from "../../entities/user/useAuth";
+export { useAuth } from "../../entities/user/model/useAuth";

@@ -16,4 +16,4 @@ export {
   selectIsDeafened,
   selectCallStartedAt,
   selectConnectionQuality,
-} from "../../entities/room/roomSelectors";
+} from "../../entities/room/model/roomSelectors";

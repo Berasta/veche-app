@@ -4,4 +4,4 @@ export {
   selectHasMore,
   selectChannelId,
   selectMessagesError,
-} from "../../entities/message/messagesSelectors";
+} from "../../entities/message/model/messagesSelectors";

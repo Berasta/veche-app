@@ -4,10 +4,10 @@ import { UserPopover } from "@shared/ui/UserPopover";
 import { MembersSkeleton } from "@shared/ui/Skeleton";
 import { useAppSelector, useAppDispatch } from "@app/hooks";
 import { useIsMobile } from "@shared/ui/use-mobile";
-import { selectVolumes } from "@entities/room/roomSelectors";
+import { selectVolumes } from "@entities/room/model/roomSelectors";
 import { setParticipantVolume } from "@store/thunks/roomThunk";
-import { fetchServerMembers, selectServerMembers, selectServerMembersLoaded } from "@entities/member/membersSlice";
-import type { MemberData } from "@entities/member/membersSlice";
+import { fetchServerMembers, selectServerMembers, selectServerMembersLoaded } from "@entities/member/model/membersSlice";
+import type { MemberData } from "@entities/member/model/membersSlice";
 
 interface ServerMembersProps {
   serverId: string;

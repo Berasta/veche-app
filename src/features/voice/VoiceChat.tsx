@@ -18,7 +18,7 @@ import {
   selectError,
   selectCallStartedAt,
   selectConnectionQuality,
-} from "@entities/room/roomSelectors";
+} from "@entities/room/model/roomSelectors";
 import {
   leaveChannel,
   toggleMute,
@@ -27,7 +27,7 @@ import {
   setParticipantVolume,
   screenShareElements,
 } from "@store/thunks/roomThunk";
-import { setScreenShareQuality } from "@entities/room/roomSlice";
+import { setScreenShareQuality } from "@entities/room/model/roomSlice";
 import { useVoiceData } from "@shared/hooks/useVoiceData";
 import { useOverlay } from "@shared/hooks/useOverlay";
 import { UserContextMenu } from "@shared/ui/UserContextMenu";
