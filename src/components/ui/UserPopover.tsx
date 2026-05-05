@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, useCallback, ReactNode } from "react";
 import { Portal } from "./Portal";
-import { Volume2, Crown, Calendar, X } from "lucide-react";
+import { Volume2, Crown, Calendar } from "lucide-react";
 import { PB_URL } from "@api/pb";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -138,44 +138,6 @@ function BannerSection({
   );
 }
 
-function BannerModalSection({
-  bannerUrl,
-  bannerPos,
-  onClose,
-  children,
-}: {
-  bannerUrl: string | null;
-  bannerPos: { x: number; y: number } | null;
-  onClose: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <div className="relative w-full aspect-[3.2/1] rounded-t-2xl overflow-hidden bg-black/10">
-      {bannerUrl && (
-        <img
-          src={bannerUrl}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          style={
-            bannerPos
-              ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` }
-              : undefined
-          }
-        />
-      )}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent" />
-      <button
-        onClick={onClose}
-        className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors"
-        aria-label="Закрыти"
-      >
-        <X className="w-3.5 h-3.5 text-white" />
-      </button>
-      {children}
-    </div>
-  );
-}
-
 function RoleBadge({ role, color }: { role: string; color?: string }) {
   return (
     <div className="flex items-center gap-2">
@@ -199,18 +161,10 @@ function JoinedDate({ joinedAt }: { joinedAt: string }) {
   );
 }
 
-function UsernameOverlay({
-  username,
-  size,
-}: {
-  username: string;
-  size: "popover" | "modal";
-}) {
-  const textClass = "font-bold text-white drop-shadow-lg leading-tight";
-
+function UsernameOverlay({ username }: { username: string }) {
   return (
     <div className="inline-block px-2 py-0.5 rounded-md bg-black/30 backdrop-blur-sm">
-      <p className={textClass}>{username}</p>
+      <p className="font-bold text-white drop-shadow-lg leading-tight">{username}</p>
     </div>
   );
 }
@@ -269,7 +223,6 @@ export function UserPopover({
   const bannerUrl = buildBannerUrl(bannerId, userId);
   const bannerPos = bannerUrl ? loadBannerPosition(bannerId) : null;
 
-  const [showModal, setShowModal] = useState(false);
   const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0 });
   const triggerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -281,16 +234,10 @@ export function UserPopover({
     setPopoverPos(computePopoverPosition(triggerRef.current));
   }, [show]);
 
-  const handleTriggerClick = useCallback(() => {
-    close();
-    setShowModal(true);
-  }, [close]);
-
   return (
     <>
       <div
         ref={triggerRef}
-        onClick={handleTriggerClick}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         className="inline-block cursor-pointer"
@@ -315,7 +262,7 @@ export function UserPopover({
                   username={username}
                   size="sm"
                 />
-                <UsernameOverlay username={username} size="popover" />
+                <UsernameOverlay username={username} />
               </div>
             </BannerSection>
 
@@ -336,52 +283,6 @@ export function UserPopover({
         </Portal>
       )}
 
-      {/* Modal */}
-      {showModal && (
-        <Portal>
-          <div
-            className="fixed inset-0 z-[150] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setShowModal(false)}
-          >
-            <div
-              className="bg-foreground/[0.02] backdrop-blur-xl rounded-2xl w-full max-w-sm"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <BannerModalSection
-                bannerUrl={bannerUrl}
-                bannerPos={bannerPos}
-                onClose={() => setShowModal(false)}
-              >
-                <div className="absolute bottom-0 left-0 right-0 p-4 flex items-center gap-3">
-                  <AvatarCircle
-                    avatarUrl={avatarUrl}
-                    username={username}
-                    size="lg"
-                  />
-                  <UsernameOverlay username={username} size="modal" />
-                </div>
-              </BannerModalSection>
-
-              <div className="px-5 pb-5 pt-4 space-y-2">
-                {role && <RoleBadge role={role} color={roleColor} />}
-                {joinedAt && (
-                  <div className="flex items-center gap-1.5 text-xs text-foreground/40">
-                    <Calendar size={12} strokeWidth={1.5} />
-                    <span>
-                      На серверѣ съ{" "}
-                      {new Date(joinedAt).toLocaleDateString("ru-RU", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </Portal>
-      )}
     </>
   );
 }
