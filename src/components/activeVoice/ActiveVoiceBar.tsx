@@ -61,7 +61,8 @@ export function ActiveVoiceBar() {
           {error}
         </div>
       )}
-      <div className="h-10 bg-foreground/[0.02] backdrop-blur-xl flex items-center px-3 gap-2 z-50">
+      <div className="h-10 bg-foreground/[0.02] backdrop-blur-xl flex items-center px-3 gap-2 z-50 relative">
+        <div className="absolute top-0 left-0 right-0 h-px bg-foreground/5 pointer-events-none" />
 
         {connecting ? (
           <div className="flex items-center gap-2 text-xs text-foreground/40 flex-1">
