@@ -269,10 +269,12 @@ export function GradList() {
       )}
 
       {/* SIDEBAR */}
-      <div className="flex-shrink-0 bg-background/60 backdrop-blur-xl">
+      <div className="flex-shrink-0 bg-background/60 backdrop-blur-xl relative">
+        <div className="absolute right-0 top-0 bottom-0 w-px bg-foreground/5 pointer-events-none" />
         <div className="flex h-full">
           {/* Список градов */}
-          <div className="flex flex-col py-3 px-2 gap-3 flex-shrink-0">
+          <div className="flex flex-col py-3 px-2 gap-3 flex-shrink-0 relative">
+            <div className="absolute right-0 top-0 bottom-0 w-px bg-foreground/5 pointer-events-none" />
             {servers && servers.length > 0 ? (
               servers.map((grad, index) => (
                 <ServerButton

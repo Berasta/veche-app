@@ -160,7 +160,7 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
   const content = (
     <>
       {/* Заголовок */}
-      <div className="h-14 px-5 flex items-center">
+      <div className="h-14 px-5 flex items-center relative">
         <div className="flex-1 min-w-0">
           <div className="text-xs text-foreground/50 tracking-[0.15em] uppercase font-semibold truncate">
             {currentServer?.name || "Градъ"}
@@ -187,6 +187,7 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
               </button>
             )}
           </div>
+        <div className="absolute bottom-0 left-3 right-3 h-px bg-foreground/5" />
       </div>
 
       {/* Список палат */}
@@ -283,7 +284,8 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
       </div>
 
       {/* User */}
-      <div className="px-2 py-2 mt-auto">
+      <div className="relative px-2 py-2 mt-auto">
+        <div className="absolute top-0 left-3 right-3 h-px bg-foreground/5" />
         <button
           ref={userBtnRef}
           onClick={() => { navigate(AppRoutes.SETTINGS); onMobileClose?.(); }}
