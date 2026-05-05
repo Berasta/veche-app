@@ -12,6 +12,8 @@ import { pb, PB_URL } from "@shared/api/pb";
 import { fetchCurrentUser, logout } from "@entities/user/model/authSlice";
 import { useAppDispatch } from "@app/hooks";
 import { UserAvatar, type UserAvatarData } from "@shared/ui/UserAvatar";
+import { Portal } from "@shared/ui/Portal";
+import { applyShopItem, removeShopItem } from "@entities/user/model/userApi";
 
 const TABS = [
   { id: "profile", label: "Профиль", icon: User },
@@ -32,6 +34,7 @@ export function Settings() {
   const [customBannerUrl, setCustomBannerUrl] = useState<string | null>(null);
   const [bannerPosition, setBannerPosition] = useState({ x: 50, y: 50 });
   const [repositionFile, setRepositionFile] = useState<{ url: string; filename: string } | null>(null);
+  const [showFrameSelector, setShowFrameSelector] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const bannerInputRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -204,15 +207,26 @@ export function Settings() {
 
               {/* Avatar & Name */}
               <div className="relative -mt-12 flex flex-col md:flex-row items-start md:items-end gap-3 md:gap-4">
-                <div className="relative group cursor-pointer" onClick={triggerFileSelect}>
-                  {user && (
-                    <UserAvatar
-                      user={{ id: user.id, username: user.username, avatarUrl: user.avatar_url, avatarFrame: user.avatar_frame }}
-                      size="2xl"
-                    />
-                  )}
-                  <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                    <Edit2 className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" strokeWidth={2} />
+                <div className="relative group">
+                  <div onClick={() => setShowFrameSelector(true)} className="cursor-pointer">
+                    {user && (
+                      <UserAvatar
+                        user={{ id: user.id, username: user.username, avatarUrl: user.avatar_url, avatarFrame: user.avatar_frame }}
+                        size="2xl"
+                      />
+                    )}
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 flex gap-1">
+                    <button onClick={() => setShowFrameSelector(true)}
+                      className="w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm hover:bg-foreground/10 text-foreground/40 hover:text-foreground/70 flex items-center justify-center transition-colors shadow-sm border border-foreground/5"
+                      title="Выбрати оправу">
+                      <Crown className="w-3 h-3" strokeWidth={1.5} />
+                    </button>
+                    <button onClick={triggerFileSelect}
+                      className="w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm hover:bg-foreground/10 text-foreground/40 hover:text-foreground/70 flex items-center justify-center transition-colors shadow-sm border border-foreground/5"
+                      title="Замѣнити аватарку">
+                      <Edit2 className="w-3 h-3" strokeWidth={1.5} />
+                    </button>
                   </div>
                   <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
                 </div>
@@ -295,6 +309,42 @@ export function Settings() {
         </div>
       </div>
 
+      {/* Frame Selector Modal */}
+      {showFrameSelector && user && (
+        <Portal>
+          <div className="fixed inset-0 z-[150] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowFrameSelector(false)}>
+            <div className="bg-background/80 backdrop-blur-xl rounded-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <Crown className="w-4 h-4 text-foreground/30" strokeWidth={1.5} />
+                  <h3 className="text-sm font-medium text-foreground/80">Оправы для аватара</h3>
+                </div>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  <FrameOption
+                    name="Нѣтъ"
+                    active={!user.avatar_frame}
+                    onClick={async () => { await removeShopItem(user.id, "frame"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }}
+                  />
+                  {["frame_royal", "frame_violet", "frame_ruby", "frame_ancient", "frame_arcane"].map((id) => {
+                    const names: Record<string, string> = { frame_royal: "Царская", frame_violet: "Боярская", frame_ruby: "Рубиновая", frame_ancient: "Древнее сіяніе", frame_arcane: "Чародѣйскій" };
+                    const classes: Record<string, string> = { frame_royal: "ring-yellow-500", frame_violet: "ring-violet-500", frame_ruby: "ring-red-500", frame_ancient: "ring-yellow-400 animate-[glow-pulse_2s_ease-in-out_infinite]", frame_arcane: "ring-purple-500 animate-[glow-pulse_2.5s_ease-in-out_infinite]" };
+                    return (
+                      <FrameOption
+                        key={id}
+                        name={names[id]}
+                        frameClass={classes[id]}
+                        active={user.avatar_frame === id}
+                        onClick={async () => { await applyShopItem(user.id, id, "frame"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
       {/* Banner Selector Modal */}
       {repositionFile && (
         <BannerRepositionDialog
@@ -305,5 +355,18 @@ export function Settings() {
         />
       )}
     </div>
+  );
+}
+
+function FrameOption({ name, frameClass, active, onClick }: { name: string; frameClass?: string; active: boolean; onClick: () => void }) {
+  return (
+    <button onClick={onClick}
+      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all ${
+        active ? "border-primary/30 bg-primary/[0.04]" : "border-foreground/5 bg-foreground/[0.02] hover:border-foreground/10"
+      }`}
+    >
+      <div className={`w-10 h-10 rounded-full bg-foreground/5 ${frameClass || ""} ${active ? "ring-2 ring-primary/50" : ""}`} />
+      <span className="text-[10px] text-foreground/50 text-center leading-tight">{name}</span>
+    </button>
   );
 }
