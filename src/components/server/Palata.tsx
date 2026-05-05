@@ -14,6 +14,7 @@ interface Props {
   channelName: string;
   index: number;
   participantCount?: number;
+  participantAvatars?: string[];
 }
 
 export function Palata({ channelId, channelName, index, participantCount = 0 }: Props) {
@@ -66,7 +67,20 @@ export function Palata({ channelId, channelName, index, participantCount = 0 }: 
       )}
       <span className="flex-1 min-w-0 truncate">{channelName}</span>
       {participantCount > 0 && (
-        <span className="text-xs text-muted-foreground flex-shrink-0">{participantCount}</span>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <div className="flex -space-x-1.5">
+            {participantAvatars?.slice(0, 3).map((url, i) => (
+              <div key={i} className="w-4 h-4 rounded-full ring-[1.5px] ring-sidebar overflow-hidden bg-sidebar/50 flex-shrink-0">
+                {url ? (
+                  <img src={url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-muted" />
+                )}
+              </div>
+            ))}
+          </div>
+          <span className="text-xs text-muted-foreground">{participantCount}</span>
+        </div>
       )}
       {isActive && (
         <span className="text-xs text-green-500 flex-shrink-0 ml-1">●</span>

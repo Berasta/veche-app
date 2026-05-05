@@ -17,7 +17,7 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-import { pb } from "@api/pb";
+import { pb, PB_URL } from "@api/pb";
 import { fetchChannels } from "@store/slices/channelsSlice";
 import { useAppDispatch } from "@store/hooks";
 import { Portal } from "@components/ui/Portal";
@@ -54,6 +54,9 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
   const [participantCounts, setParticipantCounts] = useState<
     Record<string, number>
   >({});
+  const [participantAvatars, setParticipantAvatars] = useState<
+    Record<string, string[]>
+  >({});
   const userBtnRef = useRef<HTMLButtonElement>(null);
 
   // Fetch active participants for voice channels
@@ -72,12 +75,21 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
           .join(" || ");
         const result = await pb.collection("channel_participants").getFullList({
           filter: orFilter,
+          expand: "user_id",
         });
         const counts: Record<string, number> = {};
+        const avatars: Record<string, string[]> = {};
         for (const p of result as any[]) {
-          counts[p.channel_id] = (counts[p.channel_id] || 0) + 1;
+          const cid = p.channel_id;
+          counts[cid] = (counts[cid] || 0) + 1;
+          const user = p.expand?.user_id;
+          if (user?.avatar && user?.collectionId && user?.id) {
+            if (!avatars[cid]) avatars[cid] = [];
+            avatars[cid].push(`${PB_URL}/api/files/${user.collectionId}/${user.id}/${user.avatar}`);
+          }
         }
         setParticipantCounts(counts);
+        setParticipantAvatars(avatars);
       } catch (err) {
         console.error("Ошибка загрузки участников голосовых палат", err);
       }
@@ -269,6 +281,7 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
                       channelId={palata.id}
                       channelName={palata.name}
                       participantCount={participantCounts[palata.id] || 0}
+                      participantAvatars={participantAvatars[palata.id]}
                     />
                     {canManageChannels && (
                       <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-0.5 bg-sidebar/90 rounded-md p-0.5">
