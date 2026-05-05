@@ -59,8 +59,8 @@ export const ServerPage = () => {
       {serverId && !isMobile && (
         <ServerMembers
           serverId={serverId}
-          isOpen={true}
-          onClose={() => {}}
+          isOpen={showMembers}
+          onClose={() => setShowMembers(false)}
         />
       )}
     </div>
