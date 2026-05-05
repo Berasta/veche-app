@@ -54,14 +54,22 @@ export function UserAvatar({ user, size = "md", showName, isSpeaking, onClick, c
         {speaking && (
           <span className={`absolute inset-0 rounded-full animate-ping bg-primary/20 ${s.dim}`} />
         )}
-        <div className={`w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-foreground/5 ${frameClass} ${s.text} font-bold text-foreground/40 ${speaking ? "ring-2 ring-primary ring-offset-1 ring-offset-background" : ""}`}>
+        {/* Avatar image */}
+        <div className={`w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-foreground/5 ${s.text} font-bold text-foreground/40`}>
           {user.avatarUrl ? (
             <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
           ) : (
             <Crown className={s.icon} strokeWidth={1.5} />
           )}
         </div>
-
+        {/* Frame overlay on top of avatar */}
+        {frameClass && (
+          <div className={`absolute inset-0 rounded-full pointer-events-none ${frameClass}`} />
+        )}
+        {/* Speaking ring (on top of frame) */}
+        {speaking && (
+          <div className="absolute inset-0 rounded-full ring-2 ring-primary ring-offset-1 ring-offset-background pointer-events-none" />
+        )}
         {/* Status dots */}
         {user.isDeafened && (
           <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-orange-500 ring-[1.5px] ring-background" />
