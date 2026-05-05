@@ -34,17 +34,42 @@
   50% { background-position: 100% 50%; opacity: 1; }
 }
 
-@keyframes rainbow-ring {
-  0% { box-shadow: 0 0 0 2px #ef4444, 0 0 8px #ef4444; }
-  17% { box-shadow: 0 0 0 2px #f97316, 0 0 8px #f97316; }
-  33% { box-shadow: 0 0 0 2px #eab308, 0 0 8px #eab308; }
-  50% { box-shadow: 0 0 0 2px #22c55e, 0 0 8px #22c55e; }
-  67% { box-shadow: 0 0 0 2px #3b82f6, 0 0 8px #3b82f6; }
-  83% { box-shadow: 0 0 0 2px #a855f7, 0 0 8px #a855f7; }
-  100% { box-shadow: 0 0 0 2px #ef4444, 0 0 8px #ef4444; }
+@keyframes frame-ancient {
+  0%, 100% { box-shadow: 0 0 6px rgba(234,179,8,0.6), 0 0 0 2px rgba(234,179,8,0.8); }
+  50% { box-shadow: 0 0 18px rgba(234,179,8,0.9), 0 0 0 2px rgba(234,179,8,1); }
 }
 
-@keyframes shadow-fade {
-  0%, 100% { box-shadow: 0 0 0 2px rgba(255,255,255,0.05), 0 0 4px rgba(255,255,255,0.05); }
-  50% { box-shadow: 0 0 0 2px rgba(255,255,255,0.2), 0 0 12px rgba(255,255,255,0.15); }
+@keyframes frame-arcane {
+  0%, 100% { box-shadow: 0 0 6px rgba(168,85,247,0.6), 0 0 0 2px rgba(168,85,247,0.8); }
+  50% { box-shadow: 0 0 20px rgba(168,85,247,0.9), 0 0 0 2px rgba(168,85,247,1); }
+}
+
+@keyframes frame-rainbow {
+  0% { box-shadow: 0 0 8px #ef4444, 0 0 0 2px #ef4444; }
+  17% { box-shadow: 0 0 8px #f97316, 0 0 0 2px #f97316; }
+  33% { box-shadow: 0 0 8px #eab308, 0 0 0 2px #eab308; }
+  50% { box-shadow: 0 0 8px #22c55e, 0 0 0 2px #22c55e; }
+  67% { box-shadow: 0 0 8px #3b82f6, 0 0 0 2px #3b82f6; }
+  83% { box-shadow: 0 0 8px #a855f7, 0 0 0 2px #a855f7; }
+  100% { box-shadow: 0 0 8px #ef4444, 0 0 0 2px #ef4444; }
+}
+
+@keyframes frame-neon {
+  0%, 100% { box-shadow: 0 0 6px rgba(34,211,238,0.5), 0 0 0 2px rgba(34,211,238,0.9); }
+  50% { box-shadow: 0 0 24px rgba(34,211,238,0.9), 0 0 0 3px rgba(34,211,238,1); }
+}
+
+@keyframes frame-fire {
+  0%, 100% { box-shadow: 0 0 6px rgba(249,115,22,0.5), 0 0 0 2px rgba(249,115,22,0.8); }
+  50% { box-shadow: 0 0 16px rgba(249,115,22,1), 0 0 0 2px rgba(249,115,22,1); }
+}
+
+@keyframes frame-ice {
+  0%, 100% { box-shadow: 0 0 6px rgba(56,189,248,0.5), 0 0 0 2px rgba(56,189,248,0.8); }
+  50% { box-shadow: 0 0 20px rgba(56,189,248,0.9), 0 0 0 3px rgba(56,189,248,1); }
+}
+
+@keyframes frame-shadow {
+  0%, 100% { box-shadow: 0 0 4px rgba(255,255,255,0.05), 0 0 0 2px rgba(255,255,255,0.05); }
+  50% { box-shadow: 0 0 16px rgba(255,255,255,0.15), 0 0 0 2px rgba(255,255,255,0.2); }
 }

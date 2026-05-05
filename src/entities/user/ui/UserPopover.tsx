@@ -33,13 +33,13 @@ const FRAME_CLASSES: Record<string, string> = {
   frame_royal: "ring-2 ring-yellow-500",
   frame_violet: "ring-2 ring-violet-500",
   frame_ruby: "ring-2 ring-red-500",
-  frame_ancient: "ring-2 ring-yellow-400",
-  frame_arcane: "ring-2 ring-purple-500",
-  frame_rainbow: "ring-2 ring-pink-400",
-  frame_neon: "ring-[3px] ring-cyan-400",
-  frame_fire: "ring-2 ring-orange-500",
-  frame_ice: "ring-[3px] ring-sky-400",
-  frame_shadow: "ring-2 ring-white/20",
+  frame_ancient: "ring-2 ring-transparent animate-[frame-ancient_2s_ease-in-out_infinite]",
+  frame_arcane: "ring-2 ring-transparent animate-[frame-arcane_2.5s_ease-in-out_infinite]",
+  frame_rainbow: "ring-2 ring-transparent animate-[frame-rainbow_3s_linear_infinite]",
+  frame_neon: "ring-2 ring-transparent animate-[frame-neon_1.5s_ease-in-out_infinite]",
+  frame_fire: "ring-2 ring-transparent animate-[frame-fire_1s_ease-in-out_infinite]",
+  frame_ice: "ring-2 ring-transparent animate-[frame-ice_3s_ease-in-out_infinite]",
+  frame_shadow: "ring-2 ring-transparent animate-[frame-shadow_2s_ease-in-out_infinite]",
 };
 
 export function getFrameClass(frame: string): string {
