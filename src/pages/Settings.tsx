@@ -216,19 +216,13 @@ export function Settings() {
                       />
                     )}
                   </div>
-                  <div className="absolute -bottom-1 -right-1 flex gap-1">
+                  <div className="absolute -bottom-1 -right-1">
                     <button onClick={() => setShowFrameSelector(true)}
                       className="w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm hover:bg-foreground/10 text-foreground/40 hover:text-foreground/70 flex items-center justify-center transition-colors shadow-sm border border-foreground/5"
-                      title="Выбрати оправу">
-                      <Crown className="w-3 h-3" strokeWidth={1.5} />
-                    </button>
-                    <button onClick={triggerFileSelect}
-                      className="w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm hover:bg-foreground/10 text-foreground/40 hover:text-foreground/70 flex items-center justify-center transition-colors shadow-sm border border-foreground/5"
-                      title="Замѣнити аватарку">
+                      title="Измѣнити аватарку или оправу">
                       <Edit2 className="w-3 h-3" strokeWidth={1.5} />
                     </button>
                   </div>
-                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
                 </div>
 
                 <div className="flex-1 pb-2 min-w-0 w-full md:w-auto">
@@ -309,35 +303,37 @@ export function Settings() {
         </div>
       </div>
 
-      {/* Frame Selector Modal */}
+      {/* Avatar & Frame Modal */}
       {showFrameSelector && user && (
         <Portal>
           <div className="fixed inset-0 z-[150] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowFrameSelector(false)}>
-            <div className="bg-background/80 backdrop-blur-xl rounded-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <Crown className="w-4 h-4 text-foreground/30" strokeWidth={1.5} />
-                  <h3 className="text-sm font-medium text-foreground/80">Оправы для аватара</h3>
+            <div className="bg-background/80 backdrop-blur-xl rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="p-5 space-y-5">
+                {/* Avatar preview */}
+                <div className="flex flex-col items-center gap-3">
+                  <UserAvatar user={{ id: user.id, username: user.username, avatarUrl: user.avatar_url, avatarFrame: user.avatar_frame }} size="2xl" />
+                  <span className="text-sm text-foreground/60">{user.username}</span>
+                  <button onClick={() => { fileInputRef.current?.click(); setShowFrameSelector(false); }}
+                    className="px-4 py-2 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground/60 hover:text-foreground text-sm font-medium transition-colors">
+                    Загрузити аватарку
+                  </button>
+                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
                 </div>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                  <FrameOption
-                    name="Нѣтъ"
-                    active={!user.avatar_frame}
-                    onClick={async () => { await removeShopItem(user.id, "frame"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }}
-                  />
-                  {["frame_royal", "frame_violet", "frame_ruby", "frame_ancient", "frame_arcane"].map((id) => {
-                    const names: Record<string, string> = { frame_royal: "Царская", frame_violet: "Боярская", frame_ruby: "Рубиновая", frame_ancient: "Древнее сіяніе", frame_arcane: "Чародѣйскій" };
-                    const classes: Record<string, string> = { frame_royal: "ring-yellow-500", frame_violet: "ring-violet-500", frame_ruby: "ring-red-500", frame_ancient: "ring-yellow-400 animate-[glow-pulse_2s_ease-in-out_infinite]", frame_arcane: "ring-purple-500 animate-[glow-pulse_2.5s_ease-in-out_infinite]" };
-                    return (
-                      <FrameOption
-                        key={id}
-                        name={names[id]}
-                        frameClass={classes[id]}
-                        active={user.avatar_frame === id}
-                        onClick={async () => { await applyShopItem(user.id, id, "frame"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }}
-                      />
-                    );
-                  })}
+
+                {/* Frame selection */}
+                <div>
+                  <p className="text-[10px] font-semibold text-foreground/30 uppercase tracking-widest mb-2">Оправы</p>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    <FrameOption name="" empty active={!user.avatar_frame} onClick={async () => { await removeShopItem(user.id, "frame"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }} />
+                    {["frame_royal", "frame_violet", "frame_ruby", "frame_ancient", "frame_arcane"].map((id) => {
+                      const labels: Record<string, string> = { frame_royal: "Царская", frame_violet: "Боярская", frame_ruby: "Рубиновая", frame_ancient: "Древнее сіяніе", frame_arcane: "Чародѣйскій" };
+                      const rings: Record<string, string> = { frame_royal: "ring-yellow-500", frame_violet: "ring-violet-500", frame_ruby: "ring-red-500", frame_ancient: "ring-yellow-400 animate-[glow-pulse_2s_ease-in-out_infinite]", frame_arcane: "ring-purple-500 animate-[glow-pulse_2.5s_ease-in-out_infinite]" };
+                      return (
+                        <FrameOption key={id} name={labels[id]} frameClass={rings[id]} active={user.avatar_frame === id}
+                          onClick={async () => { await applyShopItem(user.id, id, "frame"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }} />
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
@@ -358,15 +354,21 @@ export function Settings() {
   );
 }
 
-function FrameOption({ name, frameClass, active, onClick }: { name: string; frameClass?: string; active: boolean; onClick: () => void }) {
+function FrameOption({ name, frameClass, active, empty, onClick }: { name: string; frameClass?: string; active: boolean; empty?: boolean; onClick: () => void }) {
   return (
     <button onClick={onClick}
       className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all ${
         active ? "border-primary/30 bg-primary/[0.04]" : "border-foreground/5 bg-foreground/[0.02] hover:border-foreground/10"
       }`}
     >
-      <div className={`w-10 h-10 rounded-full bg-foreground/5 ${frameClass || ""} ${active ? "ring-2 ring-primary/50" : ""}`} />
-      <span className="text-[10px] text-foreground/50 text-center leading-tight">{name}</span>
+      {empty ? (
+        <div className={`w-10 h-10 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/30 ${active ? "ring-2 ring-primary/50" : ""}`}>
+          <X className="w-4 h-4" strokeWidth={1.5} />
+        </div>
+      ) : (
+        <div className={`w-10 h-10 rounded-full bg-foreground/5 ${frameClass || ""} ${active ? "ring-2 ring-primary/50" : ""}`} />
+      )}
+      <span className="text-[10px] text-foreground/50 text-center leading-tight">{name || "Нѣтъ"}</span>
     </button>
   );
 }
