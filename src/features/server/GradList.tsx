@@ -221,7 +221,6 @@ export function GradList() {
           onClose={() => setShowCreateServer(false)}
         />
       )}
-      )}
 
       {/* SIDEBAR */}
       <div className="flex-shrink-0 bg-background/60 backdrop-blur-xl relative">
