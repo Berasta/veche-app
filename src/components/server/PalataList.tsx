@@ -411,7 +411,7 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
   // desktop without serverId — render inline + modals
 
   return (
-    <div className="h-full w-60 bg-card/50 backdrop-blur-xl flex flex-col border-r border-border relative z-10">
+    <div className="h-full w-60 bg-background/60 backdrop-blur-xl flex flex-col">
       {content}
       {modals}
     </div>
