@@ -1,6 +1,6 @@
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "motion/react";
-import { Portal } from "../ui/Portal";
+import { Portal } from "@shared/ui/Portal";
 import { useEffect, useState } from "react";
 
 interface ImageViewerProps {

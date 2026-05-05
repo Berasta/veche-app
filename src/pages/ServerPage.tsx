@@ -4,8 +4,8 @@ import { fetchServerMembers, selectServerMembersLoaded } from "@store/slices/mem
 import { Loader2 } from "lucide-react";
 import { useParams, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
-import { GramotaArea } from "@components/server/GramotaArea";
-import { ServerMembers } from "@components/server/ServerMembers";
+import { GramotaArea } from "@features/server/GramotaArea";
+import { ServerMembers } from "@features/server/ServerMembers";
 import { useIsMobile } from "@components/ui/use-mobile";
 
 export const ServerPage = () => {

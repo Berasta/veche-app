@@ -2,7 +2,7 @@ import { Mail, Lock, Eye, EyeOff, User } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "@store/slices/authSlice";
-import type { RootState, AppDispatch } from "../store";
+import type { RootState, AppDispatch } from "@app/store";
 import { useNavigate, useSearchParams } from "react-router";
 import { AppRoutes } from "@routes/routes";
 import { translatePbError } from "@api/pbErrors";

@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Volume2, User, ArrowLeft, MicOff, Monitor, Clock } from "lucide-react";
 import { ScreenShareModal, type ShareOptions } from "./ScreenShareModal";
-import { PageHeader } from "../ui/PageHeader";
-import { IconButton } from "../ui/IconButton";
+import { PageHeader } from "@shared/ui/PageHeader";
+import { IconButton } from "@shared/ui/IconButton";
 import { ScreenShareDisplay } from "./ScreenShareDisplay";
 import { VoiceControls } from "./VoiceControls";
 import { useNavigate, useParams } from "react-router";

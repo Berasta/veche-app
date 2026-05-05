@@ -1,7 +1,7 @@
 // src/store/slices/messagesSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RecordSubscription } from "pocketbase";
-import { pb, PB_URL } from "../../api/pb";
+import { pb, PB_URL } from "@shared/api/pb";
 
 export interface Message {
   id: string;

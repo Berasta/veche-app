@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { ScrollText, Users, MessageSquare } from "lucide-react";
-import { groupMessages } from "../../utils/groupMessages";
-import { formatMessageTime } from "../../utils/formatTime";
-import { GramotaInput, type GramotaInputHandle } from "../GramotaInput";
-import { PageHeader } from "../ui/PageHeader";
-import { IconButton } from "../ui/IconButton";
-import { MessageList } from "../message/MessageList";
-import { GramotaMessage } from "../message/GramotaMessage";
-import { TypingIndicator } from "../message/TypingIndicator";
-import { MessageSkeleton } from "../ui/Skeleton";
-import type { ReactionGroup } from "../message/ReactionsBar";
+import { groupMessages } from "@shared/lib/groupMessages";
+import { formatMessageTime } from "@shared/lib/formatTime";
+import { GramotaInput, type GramotaInputHandle } from "@features/send-message/GramotaInput";
+import { PageHeader } from "@shared/ui/PageHeader";
+import { IconButton } from "@shared/ui/IconButton";
+import { MessageList } from "@entities/message/MessageList";
+import { GramotaMessage } from "@entities/message/GramotaMessage";
+import { TypingIndicator } from "@entities/message/TypingIndicator";
+import { MessageSkeleton } from "@shared/ui/Skeleton";
+import type { ReactionGroup } from "@entities/message/ReactionsBar";
 import { useAppDispatch, useAppSelector } from "@store/hooks";
 import {
   fetchMessages,

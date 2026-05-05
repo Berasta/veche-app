@@ -1,5 +1,5 @@
 // src/features/room/roomSelectors.ts
-import { RootState } from "../../store";
+import { RootState } from "@app/store";
 
 export const selectConnected = (s: RootState) => s.room.connected;
 export const selectConnecting = (s: RootState) => s.room.connecting;

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { pb, PB_URL } from "../../api/pb";
-import { getRoleMap } from "../../api/rolesApi";
+import { pb, PB_URL } from "@shared/api/pb";
+import { getRoleMap } from "@shared/api/rolesApi";
 
 export interface MemberData {
   id: string;

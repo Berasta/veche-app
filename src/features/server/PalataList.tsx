@@ -5,7 +5,7 @@ import { Palata } from "./Palata";
 import { TextPalata } from "./TextPalata";
 import { useAuth } from "@store/hooks/useAuth";
 import { AppRoutes } from "@routes/routes";
-import { usePermissions } from "../../hooks/usePermissions";
+import { usePermissions } from "@shared/hooks/usePermissions";
 import { PERMISSIONS } from "@api/rolesApi";
 import { toast } from "sonner";
 import {

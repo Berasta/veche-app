@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { EmojiPicker } from "../ui/EmojiPicker";
+import { EmojiPicker } from "@shared/ui/EmojiPicker";
 
 export interface ReactionGroup {
   emoji: string;
