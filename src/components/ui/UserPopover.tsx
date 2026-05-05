@@ -179,11 +179,8 @@ function BannerModalSection({
 function RoleBadge({ role, color }: { role: string; color?: string }) {
   return (
     <div className="flex items-center gap-2">
-      <div
-        className="w-2 h-2 rounded-full flex-shrink-0"
-        style={{ backgroundColor: color || "#888" }}
-      />
-      <span className="text-sm font-medium text-foreground">{role}</span>
+      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color || "#888" }} />
+      <span className="text-sm text-foreground/60">{role}</span>
     </div>
   );
 }
@@ -196,12 +193,8 @@ function JoinedDate({ joinedAt }: { joinedAt: string }) {
   });
   return (
     <div className="flex items-center gap-1.5">
-      <Calendar
-        size={11}
-        className="text-muted-foreground/50 flex-shrink-0"
-        strokeWidth={1.5}
-      />
-      <p className="text-sm text-muted-foreground/70">{formatted}</p>
+      <Calendar size={11} className="text-foreground/30 flex-shrink-0" strokeWidth={1.5} />
+      <p className="text-sm text-foreground/40">{formatted}</p>
     </div>
   );
 }
@@ -312,11 +305,11 @@ export function UserPopover({
             ref={popoverRef}
             onMouseEnter={keepOpen}
             onMouseLeave={close}
-            className="fixed z-[100] w-64 bg-card border border-border/50 rounded-2xl shadow-2xl shadow-black/20 backdrop-blur-xl"
+            className="fixed z-[100] w-64 bg-foreground/[0.02] backdrop-blur-xl rounded-2xl"
             style={{ top: popoverPos.top, left: popoverPos.left }}
           >
             <BannerSection bannerUrl={bannerUrl} bannerPos={bannerPos}>
-              <div className="absolute inset-0 flex items-center  gap-2 p-3">
+              <div className="absolute inset-0 flex items-center gap-2 p-3">
                 <AvatarCircle
                   avatarUrl={avatarUrl}
                   username={username}
@@ -328,13 +321,13 @@ export function UserPopover({
 
             <div className="px-4 pt-3 pb-2 space-y-2">
               <div>
-                <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest mb-1.5">
+                <p className="text-[10px] font-semibold text-foreground/30 uppercase tracking-widest mb-1.5">
                   Чины
                 </p>
                 {role ? (
                   <RoleBadge role={role} color={roleColor} />
                 ) : (
-                  <p className="text-sm text-muted-foreground/50">Нѣтъ чина</p>
+                  <p className="text-sm text-foreground/30">Нѣтъ чина</p>
                 )}
               </div>
               {joinedAt && <JoinedDate joinedAt={joinedAt} />}
@@ -351,7 +344,7 @@ export function UserPopover({
             onClick={() => setShowModal(false)}
           >
             <div
-              className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-sm"
+              className="bg-foreground/[0.02] backdrop-blur-xl rounded-2xl w-full max-w-sm"
               onClick={(e) => e.stopPropagation()}
             >
               <BannerModalSection
@@ -372,7 +365,7 @@ export function UserPopover({
               <div className="px-5 pb-5 pt-4 space-y-2">
                 {role && <RoleBadge role={role} color={roleColor} />}
                 {joinedAt && (
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
+                  <div className="flex items-center gap-1.5 text-xs text-foreground/40">
                     <Calendar size={12} strokeWidth={1.5} />
                     <span>
                       На серверѣ съ{" "}
