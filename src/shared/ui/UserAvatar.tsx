@@ -75,7 +75,7 @@ export function UserAvatar({ user, size = "md", showName, isSpeaking, onClick, c
           className={`truncate ${s.text} font-medium ${
             speaking ? "text-foreground/80" : "text-foreground/50"
           }`}
-          style={speaking && user.roleColor ? { color: user.roleColor } : undefined}
+          style={user.roleColor ? { color: user.roleColor } : undefined}
         >
           {user.username}
         </span>
