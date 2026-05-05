@@ -28,8 +28,9 @@ import {
   selectHasMore,
 } from "@store/selectors/messagesSelectors";
 import { fetchReactions, addReaction, removeReaction } from "@api/reactionApi";
-import { getRoleMap } from "@api/rolesApi";
 import { pb } from "@api/pb";
+import { useAppDispatch } from "@store/hooks";
+import { fetchServerMembers, selectServerMembers } from "@store/slices/membersSlice";
 import { useAuth } from "@store/hooks/useAuth";
 import { useTypingBroadcast } from "@hooks/useTyping";
 interface GramotaAreaProps {
@@ -125,28 +126,21 @@ export function GramotaArea({
 
   useEffect(() => {
     if (!serverId) return;
-    Promise.all([
-      getRoleMap(serverId),
-      pb
-        .collection("server_members")
-        .getFullList(
-          { filter: `server_id = "${serverId}"` },
-          { $autoCancel: false },
-        ),
-    ])
-      .then(([roles, members]) => {
-        setRoleMap(roles);
-        const map: Record<string, string> = {};
-        (members as any[]).forEach((entry: any) => {
-          map[entry.user_id] = entry.created;
-        });
-        setJoinedAtMap(map);
-      })
-      .catch((err) => {
-        console.error("Ошибка загрузки ролей/участников града", err);
-        toast.error("Не удалось загрузить людей града");
-      });
-  }, [serverId]);
+    dispatch(fetchServerMembers(serverId));
+  }, [serverId, dispatch]);
+
+  const serverMembers = useAppSelector((state) => serverId ? selectServerMembers(serverId)(state) : []);
+
+  useEffect(() => {
+    const map: Record<string, { name: string; color: string }> = {};
+    const jMap: Record<string, string> = {};
+    for (const m of serverMembers) {
+      if (m.role) map[m.userId] = { name: m.role, color: m.roleColor || "#888" };
+      if (m.joinedAt) jMap[m.userId] = m.joinedAt;
+    }
+    setRoleMap(map);
+    setJoinedAtMap(jMap);
+  }, [serverMembers]);
 
   const buildReactionMap = useCallback(
     async (chId: string) => {

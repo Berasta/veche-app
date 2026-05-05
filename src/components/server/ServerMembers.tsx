@@ -1,14 +1,13 @@
-import { useEffect, useState, useRef, useMemo } from "react";
-import { toast } from "sonner";
-import { X, Users, User, Circle } from "lucide-react";
+import { useEffect, useRef, useMemo } from "react";
+import { X, Users, User } from "lucide-react";
 import { UserPopover } from "@components/ui/UserPopover";
 import { MembersSkeleton } from "@components/ui/Skeleton";
-import { getRoleMap } from "@api/rolesApi";
-import { pb, PB_URL } from "@api/pb";
 import { useAppSelector, useAppDispatch } from "@store/hooks";
 import { useIsMobile } from "@components/ui/use-mobile";
 import { selectVolumes } from "@store/selectors/roomSelectors";
 import { setParticipantVolume } from "@store/thunks/roomThunk";
+import { fetchServerMembers, selectServerMembers, selectServerMembersLoaded } from "@store/slices/membersSlice";
+import type { MemberData } from "@store/slices/membersSlice";
 
 interface ServerMembersProps {
   serverId: string;
@@ -28,10 +27,10 @@ interface Member {
 function MembersPanel({
   members, loading, roleMap, groupedMembers, onClose, showHeader = true, volumes = {}, onVolumeChange,
 }: {
-  members: Member[];
+  members: MemberData[];
   loading: boolean;
   roleMap: Record<string, { name: string; color: string }>;
-  groupedMembers: { roleName: string; roleColor?: string; members: Member[] }[];
+  groupedMembers: { roleName: string; roleColor?: string; members: MemberData[] }[];
   onClose: () => void;
   showHeader?: boolean;
   volumes?: Record<string, number>;
@@ -64,15 +63,15 @@ function MembersPanel({
                 </div>
                 <div className="space-y-0.5">
                   {group.members.map((member) => (
-                    <div key={member.id} className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-foreground/[0.03] transition-colors">
-                      <UserPopover username={member.username} avatarUrl={member.avatarUrl} bannerId={member.banner} userId={member.id} role={roleMap[member.id]?.name} roleColor={roleMap[member.id]?.color} joinedAt={member.joinedAt} volume={volumes[member.id]} onVolumeChange={(v) => onVolumeChange?.(member.id, v)}>
+                    <div key={member.userId} className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-foreground/[0.03] transition-colors">
+                      <UserPopover username={member.username} avatarUrl={member.avatarUrl} bannerId={member.banner} userId={member.userId} role={member.role} roleColor={member.roleColor} joinedAt={member.joinedAt} volume={volumes[member.userId]} onVolumeChange={(v) => onVolumeChange?.(member.userId, v)}>
                         <div className="w-7 h-7 flex-shrink-0">
                           <div className="w-full h-full rounded-full overflow-hidden bg-foreground/5 flex items-center justify-center cursor-pointer">
                             {member.avatarUrl ? <img src={member.avatarUrl} alt="" className="w-full h-full object-cover" /> : <User className="w-3.5 h-3.5 text-foreground/30" strokeWidth={1.5} />}
                           </div>
                         </div>
                       </UserPopover>
-                      <span className="text-sm truncate text-foreground/60" style={roleMap[member.id]?.color ? { color: roleMap[member.id].color } : {}}>{member.username}</span>
+                      <span className="text-sm truncate text-foreground/60" style={member.roleColor ? { color: member.roleColor } : {}}>{member.username}</span>
                     </div>
                   ))}
                 </div>
@@ -86,97 +85,27 @@ function MembersPanel({
 }
 
 function useMembers(serverId: string) {
-  const [members, setMembers] = useState<Member[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [roleMap, setRoleMap] = useState<Record<string, { name: string; color: string }>>({});
-  // Загрузка участников сервера (только при смене сервера)
+  const dispatch = useAppDispatch();
+  const members = useAppSelector(selectServerMembers(serverId));
+  const loaded = useAppSelector(selectServerMembersLoaded(serverId));
+
   useEffect(() => {
-    setLoading(true);
-    getRoleMap(serverId).then(setRoleMap).catch((err) => {
-      console.error("Ошибка загрузки ролей", err);
-      toast.error("Не удалось загрузить роли града");
-    });
-    (async () => {
-      try {
-        const seen = new Set<string>();
-        const result: Member[] = [];
+    if (!loaded) dispatch(fetchServerMembers(serverId));
+  }, [serverId, loaded, dispatch]);
 
-        const sm = await pb.collection("server_members").getFullList({
-          filter: `server_id = "${serverId}"`,
-          expand: "user_id",
-        });
-        for (const entry of sm as any[]) {
-          const user = entry.expand?.user_id;
-          if (!user || seen.has(user.id)) continue;
-          seen.add(user.id);
-          result.push({
-            id: user.id,
-            username: user.username || user.email || "Пользователь",
-            avatarUrl: user.avatar ? `${PB_URL}/api/files/${user.collectionId}/${user.id}/${user.avatar}` : null,
-            banner: user.banner || undefined,
-            joinedAt: entry.created || undefined,
-          });
-        }
-
-        try {
-          const serverRecord = await pb.collection("servers").getOne(serverId);
-          const ownerId = (serverRecord as any).owner_id;
-          if (ownerId && !seen.has(ownerId)) {
-            try {
-              const ownerUser = await pb.collection("users").getOne(ownerId);
-              seen.add(ownerId);
-              result.push({
-                id: ownerId,
-                username: (ownerUser as any).username || (ownerUser as any).email || "Владыка",
-                avatarUrl: (ownerUser as any).avatar ? `${PB_URL}/api/files/${(ownerUser as any).collectionId}/${ownerId}/${(ownerUser as any).avatar}` : null,
-                banner: (ownerUser as any).banner || undefined,
-                joinedAt: undefined,
-              });
-            } catch (err) {
-              console.error("Ошибка загрузки владыки града", err);
-            }
-          }
-        } catch (err) {
-          console.error("Ошибка загрузки града", err);
-          toast.error("Не удалось загрузить свѣдѣнiя о градѣ");
-        }
-
-        const channels = await pb.collection("channels").getFullList({ filter: `server_id = "${serverId}"` });
-        const channelIds = channels.map((c: any) => c.id);
-        if (channelIds.length > 0) {
-          const orFilters = channelIds.map((id) => `channel_id = "${id}"`).join(" || ");
-          const messages = await pb.collection("messages").getList(1, 200, {
-            filter: `(${orFilters}) && is_deleted = false`,
-            sort: "-created",
-            expand: "user_id",
-          });
-          for (const msg of messages.items as any[]) {
-            const user = msg.expand?.user_id;
-            if (!user || seen.has(user.id)) continue;
-            seen.add(user.id);
-            result.push({
-              id: user.id,
-              username: user.username || user.email || "Пользователь",
-              avatarUrl: user.avatar ? `${PB_URL}/api/files/${user.collectionId}/${user.id}/${user.avatar}` : null,
-            });
-          }
-        }
-
-        setMembers(result);
-      } catch (err) {
-        console.error("Ошибка загрузки людей града", err);
-        setMembers([]);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [serverId]);
+  const roleMap = useMemo(() => {
+    const map: Record<string, { name: string; color: string }> = {};
+    for (const m of members) {
+      if (m.role) map[m.userId] = { name: m.role, color: m.roleColor || "#888" };
+    }
+    return map;
+  }, [members]);
 
   const groupedMembers = useMemo(() => {
-    const groups: { roleName: string; roleColor?: string; members: Member[] }[] = [];
+    const groups: { roleName: string; roleColor?: string; members: MemberData[] }[] = [];
     const roleOrder: Record<string, number> = {};
     for (const member of members) {
-      const r = roleMap[member.id];
+      const r = roleMap[member.userId];
       const key = r?.name || "__none__";
       if (!(key in roleOrder)) {
         roleOrder[key] = groups.length;
@@ -192,7 +121,7 @@ function useMembers(serverId: string) {
     return groups;
   }, [members, roleMap]);
 
-  return { members, loading, roleMap, groupedMembers };
+  return { members, loading: !loaded, roleMap, groupedMembers };
 }
 
 function ServerMembersContent({ serverId, onClose, showHeader }: { serverId: string; onClose: () => void; showHeader?: boolean }) {
