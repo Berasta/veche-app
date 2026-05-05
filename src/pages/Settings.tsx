@@ -378,9 +378,11 @@ function FrameOption({ name, frameClass, active, empty, onClick }: { name: strin
           <X className="w-4 h-4" strokeWidth={1.5} />
         </div>
       ) : (
-        <div className={`w-12 h-12 rounded-full ${frameClass || "bg-foreground/5"} flex items-center justify-center ${active ? "ring-2 ring-primary/50" : ""}`}>
-          <div className="w-8 h-8 rounded-full bg-background/80 flex items-center justify-center text-xs font-bold text-foreground/20">
-            {name?.slice(0, 2)}
+        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${active ? "ring-2 ring-primary/50" : ""}`}>
+          <div className={`w-full h-full rounded-full ${frameClass || "bg-foreground/5"} flex items-center justify-center`}>
+            <div className="w-7 h-7 rounded-full bg-background flex items-center justify-center text-[10px] font-bold text-foreground/30">
+              {name?.slice(0, 2)}
+            </div>
           </div>
         </div>
       )}
