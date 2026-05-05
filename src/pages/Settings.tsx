@@ -325,12 +325,12 @@ export function Settings() {
                   <p className="text-[10px] font-semibold text-foreground/30 uppercase tracking-widest mb-2">Оправы</p>
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     <FrameOption name="" empty active={!user.avatar_frame} onClick={async () => { await removeShopItem(user.id, "frame"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }} />
-                    {["frame_royal", "frame_violet", "frame_ruby", "frame_ancient", "frame_arcane", "frame_rainbow", "frame_neon", "frame_fire", "frame_ice", "frame_shadow", "frame_shine", "frame_aura", "frame_holo", "frame_pulsar", "frame_matrix", "frame_stardust", "frame_arc"].map((id) => {
+                    {["frame_royal", "frame_violet", "frame_ruby", "frame_ancient", "frame_arcane", "frame_rainbow", "frame_neon", "frame_fire", "frame_ice", "frame_shadow", "frame_shine", "frame_aura", "frame_holo", "frame_pulsar", "frame_matrix", "frame_stardust", "frame_arc", "frame_storm"].map((id) => {
                       const labels: Record<string, string> = {
                         frame_royal: "Царская", frame_violet: "Боярская", frame_ruby: "Рубиновая",
                         frame_ancient: "Древнее сіяніе", frame_arcane: "Чародѣйскій",
                         frame_rainbow: "Радужная", frame_neon: "Неоновая", frame_fire: "Пламенная", frame_ice: "Ледяная", frame_shadow: "Призрачная",
-                        frame_shine: "Блестящая", frame_aura: "Аура", frame_holo: "Голографическая", frame_pulsar: "Пульсар", frame_matrix: "Матрица", frame_stardust: "Звѣздная пыль", frame_arc: "Электродуга"
+                        frame_shine: "Блестящая", frame_aura: "Аура", frame_holo: "Голографическая", frame_pulsar: "Пульсар", frame_matrix: "Матрица", frame_stardust: "Звѣздная пыль", frame_arc: "Электродуга", frame_storm: "Гроза"
                       };
                       const rings: Record<string, string> = {
                         frame_royal: "ring-2 ring-yellow-500", frame_violet: "ring-2 ring-violet-500", frame_ruby: "ring-2 ring-red-500",
@@ -347,7 +347,8 @@ export function Settings() {
                         frame_pulsar: "ring-2 ring-transparent animate-[frame-pulsar_3s_ease-in-out_infinite]",
                         frame_matrix: "ring-2 ring-transparent animate-[frame-matrix_2s_linear_infinite]",
                         frame_stardust: "ring-2 ring-transparent animate-[frame-stardust_4s_ease-in-out_infinite]",
-                        frame_arc: "ring-2 ring-transparent animate-[frame-arc_2s_linear_infinite]"
+                        frame_arc: "ring-2 ring-transparent animate-[frame-arc_2s_linear_infinite]",
+                        frame_storm: "ring-2 ring-transparent animate-[frame-storm_6s_ease-in-out_infinite]"
                       };
                       return (
                         <FrameOption key={id} name={labels[id]} frameClass={rings[id]} active={user.avatar_frame === id}

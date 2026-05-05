@@ -224,6 +224,63 @@
   }
 }
 
+/* ⛈ Storm — вспышки молний */
+@keyframes frame-storm {
+  0%, 100% { box-shadow:
+      0 0 0 2px rgba(120,120,140,0.3), 0 0 6px rgba(120,120,140,0.1),
+      inset 0 -4px 4px -2px rgba(120,120,140,0.2);
+  }
+  8% { box-shadow:
+      0 0 0 2px rgba(180,180,255,0.8), 0 0 20px rgba(180,180,255,0.5), 0 0 40px rgba(180,180,255,0.3),
+      -2px 0 3px -1px rgba(255,255,255,0.9), 3px -1px 2px -1px rgba(255,255,255,0.6),
+      inset 0 -4px 6px -2px rgba(180,180,255,0.4);
+  }
+  10% { box-shadow:
+      0 0 0 2px rgba(120,120,140,0.3), 0 0 6px rgba(120,120,140,0.1),
+      inset 0 -4px 4px -2px rgba(120,120,140,0.2);
+  }
+  15% { box-shadow:
+      0 0 0 2px rgba(120,120,140,0.3), 0 0 6px rgba(120,120,140,0.1),
+      inset 0 -4px 4px -2px rgba(120,120,140,0.2);
+  }
+  23% { box-shadow:
+      0 0 0 2px rgba(200,200,255,0.9), 0 0 30px rgba(200,200,255,0.6), 0 0 50px rgba(200,200,255,0.4),
+      4px 0 3px -1px rgba(255,255,255,0.8), -2px -2px 2px -1px rgba(255,255,255,0.7),
+      0 2px 3px -1px rgba(255,255,255,0.5), inset 0 -4px 8px -2px rgba(200,200,255,0.5);
+  }
+  25% { box-shadow:
+      0 0 0 2px rgba(120,120,140,0.3), 0 0 6px rgba(120,120,140,0.1),
+      inset 0 -4px 4px -2px rgba(120,120,140,0.2);
+  }
+  45% { box-shadow:
+      0 0 0 2px rgba(120,120,140,0.3), 0 0 6px rgba(120,120,140,0.1),
+      inset 0 -4px 4px -2px rgba(120,120,140,0.2);
+  }
+  52% { box-shadow:
+      0 0 0 2px rgba(160,160,255,0.7), 0 0 25px rgba(160,160,255,0.5), 0 0 45px rgba(160,160,255,0.3),
+      -1px -1px 3px -1px rgba(255,255,255,0.8), 2px 2px 2px -1px rgba(255,255,255,0.6),
+      inset 0 -4px 6px -2px rgba(160,160,255,0.4);
+  }
+  54% { box-shadow:
+      0 0 0 2px rgba(120,120,140,0.3), 0 0 6px rgba(120,120,140,0.1),
+      inset 0 -4px 4px -2px rgba(120,120,140,0.2);
+  }
+  70% { box-shadow:
+      0 0 0 2px rgba(120,120,140,0.3), 0 0 6px rgba(120,120,140,0.1),
+      inset 0 -4px 4px -2px rgba(120,120,140,0.2);
+  }
+  78% { box-shadow:
+      0 0 0 2px rgba(220,220,255,1), 0 0 40px rgba(220,220,255,0.7), 0 0 60px rgba(220,220,255,0.5),
+      -3px 1px 3px -1px rgba(255,255,255,0.9), 2px -2px 2px -1px rgba(255,255,255,0.7),
+      1px 2px 3px -1px rgba(255,255,255,0.6), -1px -1px 2px -1px rgba(255,255,255,0.5),
+      inset 0 -4px 8px -2px rgba(220,220,255,0.6);
+  }
+  80% { box-shadow:
+      0 0 0 2px rgba(120,120,140,0.3), 0 0 6px rgba(120,120,140,0.1),
+      inset 0 -4px 4px -2px rgba(120,120,140,0.2);
+  }
+}
+
 /* ⚡ Electric arc — дуга пробегает по кругу */
 @keyframes frame-arc {
   0% { box-shadow: 0 0 0 2px rgba(250,204,21,0.3), 0 2px 4px -1px rgba(250,204,21,0.8); }

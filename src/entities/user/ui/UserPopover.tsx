@@ -47,6 +47,7 @@ const FRAME_CLASSES: Record<string, string> = {
   frame_matrix: "ring-2 ring-transparent animate-[frame-matrix_2s_linear_infinite]",
   frame_stardust: "ring-2 ring-transparent animate-[frame-stardust_4s_ease-in-out_infinite]",
   frame_arc: "ring-2 ring-transparent animate-[frame-arc_2s_linear_infinite]",
+  frame_storm: "ring-2 ring-transparent animate-[frame-storm_6s_ease-in-out_infinite]",
 };
 
 export function getFrameClass(frame: string): string {
