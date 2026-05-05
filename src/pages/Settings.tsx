@@ -38,6 +38,9 @@ export function Settings() {
   const [localAccessory, setLocalAccessory] = useState<string | undefined>(() => {
     try { return localStorage.getItem("avatarAccessory") || undefined; } catch { return undefined; }
   });
+  const [localBannerSkin, setLocalBannerSkin] = useState<string | undefined>(() => {
+    try { return localStorage.getItem("bannerSkin") || undefined; } catch { return undefined; }
+  });
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const bannerInputRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -356,6 +359,45 @@ export function Settings() {
                       return (
                         <FrameOption key={id} name={labels[id]} frameClass={rings[id]} active={user.avatar_frame === id}
                           onClick={async () => { await applyShopItem(user.id, id, "frame"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }} />
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Banner skins */}
+                <div>
+                  <p className="text-[10px] font-semibold text-foreground/30 uppercase tracking-widest mb-2">Скины хоругви</p>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    <FrameOption name="" empty active={!(user.banner_skin || localBannerSkin)} onClick={async () => {
+                      await removeShopItem(user.id, "banner");
+                      localStorage.removeItem("bannerSkin");
+                      setLocalBannerSkin(undefined);
+                      dispatch(fetchCurrentUser());
+                      setShowFrameSelector(false);
+                    }} />
+                    {["banner_golden", "banner_crimson", "banner_azure", "banner_emerald", "banner_aurora", "banner_inferno"].map((id) => {
+                      const bsLabels: Record<string, string> = {
+                        banner_golden: "Златая", banner_crimson: "Червлёная", banner_azure: "Лазурная",
+                        banner_emerald: "Изумрудная", banner_aurora: "Сѣверное сіяніе", banner_inferno: "Адское пламя"
+                      };
+                      const bsPreviews: Record<string, string> = {
+                        banner_golden: "bg-gradient-to-r from-yellow-400/80 via-amber-500/80 to-orange-600/80",
+                        banner_crimson: "bg-gradient-to-r from-red-600/80 via-rose-700/80 to-purple-800/80",
+                        banner_azure: "bg-gradient-to-r from-blue-500/80 via-cyan-600/80 to-teal-700/80",
+                        banner_emerald: "bg-gradient-to-r from-emerald-500/80 via-green-600/80 to-teal-800/80",
+                        banner_aurora: "bg-gradient-to-r from-green-400/80 via-blue-500/80 to-purple-600/80",
+                        banner_inferno: "bg-gradient-to-r from-red-600/80 via-orange-500/80 to-yellow-400/80"
+                      };
+                      const isActive = (user.banner_skin || localBannerSkin) === id;
+                      return (
+                        <FrameOption key={id} name={bsLabels[id]} frameClass={bsPreviews[id]} active={isActive}
+                          onClick={async () => {
+                            await applyShopItem(user.id, id, "banner");
+                            localStorage.setItem("bannerSkin", id);
+                            setLocalBannerSkin(id);
+                            dispatch(fetchCurrentUser());
+                            setShowFrameSelector(false);
+                          }} />
                       );
                     })}
                   </div>
