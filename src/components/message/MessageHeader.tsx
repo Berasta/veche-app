@@ -25,7 +25,7 @@ export function MessageHeader({ author, avatar, time, userId, role, roleColor, b
               <span className="text-[10px] font-bold text-muted-foreground">{initials}</span>
             )}
           </div>
-          <span className="font-semibold text-sm" style={roleColor ? { color: roleColor } : {}}>{author}</span>
+          <span className="text-sm font-medium" style={roleColor ? { color: roleColor } : {}}>{author}</span>
         </div>
       </UserPopover>
       <span className="text-xs text-muted-foreground">{time}</span>

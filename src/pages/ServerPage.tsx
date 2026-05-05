@@ -1,6 +1,7 @@
 import { useAppDispatch, useAppSelector } from "@store/hooks";
 import { fetchChannels } from "@store/slices/channelsSlice";
-import { fetchServerMembers } from "@store/slices/membersSlice";
+import { fetchServerMembers, selectServerMembersLoaded } from "@store/slices/membersSlice";
+import { Loader2 } from "lucide-react";
 import { useParams, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { GramotaArea } from "@components/server/GramotaArea";
@@ -17,6 +18,9 @@ export const ServerPage = () => {
   const channels = useAppSelector((state) => state.channels.channels);
   const serverChannels = channels.filter((c) => c.server_id === serverId);
   const currentChannel = serverChannels.find((c) => c.id === channelId);
+  const channelsLoading = useAppSelector((state) => state.channels.loading);
+  const membersLoaded = useAppSelector((state) => serverId ? selectServerMembersLoaded(serverId)(state) : false);
+  const loading = !channelId && !!(serverId && (channelsLoading || !membersLoaded));
 
   useEffect(() => {
     if (serverId) {
@@ -35,14 +39,23 @@ export const ServerPage = () => {
 
   return (
     <div className="flex w-full min-w-0">
-      <GramotaArea
-        channelId={channelId}
-        channelName={currentChannel?.name}
-        serverId={serverId}
-        onMenuClick={undefined}
-        showMembers={showMembers}
-        onToggleMembers={isMobile ? undefined : () => setShowMembers(!showMembers)}
-      />
+      {loading ? (
+        <div className="flex-1 flex items-center justify-center bg-background/40">
+          <div className="text-center">
+            <Loader2 className="w-6 h-6 animate-spin text-foreground/20 mx-auto" />
+            <p className="text-xs text-foreground/20 mt-2">Загрузка града...</p>
+          </div>
+        </div>
+      ) : (
+        <GramotaArea
+          channelId={channelId}
+          channelName={currentChannel?.name}
+          serverId={serverId}
+          onMenuClick={undefined}
+          showMembers={showMembers}
+          onToggleMembers={isMobile ? undefined : () => setShowMembers(!showMembers)}
+        />
+      )}
       {serverId && !isMobile && (
         <ServerMembers
           serverId={serverId}
