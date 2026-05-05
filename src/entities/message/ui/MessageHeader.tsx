@@ -11,10 +11,11 @@ export interface MessageHeaderProps {
   bannerId?: string | null;
   joinedAt?: string;
   frame?: string;
+  accessory?: string;
 }
 
-export function MessageHeader({ author, avatar, time, userId, role, roleColor, bannerId, joinedAt, frame }: MessageHeaderProps) {
-  const user: UserAvatarData = { id: userId || "", username: author, avatarUrl: avatar, avatarFrame: frame, role, roleColor };
+export function MessageHeader({ author, avatar, time, userId, role, roleColor, bannerId, joinedAt, frame, accessory }: MessageHeaderProps) {
+  const user: UserAvatarData = { id: userId || "", username: author, avatarUrl: avatar, avatarFrame: frame, avatarAccessory: accessory, role, roleColor };
 
   return (
     <div className="flex items-center gap-2 mb-1">

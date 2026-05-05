@@ -334,6 +334,7 @@ export function GramotaArea({
                   authorRoleColor={member?.roleColor}
                   authorBanner={member?.banner}
                   authorFrame={member?.avatarFrame}
+                  authorAccessory={member?.avatarAccessory}
                   authorJoinedAt={joinedAtMap[msg.user_id]}
                   isOwn={user?.id === msg.user_id}
                   edited={!!msg.edited_at}
