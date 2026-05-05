@@ -60,7 +60,7 @@ export function GramotaMessage({ author, avatar, time, content, images, reaction
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.12, ease: 'easeOut' }}
     >
-      <MessageHeader author={author} avatar={avatar} time={time} userId={authorId} role={authorRole} roleColor={authorRoleColor} bannerId={authorBanner} joinedAt={authorJoinedAt} frame={authorFrame} accessory={authorAccessory} />
+      <MessageHeader author={author} avatar={avatar} time={time} userId={authorId} role={authorRole} roleColor={authorRoleColor} bannerId={authorBanner} joinedAt={authorJoinedAt} frame={authorFrame} />
       <MessageContent content={content} />
       {edited && <span className="text-[10px] text-foreground/30 ml-0.5">(измѣнено)</span>}
       {images && <MessageImages images={images} />}
