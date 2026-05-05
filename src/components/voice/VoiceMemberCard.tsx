@@ -55,9 +55,13 @@ export function VoiceMemberCard({ member, index, volume, onVolumeChange, role, r
         onVolumeChange={onVolumeChange}
       >
         <div className="relative flex-shrink-0">
+          {/* Speaking animation ring */}
+          {member.isSpeaking && (
+            <span className="absolute inset-0 w-14 h-14 rounded-full animate-ping bg-primary/20" />
+          )}
           <div
             className={`
-              w-14 h-14 rounded-full flex items-center justify-center overflow-hidden
+              relative w-14 h-14 rounded-full flex items-center justify-center overflow-hidden
               transition-all duration-200 cursor-pointer
               ${member.isSpeaking ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}
               ${member.isMuted ? "opacity-60" : ""}

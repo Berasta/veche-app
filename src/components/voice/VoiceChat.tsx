@@ -241,7 +241,13 @@ export function VoiceChat() {
                           style={m.roleColor && m.isSpeaking ? { color: m.roleColor } : undefined}>
                           {m.name}
                         </span>
-                        {m.isSpeaking && <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />}
+                        {m.isSpeaking && (
+                          <span className="flex items-center gap-px h-3 flex-shrink-0">
+                            <span className="w-0.5 bg-primary rounded-full animate-[speak_0.4s_ease-in-out_infinite_0ms]" />
+                            <span className="w-0.5 bg-primary rounded-full animate-[speak_0.4s_ease-in-out_infinite_100ms]" />
+                            <span className="w-0.5 bg-primary rounded-full animate-[speak_0.4s_ease-in-out_infinite_200ms]" />
+                          </span>
+                        )}
                       </div>
                     </div>
 
