@@ -62,8 +62,8 @@ export function GramotaArea({
   const [reactionMap, setReactionMap] = useState<
     Record<string, ReactionGroup[]>
   >({});
-  const [roleMap, setRoleMap] = useState<
-    Record<string, { name: string; color: string }>
+  const [joinedAtMap, setJoinedAtMap] = useState<
+    Record<string, string>
   >({});
   const [joinedAtMap, setJoinedAtMap] = useState<Record<string, string>>({});
   const [isDragging, setIsDragging] = useState(false);
@@ -131,13 +131,10 @@ export function GramotaArea({
   const serverMembers = useAppSelector((state) => serverId ? selectServerMembers(serverId)(state) : []);
 
   useEffect(() => {
-    const map: Record<string, { name: string; color: string }> = {};
     const jMap: Record<string, string> = {};
     for (const m of serverMembers) {
-      if (m.role) map[m.userId] = { name: m.role, color: m.roleColor || "#888" };
       if (m.joinedAt) jMap[m.userId] = m.joinedAt;
     }
-    setRoleMap(map);
     setJoinedAtMap(jMap);
   }, [serverMembers]);
 
@@ -323,26 +320,31 @@ export function GramotaArea({
                 <div className="h-px flex-1 bg-gradient-to-r from-transparent via-foreground/5 to-transparent" />
               </div>
             )}
-            <GramotaMessage
-              author={serverMembers.find((m) => m.userId === msg.user_id)?.username || "Пользователь"}
-              avatar={showHeader ? serverMembers.find((m) => m.userId === msg.user_id)?.avatarUrl : undefined}
-              time={formatMessageTime(msg.created)}
-              content={msg.content}
-              images={msg.images.length > 0 ? msg.images : undefined}
-              reactions={reactionMap[msg.id]}
-              onReaction={handleReaction}
-              messageId={msg.id}
-              authorId={msg.user_id}
-              authorRole={roleMap[msg.user_id]?.name}
-              authorRoleColor={roleMap[msg.user_id]?.color}
-              authorBanner={serverMembers.find((m) => m.userId === msg.user_id)?.banner}
-              authorFrame={serverMembers.find((m) => m.userId === msg.user_id)?.avatarFrame}
-              authorJoinedAt={joinedAtMap[msg.user_id]}
-              isOwn={user?.id === msg.user_id}
-              edited={!!msg.edited_at}
-              onEdit={handleEdit}
-              onDelete={user?.id === msg.user_id ? handleDelete : undefined}
-            />
+            {(() => {
+              const member = serverMembers.find((m) => m.userId === msg.user_id);
+              return (
+                <GramotaMessage
+                  author={member?.username || "Пользователь"}
+                  avatar={showHeader ? member?.avatarUrl : undefined}
+                  time={formatMessageTime(msg.created)}
+                  content={msg.content}
+                  images={msg.images.length > 0 ? msg.images : undefined}
+                  reactions={reactionMap[msg.id]}
+                  onReaction={handleReaction}
+                  messageId={msg.id}
+                  authorId={msg.user_id}
+                  authorRole={member?.role}
+                  authorRoleColor={member?.roleColor}
+                  authorBanner={member?.banner}
+                  authorFrame={member?.avatarFrame}
+                  authorJoinedAt={joinedAtMap[msg.user_id]}
+                  isOwn={user?.id === msg.user_id}
+                  edited={!!msg.edited_at}
+                  onEdit={handleEdit}
+                  onDelete={user?.id === msg.user_id ? handleDelete : undefined}
+                />
+              );
+            })()}
           </div>
         ))}
         <div ref={bottomRef} />
