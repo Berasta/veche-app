@@ -3,6 +3,7 @@ import { Shield, Plus, Trash2, Pencil } from "lucide-react";
 import { listRoles, createRole, updateRole, deleteRole, listAssignments, setUserRole, removeUserRole, type ServerRole, type RoleAssignment, PERMISSIONS } from "@shared/api/rolesApi";
 import { pb, PB_URL } from "@shared/api/pb";
 import { RoleForm } from "./RoleForm";
+import { Portal } from "@shared/ui/Portal";
 
 const PERMISSION_META: Record<string, { label: string; desc: string }> = {
   [PERMISSIONS.MANAGE_CHANNELS]: { label: "Управление каналами", desc: "Создание, переименование и удаление палат" },
@@ -51,7 +52,31 @@ export function RolesManager({ serverId }: { serverId: string }) {
         </button>
       </div>
 
-      {showCreate && <RoleForm onSave={async (d) => { await createRole(serverId, d); setShowCreate(false); load(); }} onCancel={() => setShowCreate(false)} />}
+      {/* Create modal */}
+      {showCreate && (
+        <Portal>
+          <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowCreate(false)}>
+            <div className="bg-background/80 backdrop-blur-xl rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <RoleForm onSave={async (d) => { await createRole(serverId, d); setShowCreate(false); load(); }} onCancel={() => setShowCreate(false)} />
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* Edit modal */}
+      {editingRoleId && (() => {
+        const role = roles.find((r) => r.id === editingRoleId);
+        if (!role) return null;
+        return (
+          <Portal key={editingRoleId}>
+            <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setEditingRoleId(null)}>
+              <div className="bg-background/80 backdrop-blur-xl rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                <RoleForm initial={role} onSave={async (d) => { await updateRole(role.id, d); setEditingRoleId(null); load(); }} onCancel={() => setEditingRoleId(null)} />
+              </div>
+            </div>
+          </Portal>
+        );
+      })()}
 
       {/* Roles list */}
       <div className="space-y-1">
@@ -60,10 +85,7 @@ export function RolesManager({ serverId }: { serverId: string }) {
         ) : (
           roles.map((role) => (
             <div key={role.id} className="rounded-xl overflow-hidden bg-foreground/[0.02] group">
-              {editingRoleId === role.id ? (
-                <RoleForm initial={role} onSave={async (d) => { await updateRole(role.id, d); setEditingRoleId(null); load(); }} onCancel={() => setEditingRoleId(null)} />
-              ) : (
-                <div className="p-3">
+              <div className="p-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 min-w-0">
                       <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: role.color }} />
@@ -81,8 +103,7 @@ export function RolesManager({ serverId }: { serverId: string }) {
                       </button>
                     </div>
                   </div>
-                </div>
-              )}
+              </div>
             </div>
           ))
         )}
