@@ -1,4 +1,4 @@
-import { MessageSquare } from "lucide-react";
+import { Hash } from "lucide-react";
 import { motion } from "motion/react";
 import { useNavigate, useParams } from "react-router";
 
@@ -25,14 +25,14 @@ export function TextPalata({ channelId, channelName, serverId, index }: Props) {
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
       whileHover={{ y: -2 }}
-      className={`cursor-pointer w-full px-2 py-1.5 rounded-md text-left transition-all duration-100 flex items-center gap-2 group ${
+      className={`cursor-pointer w-full px-2.5 py-2 rounded-xl text-left transition-all duration-100 flex items-center gap-2.5 group ${
         isActive
-          ? "bg-muted/80 text-foreground"
-          : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+          ? "bg-primary/8 text-foreground"
+          : "hover:bg-foreground/[0.03] text-foreground/60 hover:text-foreground/80"
       }`}
     >
-      <MessageSquare size={16} strokeWidth={isActive ? 2.5 : 2} className={isActive ? "text-primary" : ""} />
-      <span className={isActive ? "font-medium" : ""}>{channelName}</span>
+      <Hash size={14} strokeWidth={1.5} className={isActive ? "text-primary" : "text-foreground/30"} />
+      <span className={`text-sm ${isActive ? "font-medium" : ""}`}>{channelName}</span>
     </motion.button>
   );
 }
