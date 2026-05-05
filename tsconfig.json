@@ -14,13 +14,15 @@
     "noEmit": true,
     "baseUrl": "./src",
     "paths": {
+      "@/*": ["./*"],
       "@components/*": ["components/*"],
       "@pages/*": ["pages/*"],
       "@api/*": ["api/*"],
       "@store/*": ["store/*"],
       "@routes/*": ["router/*"],
       "@hooks/*": ["hooks/*"],
-      "@lib/*": ["lib/*"]
+      "@lib/*": ["lib/*"],
+      "@shared/*": ["shared/*"]
     }
   },
   "include": ["src"],
