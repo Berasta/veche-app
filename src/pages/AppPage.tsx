@@ -1,8 +1,9 @@
-import { Navigate } from "react-router";
+import { Navigate, useNavigate } from "react-router";
 import { motion } from "motion/react";
-import { Castle, MessageSquare, Volume2, Users, ArrowRight } from "lucide-react";
+import { Castle, MessageSquare, Volume2, Users, ArrowRight, Link as LinkIcon } from "lucide-react";
 
 export const AppPage = () => {
+  const navigate = useNavigate();
   const onboardingSeen = localStorage.getItem("onboarding_seen");
 
   if (!onboardingSeen) {
@@ -76,12 +77,31 @@ export const AppPage = () => {
           ))}
         </motion.div>
 
-        {/* Hint */}
-        <motion.p
-          className="text-[11px] text-foreground/20 mt-8"
+        {/* Invite link */}
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.55 }}
+        >
+          <button onClick={() => navigate("/invite/2kgUSlAXMN4E")}
+            className="w-full mt-4 flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-foreground/[0.03] hover:bg-foreground/[0.05] transition-colors group">
+            <div className="w-8 h-8 rounded-lg bg-foreground/[0.03] flex items-center justify-center flex-shrink-0">
+              <LinkIcon className="w-4 h-4 text-foreground/30" strokeWidth={1.5} />
+            </div>
+            <div className="text-left min-w-0 flex-1">
+              <p className="text-xs font-medium text-foreground/60 group-hover:text-foreground/80 transition-colors">Приглашенiе въ градъ</p>
+              <p className="text-[10px] text-foreground/30 font-mono truncate">/invite/2kgUSlAXMN4E</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-foreground/20 group-hover:text-foreground/40 transition-colors flex-shrink-0" strokeWidth={1.5} />
+          </button>
+        </motion.div>
+
+        {/* Hint */}
+        <motion.p
+          className="text-[11px] text-foreground/20 mt-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.65 }}
         >
           <ArrowRight className="w-3 h-3 inline mr-1" strokeWidth={1.5} />
           Выберите градъ слѣва или создайте новый
