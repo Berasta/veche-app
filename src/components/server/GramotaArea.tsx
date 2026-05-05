@@ -323,11 +323,11 @@ export function GramotaArea({
           <div key={msg.id}>
             {dateLabel && (
               <div className="flex items-center gap-3 py-4">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-                <span className="text-[10px] font-semibold text-primary/60 uppercase tracking-[0.15em] flex-shrink-0 px-2">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-foreground/5 to-transparent" />
+                <span className="text-[10px] font-medium text-foreground/25 uppercase tracking-[0.15em] flex-shrink-0 px-2">
                   {dateLabel}
                 </span>
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-foreground/5 to-transparent" />
               </div>
             )}
             <GramotaMessage
@@ -354,7 +354,7 @@ export function GramotaArea({
         <div ref={bottomRef} />
       </MessageList>
 
-      <div className="border-t border-border bg-card/30 backdrop-blur-xl">
+      <div className="bg-foreground/[0.02] backdrop-blur-xl">
         <GramotaInput
           ref={inputRef}
           onSend={handleSend}

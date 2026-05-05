@@ -100,7 +100,7 @@ export const GramotaInput = forwardRef<GramotaInputHandle, GramotaInputProps>(
         <div className="flex items-center gap-1 px-3 py-2.5">
           <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileSelect} />
           <button type="button" onClick={() => fileInputRef.current?.click()}
-            className="w-7 h-7 flex items-center justify-center text-muted-foreground/40 hover:text-foreground transition-colors flex-shrink-0"
+            className="w-7 h-7 flex items-center justify-center text-foreground/20 hover:text-foreground/50 transition-colors flex-shrink-0"
             title="Приложити изображеніе">
             <Image className="w-3.5 h-3.5" strokeWidth={1.5} />
           </button>

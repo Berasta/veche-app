@@ -54,14 +54,14 @@ export function GramotaMessage({ author, avatar, time, content, images, reaction
 
   return (
     <motion.div
-      className="px-3 md:px-5 py-2 md:py-2.5 hover:bg-gradient-to-r hover:from-muted/20 hover:to-transparent rounded-lg transition-all duration-150 group relative border-l-2 border-transparent hover:border-l-primary/20"
+      className="px-3 md:px-5 py-2 md:py-2.5 hover:bg-foreground/[0.02] rounded-xl transition-all duration-150 group relative"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.12, ease: 'easeOut' }}
     >
       <MessageHeader author={author} avatar={avatar} time={time} userId={authorId} role={authorRole} roleColor={authorRoleColor} bannerId={authorBanner} joinedAt={authorJoinedAt} />
       <MessageContent content={content} />
-      {edited && <span className="text-[10px] text-muted-foreground/40 ml-0.5">(измѣнено)</span>}
+      {edited && <span className="text-[10px] text-foreground/30 ml-0.5">(измѣнено)</span>}
       {images && <MessageImages images={images} />}
       {onReaction && messageId && (
         <ReactionsBar reactions={reactions || []} onToggle={(emoji) => onReaction(messageId, emoji)} messageId={messageId} />
@@ -72,23 +72,23 @@ export function GramotaMessage({ author, avatar, time, content, images, reaction
         <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <div className="relative">
             <button onClick={() => setShowMenu(!showMenu)}
-              className="w-7 h-7 rounded-md hover:bg-muted/80 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
-              <MoreHorizontal className="w-4 h-4" strokeWidth={2} />
+              className="w-7 h-7 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors">
+              <MoreHorizontal className="w-4 h-4" strokeWidth={1.5} />
             </button>
             {showMenu && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-                <div className="absolute right-0 top-full mt-0.5 z-50 w-36 bg-popover border border-border rounded-lg shadow-xl overflow-hidden">
+                <div className="absolute right-0 top-full mt-0.5 z-50 w-36 bg-popover/80 backdrop-blur-xl border border-border/50 rounded-xl shadow-xl overflow-hidden">
                   {isOwn && onEdit && (
                     <button onClick={() => { setEditing(true); setShowMenu(false); }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted/50 transition-colors text-left">
-                      <Pencil className="w-3.5 h-3.5" strokeWidth={2} /> Редактировати
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-foreground/5 transition-colors text-left">
+                      <Pencil className="w-3.5 h-3.5" strokeWidth={1.5} /> Редактировати
                     </button>
                   )}
                   {onDelete && (
                     <button onClick={() => { onDelete(messageId || ""); setShowMenu(false); }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors text-left">
-                      <Trash2 className="w-3.5 h-3.5" strokeWidth={2} /> Удалити
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive/70 hover:text-destructive hover:bg-destructive/5 transition-colors text-left">
+                      <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} /> Удалити
                     </button>
                   )}
                 </div>
