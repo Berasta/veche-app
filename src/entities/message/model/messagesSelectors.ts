@@ -1,4 +1,4 @@
-import { RootState } from "../index";
+import { RootState } from "@app/store";
 
 export const selectMessages = (s: RootState) => s.messages.items;
 export const selectMessagesLoading = (s: RootState) => s.messages.loading;
