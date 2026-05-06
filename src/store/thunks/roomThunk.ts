@@ -15,8 +15,8 @@ import {
   setScreenSharing,
   setDeafened,
   setConnectionQuality,
-} from "../slices/roomSlice";
-import { RootState } from "../../store";
+} from "@entities/room/model/roomSlice";
+import { RootState } from "@app/store";
 
 const PB_URL = import.meta.env.VITE_PB_URL || "http://localhost:8090";
 const pb = new PocketBase(PB_URL);

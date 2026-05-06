@@ -28,7 +28,7 @@ import {
 } from "@entities/message/model/messagesSelectors";
 import { fetchReactions, addReaction, removeReaction } from "@shared/api/reactionApi";
 import { pb } from "@shared/api/pb";
-import { fetchServerMembers, selectServerMembers } from "@entities/member/model/membersSlice";
+import { selectServerMembers } from "@entities/member/model/membersSlice";
 import { useAuth } from "@entities/user/model/useAuth";
 import { useTypingBroadcast } from "@shared/hooks/useTyping";
 interface GramotaAreaProps {
@@ -118,11 +118,6 @@ export function GramotaArea({
       unsubscribe();
     };
   }, [channelId, dispatch]);
-
-  useEffect(() => {
-    if (!serverId) return;
-    dispatch(fetchServerMembers(serverId));
-  }, [serverId, dispatch]);
 
   const serverMembers = useAppSelector((state) => serverId ? selectServerMembers(serverId)(state) : []);
 

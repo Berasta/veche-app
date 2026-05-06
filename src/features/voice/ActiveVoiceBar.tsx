@@ -22,7 +22,7 @@ import {
   selectIsScreenSharing,
   selectError,
   selectIsDeafened,
-} from "../../store/selectors/roomSelectors";
+} from "@entities/room/model/roomSelectors";
 import { useAppDispatch, useAppSelector } from "@app/hooks";
 import {
   leaveChannel,
