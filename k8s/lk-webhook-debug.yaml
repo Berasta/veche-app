@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lk-webhook-debug
+  namespace: default
+  labels:
+    app: lk-webhook-debug
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lk-webhook-debug
+  template:
+    metadata:
+      labels:
+        app: lk-webhook-debug
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/berasta/veche-lk-debug:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: PORT
+              value: "8080"
+            - name: LIVEKIT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-credentials
+                  key: api-key
+            - name: LIVEKIT_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: livekit-credentials
+                  key: api-secret
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "32Mi"
+            limits:
+              cpu: "100m"
+              memory: "64Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lk-webhook-debug
+  namespace: default
+spec:
+  selector:
+    app: lk-webhook-debug
+  ports:
+    - port: 8080
+      targetPort: http
+      name: http
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: livekit-credentials
+  namespace: default
+type: Opaque
+stringData:
+  api-key: "voiceappkeyvoiceappkey"
+  api-secret: "myapisecretmyapisecretmyapisecret"
