@@ -43,7 +43,7 @@ fn open_overlay(app: tauri::AppHandle) {
 fn register_shortcut(app: tauri::AppHandle, shortcut_str: String) -> Result<(), String> {
     let shortcut = parse_shortcut(&shortcut_str)?;
     app.global_shortcut()
-        .register(&shortcut)
+        .register(shortcut)
         .map_err(|e| e.to_string())
 }
 
@@ -51,7 +51,7 @@ fn register_shortcut(app: tauri::AppHandle, shortcut_str: String) -> Result<(), 
 fn unregister_shortcut(app: tauri::AppHandle, shortcut_str: String) -> Result<(), String> {
     let shortcut = parse_shortcut(&shortcut_str)?;
     app.global_shortcut()
-        .unregister(&shortcut)
+        .unregister(shortcut)
         .map_err(|e| e.to_string())
 }
 
@@ -81,7 +81,7 @@ fn parse_shortcut(s: &str) -> Result<Shortcut, String> {
     }
 
     let code = key.ok_or_else(|| "Не указана клавиша".to_string())?;
-    Ok(Shortcut { modifiers, code })
+    Ok(Shortcut { mods: modifiers, key: code, id: None })
 }
 
 fn parse_code(s: &str) -> Result<Code, String> {
