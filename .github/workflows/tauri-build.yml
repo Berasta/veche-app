@@ -27,15 +27,15 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Install deps
-        run: npm ci
-        working-directory: app
+        run: cd app && npm ci
+        shell: pwsh
 
       - name: Build Tauri app
         env:
           VITE_PB_URL: https://admin.weche.ru
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run tauri build
-        working-directory: app
+        run: cd app && npm run tauri build
+        shell: pwsh
 
       - name: Upload bundle
         uses: actions/upload-artifact@v4
