@@ -35,15 +35,20 @@ jobs:
         env:
           VITE_PB_URL: https://admin.weche.ru
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run tauri build
+        run: npx tauri build
 
-      - name: List bundle directory
+      - name: List release directory
         shell: pwsh
-        run: Get-ChildItem -Recurse src-tauri/target/release/bundle/ | Select-Object FullName
+        run: Get-ChildItem -Recurse src-tauri/target/release/ | Select-Object FullName | Select-Object -First 100
 
       - name: Copy installer to root
         shell: pwsh
-        run: Copy-Item (Get-ChildItem -Recurse src-tauri/target/release/bundle/*.exe | Select-Object -First 1).FullName ./veche-installer.exe
+        run: |
+          $installer = Get-ChildItem -Recurse src-tauri/target/release/bundle/*.exe `
+            | Select-Object -First 1
+          if (-not $installer) { $installer = Get-ChildItem -Recurse src-tauri/target/release/bundle/*.msi | Select-Object -First 1 }
+          if ($installer) { Copy-Item $installer.FullName ./veche-installer.exe }
+          else { throw "No installer found in bundle" }
 
       - name: Upload bundle
         uses: actions/upload-artifact@v4
