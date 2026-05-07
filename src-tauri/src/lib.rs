@@ -81,7 +81,7 @@ fn parse_shortcut(s: &str) -> Result<Shortcut, String> {
     }
 
     let code = key.ok_or_else(|| "Не указана клавиша".to_string())?;
-    Ok(Shortcut { mods: modifiers, key: code, id: None })
+    Ok(Shortcut { mods: modifiers, key: code, id: 0 })
 }
 
 fn parse_code(s: &str) -> Result<Code, String> {
