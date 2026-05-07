@@ -1,4 +1,4 @@
-import { useState, useRef, forwardRef, useImperativeHandle } from 'react';
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { EmojiPicker } from '@shared/ui/EmojiPicker';
 import { Send, Image, Smile, X } from 'lucide-react';
 
