@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { Room, RoomEvent, Track } from "livekit-client";
 import PocketBase from "pocketbase";
+import { toast } from "sonner";
 import {
   setConnecting,
   setConnected,
@@ -244,13 +245,31 @@ export const joinChannel = createAsyncThunk(
 
       // 4. Подключаемся
       await room.connect(res.ws_url, res.token);
-      await room.localParticipant.setMicrophoneEnabled(true);
 
-      // 5. Блокируем экран (участник регистрируется через LiveKit webhook)
+      // 5. Включаем микрофон с сохранённым устройством (если есть)
+      const savedInput = localStorage.getItem("audioInput");
+      try {
+        await room.localParticipant.setMicrophoneEnabled(true, {
+          deviceId: savedInput || undefined,
+        });
+      } catch (micErr: any) {
+        if (micErr.name === "NotAllowedError") {
+          toast.error("Разрешите доступъ къ микрофону въ настройкахъ системы");
+        } else if (micErr.message?.includes("requested device not found") || micErr.name === "NotFoundError") {
+          localStorage.removeItem("audioInput");
+          try {
+            await room.localParticipant.setMicrophoneEnabled(true);
+          } catch {}
+        } else {
+          console.error("Ошибка включенiя микрофона", micErr);
+        }
+      }
+
+      // 6. Блокируем экран (участник регистрируется через LiveKit webhook)
       requestWakeLock();
       activeChannelIdForCleanup = channelId;
 
-      // 6. Обновляем стейт
+      // 7. Обновляем стейт
       dispatch(setConnected({ channelId, channelName, serverId }));
       dispatch(setParticipants(buildParticipants(room)));
     } catch (e: any) {
