@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "tauri": "PATH=\"$HOME/.cargo/bin:$PATH\" tauri",
+    "tauri": "tauri",
     "dev": "vite"
   },
   "dependencies": {
