@@ -35,18 +35,22 @@ export function useVoiceData(serverId?: string, participantIds?: string[]) {
 
   useEffect(() => {
     if (!serverId) return;
+    let cancelled = false;
     Promise.all([
       getRoleMap(serverId),
       pb.collection("server_members").getFullList({ filter: `server_id = "${serverId}"` }, { $autoCancel: false }),
     ]).then(([roles, members]) => {
+      if (cancelled) return;
       setRoleMap(roles);
       const map: Record<string, string> = {};
       (members as any[]).forEach((entry: any) => { map[entry.user_id] = entry.created; });
       setJoinedAtMap(map);
     }).catch((err) => {
+      if (cancelled) return;
       console.error("Ошибка загрузки голосовых данных", err);
       toast.error("Не удалось загрузить данные голосовой палаты");
     });
+    return () => { cancelled = true; };
   }, [serverId]);
 
   return { userDataMap, roleMap, joinedAtMap };

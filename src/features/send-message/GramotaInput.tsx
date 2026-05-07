@@ -19,6 +19,22 @@ export const GramotaInput = forwardRef<GramotaInputHandle, GramotaInputProps>(
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const objectUrlsRef = useRef<Map<File, string>>(new Map());
+
+  const getFileUrl = (file: File) => {
+    const cached = objectUrlsRef.current.get(file);
+    if (cached) return cached;
+    const url = URL.createObjectURL(file);
+    objectUrlsRef.current.set(file, url);
+    return url;
+  };
+
+  useEffect(() => {
+    return () => {
+      objectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+      objectUrlsRef.current.clear();
+    };
+  }, []);
 
   useImperativeHandle(ref, () => ({
     addFiles: (files: File[]) => setSelectedFiles((prev) => [...prev, ...files]),
@@ -76,7 +92,17 @@ export const GramotaInput = forwardRef<GramotaInputHandle, GramotaInputProps>(
     }
   };
 
-  const removeFile = (index: number) => setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  const removeFile = (index: number) => {
+    setSelectedFiles((prev) => {
+      const removed = prev[index];
+      const url = objectUrlsRef.current.get(removed);
+      if (url) {
+        URL.revokeObjectURL(url);
+        objectUrlsRef.current.delete(removed);
+      }
+      return prev.filter((_, i) => i !== index);
+    });
+  };
   const canSend = message.trim().length > 0 || selectedFiles.length > 0;
   const isActive = message.trim().length > 0;
 
@@ -87,7 +113,7 @@ export const GramotaInput = forwardRef<GramotaInputHandle, GramotaInputProps>(
           <div className="flex gap-1.5 px-4 pt-2 pb-0 overflow-x-auto">
             {selectedFiles.map((file, i) => (
               <div key={i} className="relative w-10 h-10 rounded overflow-hidden bg-muted flex-shrink-0 group">
-                <img src={URL.createObjectURL(file)} alt="" className="w-full h-full object-cover" />
+                <img src={getFileUrl(file)} alt="" className="w-full h-full object-cover" />
                 <button type="button" onClick={() => removeFile(i)}
                   className="absolute top-0 right-0 w-3.5 h-3.5 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <X className="w-2 h-2 text-white" />

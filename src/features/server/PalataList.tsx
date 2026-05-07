@@ -62,11 +62,13 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
   // Fetch active participants for voice channels
   useEffect(() => {
     if (!serverId) return;
+    let cancelled = false;
     (async () => {
       try {
         const chs = await pb.collection("channels").getFullList({
           filter: `server_id = "${serverId}"`,
         });
+        if (cancelled) return;
         const chIds = chs.map((c: any) => c.id);
         if (chIds.length === 0) return;
 
@@ -77,6 +79,7 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
           filter: orFilter,
           expand: "user_id",
         });
+        if (cancelled) return;
         const counts: Record<string, number> = {};
         const avatars: Record<string, string[]> = {};
         for (const p of result as any[]) {
@@ -88,12 +91,15 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
             avatars[cid].push(`${PB_URL}/api/files/${user.collectionId}/${user.id}/${user.avatar}`);
           }
         }
+        if (cancelled) return;
         setParticipantCounts(counts);
         setParticipantAvatars(avatars);
       } catch (err) {
+        if (cancelled) return;
         console.error("Ошибка загрузки участников голосовых палат", err);
       }
     })();
+    return () => { cancelled = true; };
   }, [serverId, channels]);
 
   // Realtime: обновляем счётчик при входе/выходе из голосовых палат

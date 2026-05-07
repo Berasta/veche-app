@@ -63,6 +63,7 @@ export function GramotaArea({
   >({});
   const [joinedAtMap, setJoinedAtMap] = useState<Record<string, string>>({});
   const [isDragging, setIsDragging] = useState(false);
+  const reactionGenRef = useRef(0);
   const { startTyping, stopTyping } = useTypingBroadcast(channelId);
 
   // Drag-and-drop files
@@ -131,7 +132,9 @@ export function GramotaArea({
 
   const buildReactionMap = useCallback(
     async (chId: string) => {
+      const gen = ++reactionGenRef.current;
       const all = await fetchReactions(chId);
+      if (gen !== reactionGenRef.current) return;
       const map: Record<
         string,
         Record<string, { emoji: string; userIds: Set<string> }>
@@ -150,6 +153,7 @@ export function GramotaArea({
           hasMe: g.userIds.has(user?.id || ""),
         }));
       }
+      if (gen !== reactionGenRef.current) return;
       setReactionMap(result);
     },
     [user?.id],

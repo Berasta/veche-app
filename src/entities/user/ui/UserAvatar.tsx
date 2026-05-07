@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Crown, MicOff, EarOff } from "lucide-react";
-import { getFrameClass } from "./UserPopover";
+import { getFrameClass } from "@shared/lib/frames";
 
 export interface UserAvatarData {
   id: string;
