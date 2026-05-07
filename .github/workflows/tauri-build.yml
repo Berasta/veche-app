@@ -15,8 +15,6 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout
@@ -45,11 +43,23 @@ jobs:
           name: veche-windows
           path: src-tauri/target/release/bundle/nsis/*.exe
 
-      - name: Upload to Nightly Release
-        if: github.ref == 'refs/heads/main'
+  nightly:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: veche-windows
+
+      - name: Update Nightly Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "src-tauri/target/release/bundle/nsis/*.exe"
+          artifacts: "*.exe"
           tag: "nightly"
           name: "Последняя сборка"
           body: "Автоматическая сборка из main"
@@ -60,13 +70,13 @@ jobs:
 
   release:
     needs: build
-    runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
-      - name: Download artifacts
+      - name: Download bundle
         uses: actions/download-artifact@v4
         with:
           name: veche-windows
