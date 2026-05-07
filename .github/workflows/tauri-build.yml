@@ -12,10 +12,7 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
 
     steps:
       - name: Checkout
@@ -29,35 +26,18 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Install deps (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          npm ci
-        working-directory: app
-
-      - name: Install deps (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          npm ci
+      - name: Install deps
+        run: npm ci
         working-directory: app
 
       - name: Build Tauri app
         env:
           VITE_PB_URL: https://admin.weche.ru
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npm run tauri build
+        run: npm run tauri build
         working-directory: app
 
-      - name: Upload macOS bundle
-        if: matrix.os == 'macos-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: veche-macos
-          path: src-tauri/target/release/bundle/dmg/*.dmg
-
-      - name: Upload Windows bundle
-        if: matrix.os == 'windows-latest'
+      - name: Upload bundle
         uses: actions/upload-artifact@v4
         with:
           name: veche-windows
@@ -77,14 +57,11 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            veche-macos/*.dmg
-            veche-windows/*.exe
+          files: veche-windows/*.exe
           body: |
             ## Вече ${{ github.ref_name }}
 
             ### Установка
-            - **macOS (Apple Silicon)**: скачай `.dmg`, открой и перетащи в Applications
             - **Windows**: скачай `setup.exe` и запусти
           draft: false
           prerelease: false
