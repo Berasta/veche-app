@@ -6,8 +6,8 @@
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
-    "beforeDevCommand": "VITE_PB_URL=https://admin.weche.ru npm run build && VITE_PB_URL=https://admin.weche.ru npm run dev",
-    "beforeBuildCommand": "VITE_PB_URL=https://admin.weche.ru npm run build"
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
   },
   "app": {
     "windows": [
