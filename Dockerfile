@@ -14,11 +14,11 @@ FROM nginx:1.27-alpine
 # Install node for the meta server
 RUN apk add --no-cache nodejs npm
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY config/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Meta server
-COPY server.js /app/server.js
+COPY server/server.js /app/server.js
 RUN cd /app && npm install express
 
 EXPOSE 80
