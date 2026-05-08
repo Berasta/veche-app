@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, User, ArrowLeft, Trash2, Crop, Loader2 } from "lucide-react";
+import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, User, ArrowLeft, Trash2, Crop, Loader2, Info } from "lucide-react";
 import { ThemeSwitcher } from "@features/theme/ThemeSwitcher";
 import { VoiceSettings } from "@features/voice/VoiceSettings";
+
+const APP_VERSION = __APP_VERSION__;
 import { BannerRepositionDialog } from "@entities/user/ui/BannerRepositionDialog";
 import { useAuth } from "@entities/user/model/useAuth";
 import { pb, PB_URL } from "@shared/api/pb";
@@ -257,6 +259,12 @@ export function Settings() {
                   <LogOut className="w-4 h-4" strokeWidth={1.5} />
                   <span>Выйти изъ града</span>
                 </button>
+              </div>
+
+              {/* App version */}
+              <div className="flex items-center gap-1.5 pt-1 px-1">
+                <Info className="w-3 h-3 text-foreground/15" strokeWidth={1.5} />
+                <span className="text-xs text-foreground/20 font-mono">Вече v{APP_VERSION}</span>
               </div>
             </>
           )}
