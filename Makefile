@@ -73,8 +73,13 @@ endif
 	TAURI_SIGNING_PRIVATE_KEY_PASSWORD="$(TAURI_KEY_PASS)" \
 	npx tauri build --target $(TARGET)
 	@echo "--- 3/4 Updating releases.json ---"
-	$(eval INSTALLER := $(shell ls $(BUNDLE_DIR)/*.exe 2>/dev/null | head -1))
-	@[ -f "$(INSTALLER).sig" ] || (echo "ERROR: $(INSTALLER).sig not found. Is TAURI_SIGNING_PRIVATE_KEY set?" && exit 1)
+	$(eval INSTALLER := $(BUNDLE_DIR)/veche_$(VERSION)_x64-setup.exe)
+	@[ -f "$(INSTALLER)" ] || (echo "ERROR: $(INSTALLER) not found" && exit 1)
+	@echo "Signing $(INSTALLER)..."
+	TAURI_SIGNING_PRIVATE_KEY="$$(cat $(TAURI_KEY))" \
+	TAURI_SIGNING_PRIVATE_KEY_PASSWORD="$(TAURI_KEY_PASS)" \
+	npx tauri signer sign "$(INSTALLER)"
+	@[ -f "$(INSTALLER).sig" ] || (echo "ERROR: $(INSTALLER).sig not found after signing" && exit 1)
 	@mkdir -p $(UPDATES_DIR)/releases
 	cp "$(INSTALLER)" "$(UPDATES_DIR)/releases/"
 	node -e "\
