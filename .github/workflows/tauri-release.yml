@@ -51,6 +51,12 @@ jobs:
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          cache-on-failure: true
+
       - name: Install dependencies (ubuntu)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
@@ -66,6 +72,7 @@ jobs:
         run: npm ci
 
       - name: Update version in configs
+        shell: bash
         run: |
           VERSION="${{ inputs.version }}"
           
@@ -162,6 +169,7 @@ jobs:
           node-version: 20
 
       - name: Generate releases.json
+        shell: bash
         env:
           VERSION: ${{ inputs.version }}
         run: |
@@ -275,6 +283,7 @@ jobs:
 
       - name: Deploy to updater server
         if: success()
+        shell: bash
         env:
           SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
