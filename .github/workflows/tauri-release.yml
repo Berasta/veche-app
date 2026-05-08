@@ -59,6 +59,7 @@ jobs:
 
       - name: Install dependencies (ubuntu)
         if: matrix.platform == 'ubuntu-22.04'
+        shell: bash
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -308,6 +309,7 @@ jobs:
 
       - name: Create summary
         if: always()
+        shell: bash
         run: |
           echo "## 🚀 Release v${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
