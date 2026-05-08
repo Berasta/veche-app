@@ -13,6 +13,9 @@ on:
 
 jobs:
   build-tauri:
+    permissions:
+      contents: write  # Для создания релизов
+    
     strategy:
       fail-fast: false
       matrix:
