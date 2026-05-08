@@ -59,9 +59,11 @@ function cleanupAudio() {
 // ─── Screen Wake Lock ──────────────────────────────────────────────────────────
 async function requestWakeLock() {
   try {
-    if ('wakeLock' in navigator) {
-      wakeLock = await (navigator as any).wakeLock.request('screen');
-      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    if ("wakeLock" in navigator) {
+      wakeLock = await (navigator as any).wakeLock.request("screen");
+      wakeLock.addEventListener("release", () => {
+        wakeLock = null;
+      });
     }
   } catch (err) {
     console.error("wakeLock request error", err);
@@ -70,7 +72,10 @@ async function requestWakeLock() {
 
 function releaseWakeLock() {
   try {
-    if (wakeLock) { wakeLock.release(); wakeLock = null; }
+    if (wakeLock) {
+      wakeLock.release();
+      wakeLock = null;
+    }
   } catch (err) {
     console.error("wakeLock release error", err);
   }
@@ -78,7 +83,9 @@ function releaseWakeLock() {
 
 function cleanupScreenShare() {
   Object.values(screenShareElements).forEach((el) => el.remove());
-  Object.keys(screenShareElements).forEach((k) => delete screenShareElements[k]);
+  Object.keys(screenShareElements).forEach(
+    (k) => delete screenShareElements[k],
+  );
 }
 
 // ─── Channel Participants ──────────────────────────────────────────────────────
@@ -117,7 +124,11 @@ async function removeChannelParticipant(channelId: string) {
 export const joinChannel = createAsyncThunk(
   "room/join",
   async (
-    { channelId, channelName, serverId }: { channelId: string; channelName: string; serverId: string },
+    {
+      channelId,
+      channelName,
+      serverId,
+    }: { channelId: string; channelName: string; serverId: string },
     { dispatch, getState },
   ) => {
     const state = getState() as RootState;
@@ -130,11 +141,11 @@ export const joinChannel = createAsyncThunk(
 
     // Если в другом канале — сначала выходим
     if (activeRoom) {
-    releaseWakeLock();
-    await activeRoom.disconnect();
-    cleanupAudio();
-    cleanupScreenShare();
-    activeRoom = null;
+      releaseWakeLock();
+      await activeRoom.disconnect();
+      cleanupAudio();
+      cleanupScreenShare();
+      activeRoom = null;
       activeChannelIdForCleanup = null;
     }
 
@@ -149,7 +160,10 @@ export const joinChannel = createAsyncThunk(
       });
 
       // 2. Создаём Room
-      const room = new Room({ adaptiveStream: true, dynacast: true });
+      const room = new Room({
+        adaptiveStream: true,
+        dynacast: true,
+      });
       activeRoom = room;
 
       // 3. Вешаем события — диспатчим в Redux
@@ -164,7 +178,8 @@ export const joinChannel = createAsyncThunk(
         ) {
           const el = track.attach() as HTMLVideoElement;
           el.id = `screen-${participant.identity}`;
-          el.style.cssText = "width:100%;height:100%;object-fit:contain;border-radius:8px";
+          el.style.cssText =
+            "width:100%;height:100%;object-fit:contain;border-radius:8px";
           screenShareElements[participant.identity] = el;
           dispatch(setScreenSharing(true));
         }
@@ -187,7 +202,10 @@ export const joinChannel = createAsyncThunk(
       });
 
       room.on(RoomEvent.TrackSubscribed, (track, _pub, participant) => {
-        if (track.kind === Track.Kind.Audio && track.source !== Track.Source.ScreenShareAudio) {
+        if (
+          track.kind === Track.Kind.Audio &&
+          track.source !== Track.Source.ScreenShareAudio
+        ) {
           const el = track.attach() as HTMLAudioElement;
           el.id = `audio-${participant.identity}`;
           document.body.appendChild(el);
@@ -239,7 +257,13 @@ export const joinChannel = createAsyncThunk(
       });
 
       room.on(RoomEvent.ConnectionQualityChanged, (quality) => {
-        const labels = ["unknown", "poor", "good", "excellent", "lost"] as const;
+        const labels = [
+          "unknown",
+          "poor",
+          "good",
+          "excellent",
+          "lost",
+        ] as const;
         dispatch(setConnectionQuality(labels[quality] ?? "unknown"));
       });
 
@@ -255,7 +279,10 @@ export const joinChannel = createAsyncThunk(
       } catch (micErr: any) {
         if (micErr.name === "NotAllowedError") {
           toast.error("Разрешите доступъ къ микрофону въ настройкахъ системы");
-        } else if (micErr.message?.includes("requested device not found") || micErr.name === "NotFoundError") {
+        } else if (
+          micErr.message?.includes("requested device not found") ||
+          micErr.name === "NotFoundError"
+        ) {
           localStorage.removeItem("audioInput");
           try {
             await room.localParticipant.setMicrophoneEnabled(true);
@@ -381,7 +408,7 @@ export const toggleScreenShare = createAsyncThunk(
             height: RESOLUTION_MAP[resolution].height,
             frameRate: fps,
           },
-          videoBitsPerSecond: bitrate * 1_000_000,
+          contentHint: "motion",
         });
       }
       dispatch(setScreenSharing(!isSharing));

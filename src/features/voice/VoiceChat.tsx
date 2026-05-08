@@ -5,7 +5,7 @@ import { ScreenShareModal, type ShareOptions } from "./ScreenShareModal";
 import { PageHeader } from "@shared/ui/PageHeader";
 import { IconButton } from "@shared/ui/IconButton";
 import { ScreenShareDisplay } from "./ScreenShareDisplay";
-import { VoiceControls } from "./VoiceControls";
+import { VoiceControls, type MuteMode } from "./VoiceControls";
 import { useNavigate, useParams } from "react-router";
 import { useAppDispatch, useAppSelector } from "@app/hooks";
 import {
@@ -68,6 +68,24 @@ export function VoiceChat() {
   const callStartedAt = useAppSelector(selectCallStartedAt);
   const connectionQuality = useAppSelector(selectConnectionQuality);
   const [callDuration, setCallDuration] = useState("");
+  const [muteMode, setMuteMode] = useState<MuteMode>("toggle");
+
+  // Читаем режим мьюта из localStorage
+  useEffect(() => {
+    const readMuteMode = () => {
+      try {
+        const saved = localStorage.getItem("muteMode");
+        if (saved && ["toggle", "push-to-talk", "push-to-mute"].includes(saved)) {
+          setMuteMode(saved as MuteMode);
+        }
+      } catch (err) {
+        console.error("Ошибка чтенiя режима мьюта", err);
+      }
+    };
+    readMuteMode();
+    const interval = setInterval(readMuteMode, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (!callStartedAt) { setCallDuration(""); return; }
@@ -248,6 +266,7 @@ export function VoiceChat() {
         isMuted={isMuted}
         isDeafened={isDeafened}
         isScreenSharing={isScreenSharing}
+        muteMode={muteMode}
         onToggleMute={() => dispatch(toggleMute())}
         onToggleDeafen={() => dispatch(toggleDeafen())}
         onToggleScreenShare={() => {

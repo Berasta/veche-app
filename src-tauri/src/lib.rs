@@ -1,5 +1,12 @@
 use tauri::{Emitter, Manager, WebviewUrl};
-use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut};
+use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
+use serde::Serialize;
+
+#[derive(Serialize, Clone)]
+struct ShortcutEvent {
+    shortcut: String,
+    event_type: String,
+}
 
 #[tauri::command]
 fn toggle_overlay(app: tauri::AppHandle) {
@@ -169,13 +176,22 @@ pub fn run() {
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 .with_handler(move |app, shortcut, event| {
-                    if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
-                        let _ = app.emit("shortcut", shortcut.to_string());
-                    }
+                    let event_type = match event.state {
+                        ShortcutState::Pressed => "keydown",
+                        ShortcutState::Released => "keyup",
+                    };
+                    
+                    let payload = ShortcutEvent {
+                        shortcut: shortcut.to_string(),
+                        event_type: event_type.to_string(),
+                    };
+                    
+                    let _ = app.emit("shortcut", payload);
                 })
                 .build(),
         )
         .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .invoke_handler(tauri::generate_handler![
             toggle_overlay,
             open_overlay,

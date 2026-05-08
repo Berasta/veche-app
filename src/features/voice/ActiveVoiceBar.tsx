@@ -30,9 +30,10 @@ import {
   toggleScreenShare,
   toggleDeafen,
 } from "@store/thunks/roomThunk";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScreenShareModal } from "./ScreenShareModal";
 import { useNavigate } from "react-router";
+import type { MuteMode } from "./VoiceControls";
 
 export function ActiveVoiceBar() {
   const dispatch = useAppDispatch();
@@ -51,6 +52,24 @@ export function ActiveVoiceBar() {
   const error = useAppSelector(selectError);
 
   const [showScreenModal, setShowScreenModal] = useState(false);
+  const [muteMode, setMuteMode] = useState<MuteMode>("toggle");
+
+  // Читаем режим мьюта из localStorage
+  useEffect(() => {
+    const readMuteMode = () => {
+      try {
+        const saved = localStorage.getItem("muteMode");
+        if (saved && ["toggle", "push-to-talk", "push-to-mute"].includes(saved)) {
+          setMuteMode(saved as MuteMode);
+        }
+      } catch (err) {
+        console.error("Ошибка чтенiя режима мьюта", err);
+      }
+    };
+    readMuteMode();
+    const interval = setInterval(readMuteMode, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (!connected && !connecting && !error) return null;
 
@@ -98,17 +117,24 @@ export function ActiveVoiceBar() {
 
             {/* Action buttons */}
             <div className="flex items-center gap-0.5">
-              <button
-                onClick={() => dispatch(toggleMute())}
-                title={isMuted ? "Включить микрофон" : "Выключить микрофон"}
-                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
-                  isMuted
-                    ? "bg-red-500/15 text-red-500"
-                    : "hover:bg-foreground/5 text-foreground/30 hover:text-foreground/60"
-                }`}
-              >
-                {isMuted ? <MicOff size={13} /> : <Mic size={13} />}
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => dispatch(toggleMute())}
+                  title={isMuted ? "Включить микрофон" : "Выключить микрофон"}
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
+                    isMuted
+                      ? "bg-red-500/15 text-red-500"
+                      : "hover:bg-foreground/5 text-foreground/30 hover:text-foreground/60"
+                  }`}
+                >
+                  {isMuted ? <MicOff size={13} /> : <Mic size={13} />}
+                </button>
+                {(muteMode === "push-to-talk" || muteMode === "push-to-mute") && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-primary/90 text-primary-foreground text-[8px] font-bold px-0.5 rounded leading-none">
+                    {muteMode === "push-to-talk" ? "PTT" : "PTM"}
+                  </span>
+                )}
+              </div>
 
               <button
                 onClick={() => dispatch(toggleDeafen())}

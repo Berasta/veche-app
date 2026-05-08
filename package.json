@@ -6,7 +6,9 @@
   "scripts": {
     "build": "vite build",
     "tauri": "tauri",
-    "dev": "vite"
+    "dev": "vite",
+    "updater": "node server/updater-server.js",
+    "release": "./scripts/release.sh"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
@@ -45,6 +47,7 @@
     "@tanstack/react-query": "^5.100.7",
     "@tauri-apps/api": "^2.11.0",
     "@tauri-apps/plugin-global-shortcut": "^2.3.1",
+    "@tauri-apps/plugin-process": "^2.3.1",
     "@tauri-apps/plugin-updater": "^2.10.1",
     "@tauri-apps/plugin-window": "^2.0.0-alpha.1",
     "axios": "^1.15.0",

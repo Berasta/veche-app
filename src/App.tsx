@@ -4,6 +4,7 @@ import { fetchCurrentUser } from "@entities/user/model/authSlice";
 import { useEffect, useRef } from "react";
 import { RouterProvider } from "react-router";
 import { router } from "./router";
+import { UpdateNotification } from "@features/app-update/UpdateNotification";
 
 export const App = () => {
   const dispatch = useAppDispatch();
@@ -48,6 +49,7 @@ export const App = () => {
         }}
         icons={{ success: undefined, error: undefined, info: undefined, warning: undefined }}
       />
+      <UpdateNotification />
       <RouterProvider router={router} />
     </>
   );

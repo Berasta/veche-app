@@ -8,6 +8,8 @@ import {
   PhoneOff,
 } from "lucide-react";
 
+export type MuteMode = "toggle" | "push-to-talk" | "push-to-mute";
+
 interface VoiceControlsProps {
   isMuted: boolean;
   isDeafened: boolean;
@@ -16,6 +18,7 @@ interface VoiceControlsProps {
   onToggleDeafen: () => void;
   onToggleScreenShare: () => void;
   onDisconnect: () => void;
+  muteMode?: MuteMode;
 }
 
 export function VoiceControls({
@@ -26,21 +29,46 @@ export function VoiceControls({
   onToggleDeafen,
   onToggleScreenShare,
   onDisconnect,
+  muteMode = "toggle",
 }: VoiceControlsProps) {
+  const getMuteLabel = () => {
+    if (muteMode === "push-to-talk") {
+      return isMuted ? "Зажмите клавишу чтобы говорить" : "Отпустите клавишу";
+    } else if (muteMode === "push-to-mute") {
+      return isMuted ? "Отпустите клавишу" : "Зажмите клавишу чтобы замьютиться";
+    }
+    return isMuted ? "Включити микрофонъ" : "Выключити микрофонъ";
+  };
+
+  const getModeIndicator = () => {
+    if (muteMode === "push-to-talk") return "PTT";
+    if (muteMode === "push-to-mute") return "PTM";
+    return null;
+  };
+
+  const modeIndicator = getModeIndicator();
+
   return (
     <div className="bg-foreground/[0.02] backdrop-blur-xl px-4 py-2.5">
       <div className="flex items-center justify-center gap-2">
-        <button
-          onClick={onToggleMute}
-          title={isMuted ? "Включити микрофонъ" : "Выключити микрофонъ"}
-          className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
-            isMuted
-              ? "bg-red-500/15 text-red-500"
-              : "text-foreground/30 hover:text-foreground/60 hover:bg-foreground/5"
-          }`}
-        >
-          {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
-        </button>
+        <div className="relative">
+          <button
+            onClick={onToggleMute}
+            title={getMuteLabel()}
+            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
+              isMuted
+                ? "bg-red-500/15 text-red-500"
+                : "text-foreground/30 hover:text-foreground/60 hover:bg-foreground/5"
+            }`}
+          >
+            {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
+          </button>
+          {modeIndicator && (
+            <span className="absolute -top-1 -right-1 bg-primary/90 text-primary-foreground text-[9px] font-bold px-1 py-0.5 rounded leading-none">
+              {modeIndicator}
+            </span>
+          )}
+        </div>
 
         <button
           onClick={onToggleDeafen}

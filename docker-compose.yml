@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # Основное приложение (веб)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - VITE_PB_URL=${VITE_PB_URL:-https://admin.weche.ru}
+      - APP_URL=${APP_URL:-https://weche.ru}
+    restart: unless-stopped
+    networks:
+      - weche-network
+
+  # Meta сервер (для OG изображений)
+  meta:
+    build:
+      context: .
+      dockerfile: Dockerfile.meta
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - VITE_PB_URL=${VITE_PB_URL:-https://admin.weche.ru}
+      - APP_URL=${APP_URL:-https://weche.ru}
+    restart: unless-stopped
+    networks:
+      - weche-network
+
+  # Updater сервер (для автообновлений Tauri)
+  updater:
+    build:
+      context: .
+      dockerfile: Dockerfile.updater
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - UPDATER_PORT=3002
+    volumes:
+      - ../updates:/app/updates:ro
+    restart: unless-stopped
+    networks:
+      - weche-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx-updater.conf:/etc/nginx/conf.d/updates.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - nginx-cache:/var/cache/nginx
+    depends_on:
+      - app
+      - meta
+      - updater
+    restart: unless-stopped
+    networks:
+      - weche-network
+
+networks:
+  weche-network:
+    driver: bridge
+
+volumes:
+  nginx-cache:
