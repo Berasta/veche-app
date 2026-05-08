@@ -21,7 +21,13 @@ function normalize(shortcut: string): string {
         mods.push("ctrl"); break;
       case "shift": mods.push("shift"); break;
       case "alt": case "option": mods.push("alt"); break;
-      default: keys.push(p);
+      default: {
+        // global-hotkey emits Code names: "KeyM" → "m", "Digit1" → "1"
+        let k = p;
+        if (/^key[a-z]$/.test(k)) k = k.slice(3);
+        else if (/^digit(\d)$/.test(k)) k = k.slice(5);
+        keys.push(k);
+      }
     }
   }
   return [...mods.sort(), ...keys].join("+");

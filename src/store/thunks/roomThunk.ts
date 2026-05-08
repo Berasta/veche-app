@@ -220,6 +220,7 @@ export const joinChannel = createAsyncThunk(
       });
 
       room.on(RoomEvent.TrackUnsubscribed, (track, _pub, participant) => {
+        if (track.kind !== Track.Kind.Audio) return;
         if (track.source === Track.Source.ScreenShareAudio) return;
         track.detach();
         audioElements[participant.identity]?.remove();

@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, User, ArrowLeft, Trash2, Crop, Loader2, Info, Keyboard } from "lucide-react";
+import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, User, ArrowLeft, Trash2, Crop, Loader2, Info, Keyboard, RefreshCw, Download, CheckCircle2, AlertCircle } from "lucide-react";
 import { ThemeSwitcher } from "@features/theme/ThemeSwitcher";
 import { VoiceSettings } from "@features/voice/VoiceSettings";
 import { HotkeySettings } from "@features/voice/HotkeySettings";
+import { useAppUpdater } from "@shared/hooks/useAppUpdater";
 import { BannerRepositionDialog } from "@entities/user/ui/BannerRepositionDialog";
 import { useAuth } from "@entities/user/model/useAuth";
 import { pb, PB_URL } from "@shared/api/pb";
@@ -28,6 +29,7 @@ export function Settings() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { updateInfo, checking, downloading, checkForUpdates } = useAppUpdater();
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState("");
@@ -263,10 +265,41 @@ export function Settings() {
                 </button>
               </div>
 
-              {/* App version */}
-              <div className="flex items-center gap-1.5 pt-1 px-1">
-                <Info className="w-3 h-3 text-foreground/15" strokeWidth={1.5} />
-                <span className="text-xs text-foreground/20 font-mono">Вече v{APP_VERSION}</span>
+              {/* App version + update status */}
+              <div className="pt-1 px-1 space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <Info className="w-3 h-3 text-foreground/15" strokeWidth={1.5} />
+                    <span className="text-xs text-foreground/20 font-mono">Вече v{APP_VERSION}</span>
+                  </div>
+                  <button
+                    onClick={checkForUpdates}
+                    disabled={checking || downloading}
+                    className="flex items-center gap-1 text-xs text-foreground/30 hover:text-foreground/60 transition-colors disabled:pointer-events-none"
+                    title="Проверить обновления"
+                  >
+                    <RefreshCw className={`w-3 h-3 ${checking ? "animate-spin" : ""}`} strokeWidth={1.5} />
+                    <span>{checking ? "Проверка..." : "Обновить"}</span>
+                  </button>
+                </div>
+                {downloading && (
+                  <div className="flex items-center gap-1.5 text-xs text-primary/70">
+                    <Download className="w-3 h-3 animate-pulse" strokeWidth={1.5} />
+                    <span>Загружаю обновленiе...</span>
+                  </div>
+                )}
+                {!checking && !downloading && updateInfo?.available && (
+                  <div className="flex items-center gap-1.5 text-xs text-primary/80">
+                    <Download className="w-3 h-3" strokeWidth={1.5} />
+                    <span>Доступна v{updateInfo.version}</span>
+                  </div>
+                )}
+                {!checking && !downloading && updateInfo && !updateInfo.available && (
+                  <div className="flex items-center gap-1.5 text-xs text-foreground/20">
+                    <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} />
+                    <span>Актуальная версiя</span>
+                  </div>
+                )}
               </div>
             </>
           )}

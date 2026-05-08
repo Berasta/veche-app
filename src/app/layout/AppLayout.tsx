@@ -14,20 +14,13 @@ const DEFAULTS = {
   toggleOverlay: "Ctrl+Shift+Space",
 };
 
-function migrateBindings(
-  saved: Record<string, string>,
-): Record<string, string> {
-  const result = { ...DEFAULTS };
-  for (const [key, val] of Object.entries(saved)) {
-    result[key] = val.replace(/^Ctrl\+/i, "Cmd+");
-  }
-  return result;
-}
-
 function readBindings(): Record<string, string> {
   try {
     const saved = localStorage.getItem("hotkeyBindings");
-    if (saved) return migrateBindings(JSON.parse(saved));
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return { ...DEFAULTS, ...parsed };
+    }
   } catch (err) {
     console.error("Ошибка чтенiя горячихъ клавишъ", err);
   }
