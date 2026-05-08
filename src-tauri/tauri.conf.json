@@ -38,6 +38,17 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      },
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "installMode": "perMachine",
+        "languages": ["Russian", "English"],
+        "displayLanguageSelector": true
+      }
+    },
     "macOS": {
       "infoPlist": "Info.plist"
     }
