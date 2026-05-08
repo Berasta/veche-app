@@ -5,8 +5,6 @@ export interface HotkeyBinding {
   id: string;
   shortcut: string;
   action: () => void;
-  onKeyDown?: () => void;
-  onKeyUp?: () => void;
 }
 
 function normalize(shortcut: string): string {
@@ -64,38 +62,12 @@ export function useTauriHotkeys(bindings: HotkeyBinding[]) {
 
     import("@tauri-apps/api/event").then(({ listen }) => {
       if (cancelled) return;
-      
-      // Слушаем события нажатия клавиш
-      listen<{ shortcut: string; event_type: string } | string>("shortcut", (event) => {
-        // Поддержка как старого формата (строка), так и нового (объект)
-        let shortcutStr: string;
-        let eventType: string | undefined;
-        
-        if (typeof event.payload === "string") {
-          // Старый формат: просто строка
-          shortcutStr = event.payload;
-          eventType = "pressed";
-        } else {
-          // Новый формат: объект с shortcut и event_type
-          shortcutStr = event.payload.shortcut;
-          eventType = event.payload.event_type;
-        }
-        
-        const normalized = normalize(shortcutStr);
+      listen<string>("shortcut", (event) => {
+        const normalized = normalize(event.payload);
         const binding = bindingsRef.current.find(
           (b) => normalize(b.shortcut) === normalized,
         );
-        
-        if (!binding) return;
-        
-        if (eventType === "keydown" && binding.onKeyDown) {
-          binding.onKeyDown();
-        } else if (eventType === "keyup" && binding.onKeyUp) {
-          binding.onKeyUp();
-        } else if (eventType === "pressed" || !eventType) {
-          // Toggle режим или обратная совместимость
-          binding.action();
-        }
+        binding?.action();
       }).then((fn) => { unlisten = fn; });
     });
 
