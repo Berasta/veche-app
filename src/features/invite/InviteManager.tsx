@@ -159,6 +159,10 @@ function fmtDate(date: string | null) {
 }
 
 function copyCode(code: string) {
-  navigator.clipboard.writeText(`${window.location.origin}/invite/${code}`);
+  const isTauriApp = window.location.origin.includes("tauri.localhost") || window.location.origin.startsWith("tauri://");
+  const link = isTauriApp
+    ? `veche://invite/${code}`
+    : `${window.location.origin}/invite/${code}`;
+  navigator.clipboard.writeText(link);
   toast.success("Ссылка скопирована");
 }

@@ -4,6 +4,13 @@ import { useAppDispatch } from "@app/hooks";
 import { toggleScreenShare } from "@store/thunks/roomThunk";
 import { setScreenShareQuality } from "@entities/room/model/roomSlice";
 
+export type ShareOptions = {
+  quality: "low" | "medium" | "high";
+  fps: 15 | 30 | 60 | 120;
+  bitrate: number;
+  audio: boolean;
+};
+
 const QUALITY_MAP = {
   low: { width: 854, height: 480 },
   medium: { width: 1280, height: 720 },
@@ -15,6 +22,7 @@ type Fps = 15 | 30 | 60 | 120;
 
 interface Props {
   onClose: () => void;
+  onStart?: (options: ShareOptions) => void;
 }
 
 const LS_KEY = "screenShareQuality";
@@ -33,7 +41,7 @@ function saveQuality(quality: Quality, fps: Fps, bitrate: number) {
 
 const BITRATES = [4, 8, 16, 32, 64];
 
-export function ScreenShareModal({ onClose }: Props) {
+export function ScreenShareModal({ onClose, onStart }: Props) {
   const dispatch = useAppDispatch();
 
   const saved = loadSavedQuality();
@@ -47,22 +55,19 @@ export function ScreenShareModal({ onClose }: Props) {
   const handleBitrate = (b: number) => { setBitrate(b); saveQuality(quality, fps, b); };
 
   const handleStart = async () => {
-    dispatch(setScreenShareQuality({
-      resolution: quality === "low" ? "480p" : quality === "medium" ? "720p" : "1080p",
-      fps,
-      bitrate,
-    }));
-
-    dispatch(toggleScreenShare({
-      audio: shareAudio,
-      resolution: {
-        width: QUALITY_MAP[quality].width,
-        height: QUALITY_MAP[quality].height,
-        frameRate: fps,
-      },
-    } as any));
-
-    onClose();
+    const options: ShareOptions = { quality, fps, bitrate, audio: shareAudio };
+    if (onStart) {
+      onStart(options);
+    } else {
+      dispatch(setScreenShareQuality({
+        resolution: quality === "low" ? "480p" : quality === "medium" ? "720p" : "1080p",
+        fps,
+        bitrate,
+        audio: shareAudio,
+      }));
+      dispatch(toggleScreenShare());
+      onClose();
+    }
   };
 
   return (

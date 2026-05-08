@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { Room, RoomEvent, Track } from "livekit-client";
+import { Room, RoomEvent, ConnectionQuality } from "livekit-client";
 import PocketBase from "pocketbase";
 import { toast } from "sonner";
 import {
@@ -8,53 +8,21 @@ import {
   setDisconnected,
   setReconnecting,
   setError,
-  setParticipants,
-  updateSpeakers,
-  updateLocalMute,
-  Participant,
   setVolume,
-  setScreenSharing,
   setDeafened,
   setConnectionQuality,
+  setScreenSharing,
 } from "@entities/room/model/roomSlice";
+import { setActiveRoom } from "@shared/lib/voiceRoom";
 import { RootState } from "@app/store";
 
 const PB_URL = import.meta.env.VITE_PB_URL || "http://localhost:8090";
 const pb = new PocketBase(PB_URL);
 
 // Room объект живёт вне Redux — он не сериализуемый (содержит WebSocket, WebRTC и т.д.)
-// Redux хранит только сериализуемый стейт (строки, булевы, массивы участников)
+// Redux хранит только сериализуемый стейт (строки, булевы, числа)
 let activeRoom: Room | null = null;
-let activeChannelIdForCleanup: string | null = null;
 let wakeLock: any = null;
-export const audioElements: Record<string, HTMLAudioElement> = {};
-export const screenShareElements: Record<string, HTMLVideoElement> = {};
-let savedVolumesBeforeDeafen: Record<string, number> = {};
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-function buildParticipants(room: Room): Participant[] {
-  return [
-    {
-      identity: room.localParticipant.identity,
-      name: "Вы",
-      isSpeaking: room.localParticipant.isSpeaking,
-      isMuted: !room.localParticipant.isMicrophoneEnabled,
-      isLocal: true,
-    },
-    ...Array.from(room.remoteParticipants.values()).map((p) => ({
-      identity: p.identity,
-      name: p.name || p.identity,
-      isSpeaking: p.isSpeaking,
-      isMuted: !p.isMicrophoneEnabled,
-      isLocal: false,
-    })),
-  ];
-}
-
-function cleanupAudio() {
-  Object.values(audioElements).forEach((el) => el.remove());
-  Object.keys(audioElements).forEach((k) => delete audioElements[k]);
-}
 
 // ─── Screen Wake Lock ──────────────────────────────────────────────────────────
 async function requestWakeLock() {
@@ -81,44 +49,6 @@ function releaseWakeLock() {
   }
 }
 
-function cleanupScreenShare() {
-  Object.values(screenShareElements).forEach((el) => el.remove());
-  Object.keys(screenShareElements).forEach(
-    (k) => delete screenShareElements[k],
-  );
-}
-
-// ─── Channel Participants ──────────────────────────────────────────────────────
-async function addChannelParticipant(channelId: string) {
-  try {
-    const existing = await pb.collection("channel_participants").getList(1, 1, {
-      filter: `channel_id = "${channelId}" && user_id = "${pb.authStore.record!.id}"`,
-    });
-    if (existing.items.length > 0) return;
-    await pb.collection("channel_participants").create({
-      channel_id: channelId,
-      user_id: pb.authStore.record!.id,
-      joined_at: new Date().toISOString(),
-      is_muted: false,
-    });
-  } catch (e) {
-    console.error("Failed to add channel participant", e);
-  }
-}
-
-async function removeChannelParticipant(channelId: string) {
-  try {
-    const existing = await pb.collection("channel_participants").getList(1, 1, {
-      filter: `channel_id = "${channelId}" && user_id = "${pb.authStore.record!.id}"`,
-    });
-    if (existing.items.length > 0) {
-      await pb.collection("channel_participants").delete(existing.items[0].id);
-    }
-  } catch (e) {
-    console.error("Failed to remove channel participant", e);
-  }
-}
-
 // ─── Thunks ───────────────────────────────────────────────────────────────────
 
 export const joinChannel = createAsyncThunk(
@@ -142,11 +72,9 @@ export const joinChannel = createAsyncThunk(
     // Если в другом канале — сначала выходим
     if (activeRoom) {
       releaseWakeLock();
+      setActiveRoom(null);
       await activeRoom.disconnect();
-      cleanupAudio();
-      cleanupScreenShare();
       activeRoom = null;
-      activeChannelIdForCleanup = null;
     }
 
     dispatch(setConnecting(true));
@@ -166,86 +94,11 @@ export const joinChannel = createAsyncThunk(
       });
       activeRoom = room;
 
-      // 3. Вешаем события — диспатчим в Redux
-      room.on(RoomEvent.ParticipantConnected, () => {
-        dispatch(setParticipants(buildParticipants(room)));
-      });
-
-      room.on(RoomEvent.TrackSubscribed, (track, _pub, participant) => {
-        if (
-          track.kind === Track.Kind.Video &&
-          track.source === Track.Source.ScreenShare
-        ) {
-          const el = track.attach() as HTMLVideoElement;
-          el.id = `screen-${participant.identity}`;
-          el.style.cssText =
-            "width:100%;height:100%;object-fit:contain;border-radius:8px";
-          screenShareElements[participant.identity] = el;
-          dispatch(setScreenSharing(true));
-        }
-        // ... остальной код
-      });
-
-      room.on(RoomEvent.TrackUnsubscribed, (track, _pub, participant) => {
-        if (track.source === Track.Source.ScreenShare) {
-          screenShareElements[participant.identity]?.remove();
-          delete screenShareElements[participant.identity];
-          if (Object.keys(screenShareElements).length === 0) {
-            dispatch(setScreenSharing(false));
-          }
-        }
-        // ... остальной код
-      });
-
-      room.on(RoomEvent.ParticipantDisconnected, () => {
-        dispatch(setParticipants(buildParticipants(room)));
-      });
-
-      room.on(RoomEvent.TrackSubscribed, (track, _pub, participant) => {
-        if (
-          track.kind === Track.Kind.Audio &&
-          track.source !== Track.Source.ScreenShareAudio
-        ) {
-          const el = track.attach() as HTMLAudioElement;
-          el.id = `audio-${participant.identity}`;
-          document.body.appendChild(el);
-          audioElements[participant.identity] = el;
-          // Если пользователь в оглушении — ставим новому участнику volume = 0
-          const state = getState() as RootState;
-          if (state.room.isDeafened) {
-            el.volume = 0;
-          }
-        }
-        dispatch(setParticipants(buildParticipants(room)));
-      });
-
-      room.on(RoomEvent.TrackUnsubscribed, (track, _pub, participant) => {
-        if (track.kind !== Track.Kind.Audio) return;
-        if (track.source === Track.Source.ScreenShareAudio) return;
-        track.detach();
-        audioElements[participant.identity]?.remove();
-        delete audioElements[participant.identity];
-        dispatch(setParticipants(buildParticipants(room)));
-      });
-
-      room.on(RoomEvent.ActiveSpeakersChanged, (speakers) => {
-        dispatch(updateSpeakers(new Set(speakers.map((s) => s.identity))));
-      });
-
-      room.on(RoomEvent.TrackMuted, () => {
-        dispatch(setParticipants(buildParticipants(room)));
-      });
-
-      room.on(RoomEvent.TrackUnmuted, () => {
-        dispatch(setParticipants(buildParticipants(room)));
-      });
-
+      // 3. Минимальный набор событий для Redux-стейта (UI-состояния соединения)
       room.on(RoomEvent.Disconnected, () => {
         releaseWakeLock();
-        cleanupAudio();
-        cleanupScreenShare();
+        setActiveRoom(null);
         activeRoom = null;
-        activeChannelIdForCleanup = null;
         dispatch(setDisconnected());
       });
 
@@ -257,15 +110,15 @@ export const joinChannel = createAsyncThunk(
         dispatch(setReconnecting(false));
       });
 
-      room.on(RoomEvent.ConnectionQualityChanged, (quality) => {
-        const labels = [
-          "unknown",
-          "poor",
-          "good",
-          "excellent",
-          "lost",
-        ] as const;
-        dispatch(setConnectionQuality(labels[quality] ?? "unknown"));
+      room.on(RoomEvent.ConnectionQualityChanged, (quality: ConnectionQuality) => {
+        const map: Record<ConnectionQuality, "unknown" | "poor" | "good" | "excellent" | "lost"> = {
+          [ConnectionQuality.Unknown]: "unknown",
+          [ConnectionQuality.Poor]: "poor",
+          [ConnectionQuality.Good]: "good",
+          [ConnectionQuality.Excellent]: "excellent",
+          [ConnectionQuality.Lost]: "lost",
+        };
+        dispatch(setConnectionQuality(map[quality] ?? "unknown"));
       });
 
       // 4. Подключаемся
@@ -293,14 +146,14 @@ export const joinChannel = createAsyncThunk(
         }
       }
 
-      // 6. Блокируем экран (участник регистрируется через LiveKit webhook)
+      // 6. Уведомляем React-контекст о новом Room (VoiceRoomProvider подключится)
+      setActiveRoom(room);
       requestWakeLock();
-      activeChannelIdForCleanup = channelId;
 
-      // 7. Обновляем стейт
+      // 7. Обновляем Redux-стейт
       dispatch(setConnected({ channelId, channelName, serverId }));
-      dispatch(setParticipants(buildParticipants(room)));
     } catch (e: any) {
+      setActiveRoom(null);
       activeRoom = null;
       dispatch(setError(e.message || "Ошибка подключения"));
     }
@@ -311,11 +164,10 @@ export const leaveChannel = createAsyncThunk(
   "room/leave",
   async (_, { dispatch }) => {
     if (activeRoom) {
+      releaseWakeLock();
+      setActiveRoom(null);
       await activeRoom.disconnect();
-      cleanupAudio();
-      cleanupScreenShare();
       activeRoom = null;
-      activeChannelIdForCleanup = null;
     }
     dispatch(setDisconnected());
   },
@@ -323,11 +175,11 @@ export const leaveChannel = createAsyncThunk(
 
 export const toggleMute = createAsyncThunk(
   "room/toggleMute",
-  async (_, { dispatch }) => {
+  async () => {
     if (!activeRoom) return;
     const enabled = activeRoom.localParticipant.isMicrophoneEnabled;
     await activeRoom.localParticipant.setMicrophoneEnabled(!enabled);
-    dispatch(updateLocalMute(enabled)); // enabled → теперь muted, и наоборот
+    // VoiceStateSyncer в VoiceRoomProvider обновит Redux реактивно через useLocalParticipant
   },
 );
 
@@ -335,36 +187,12 @@ export const toggleDeafen = createAsyncThunk(
   "room/toggleDeafen",
   async (_, { dispatch, getState }) => {
     if (!activeRoom) return;
-    const state = getState() as RootState;
-    const wasDeafened = state.room.isDeafened;
-
-    if (wasDeafened) {
-      // Выходим из оглушения — восстанавливаем громкости
-      await activeRoom.localParticipant.setMicrophoneEnabled(true);
-      dispatch(updateLocalMute(false));
-
-      for (const [identity, el] of Object.entries(audioElements)) {
-        const saved = savedVolumesBeforeDeafen[identity];
-        el.volume = saved != null ? saved / 100 : 1;
-        dispatch(setVolume({ identity, volume: saved ?? 100 }));
-      }
-      savedVolumesBeforeDeafen = {};
-
-      dispatch(setDeafened(false));
-    } else {
-      // Оглушение — запоминаем громкости, выключаем микрофон и глушим звук
-      savedVolumesBeforeDeafen = { ...state.room.volumes };
-
-      await activeRoom.localParticipant.setMicrophoneEnabled(false);
-      dispatch(updateLocalMute(true));
-
-      for (const [identity, el] of Object.entries(audioElements)) {
-        el.volume = 0;
-        dispatch(setVolume({ identity, volume: 0 }));
-      }
-
-      dispatch(setDeafened(true));
-    }
+    const { isDeafened } = (getState() as RootState).room;
+    const newDeafened = !isDeafened;
+    // При выходе из оглушения — включаем микрофон, при оглушении — выключаем
+    await activeRoom.localParticipant.setMicrophoneEnabled(isDeafened);
+    // VoiceAudioRenderer будет передавать volume=0 всем AudioTrack когда isDeafened=true
+    dispatch(setDeafened(newDeafened));
   },
 );
 
@@ -374,8 +202,7 @@ export const setParticipantVolume = createAsyncThunk(
     { identity, volume }: { identity: string; volume: number },
     { dispatch },
   ) => {
-    const el = audioElements[identity];
-    if (el) el.volume = volume / 100; // Конвертируем обратно в 0-1 для HTMLAudioElement
+    // VoiceAudioRenderer реактивно применит новую громкость к AudioTrack
     dispatch(setVolume({ identity, volume }));
   },
 );
@@ -392,7 +219,7 @@ export const toggleScreenShare = createAsyncThunk(
     if (!activeRoom) return;
 
     const isSharing = activeRoom.localParticipant.isScreenShareEnabled;
-    const { resolution, fps, bitrate } = (getState() as RootState).room
+    const { resolution, fps, bitrate, audio } = (getState() as RootState).room
       .screenShareQuality;
 
     try {
@@ -401,16 +228,25 @@ export const toggleScreenShare = createAsyncThunk(
         await activeRoom.localParticipant.setScreenShareEnabled(false);
       } else {
         // Включаем — с опциями качества
-        await activeRoom.localParticipant.setScreenShareEnabled(true, {
-          audio: true,
-          selfBrowserSurface: "exclude",
-          resolution: {
-            width: RESOLUTION_MAP[resolution].width,
-            height: RESOLUTION_MAP[resolution].height,
-            frameRate: fps,
+        await activeRoom.localParticipant.setScreenShareEnabled(
+          true,
+          {
+            audio,
+            selfBrowserSurface: "exclude",
+            resolution: {
+              width: RESOLUTION_MAP[resolution].width,
+              height: RESOLUTION_MAP[resolution].height,
+              frameRate: fps,
+            },
+            contentHint: "motion",
           },
-          contentHint: "motion",
-        });
+          {
+            videoEncoding: {
+              maxBitrate: bitrate * 1_000_000,
+              maxFramerate: fps,
+            },
+          },
+        );
       }
       dispatch(setScreenSharing(!isSharing));
     } catch (e: any) {

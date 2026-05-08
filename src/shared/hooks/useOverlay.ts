@@ -1,19 +1,21 @@
 import { useEffect, useRef } from "react";
 import { isTauri } from "@shared/lib/tauri";
 import { useAppSelector } from "@app/hooks";
-import { selectParticipants, selectIsMuted } from "@entities/room/model/roomSelectors";
+import { selectIsMuted } from "@entities/room/model/roomSelectors";
+import { useSpeakingParticipants, useLocalParticipant } from "@livekit/components-react";
 
 export function useOverlay() {
-  const participants = useAppSelector(selectParticipants);
+  const speakingParticipants = useSpeakingParticipants();
+  const { localParticipant } = useLocalParticipant();
   const isMuted = useAppSelector(selectIsMuted);
   const lastEmit = useRef<string>("");
 
   useEffect(() => {
     if (!isTauri()) return;
 
-    const speaking = participants
-      .filter((p) => p.isSpeaking && !p.isLocal)
-      .map((p) => p.name);
+    const speaking = speakingParticipants
+      .filter((p) => p.identity !== localParticipant.identity)
+      .map((p) => p.name || p.identity);
 
     const payload = JSON.stringify({ isMuted, speaking });
 
@@ -23,5 +25,5 @@ export function useOverlay() {
     import("@tauri-apps/api/event").then(({ emit }) => {
       emit("overlay-state", { isMuted, isDeafened: false, speaking });
     });
-  }, [participants, isMuted]);
+  }, [speakingParticipants, isMuted, localParticipant.identity]);
 }

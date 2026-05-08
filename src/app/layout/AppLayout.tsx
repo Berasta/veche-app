@@ -3,10 +3,12 @@ import { ActiveVoiceBar } from "@features/voice/ActiveVoiceBar";
 import { GradList } from "@features/server/GradList";
 import { Outlet, useLocation } from "react-router";
 import { MobileMenuProvider } from "./MobileMenuContext";
+import { VoiceRoomProvider } from "./VoiceRoomProvider";
 import { useAppDispatch } from "@store/hooks";
 import { toggleMute } from "@store/thunks/roomThunk";
 import { useTauriHotkeys } from "@shared/hooks/useTauriHotkeys";
 import { useRealtime } from "@shared/hooks/useRealtime";
+import { useDeepLinks } from "@shared/hooks/useDeepLinks";
 import { isTauri } from "@shared/lib/tauri";
 
 const DEFAULTS = {
@@ -35,6 +37,7 @@ export const AppLayout = () => {
   const [bindings, setBindings] = useState(readBindings);
 
   useRealtime();
+  useDeepLinks();
 
   useEffect(() => {
     const interval = setInterval(() => setBindings(readBindings()), 1000);
@@ -62,13 +65,15 @@ export const AppLayout = () => {
 
   return (
     <MobileMenuProvider>
-      <div className="h-dvh w-screen overflow-hidden grid grid-rows-[1fr_auto]">
-        <div className={`min-h-0 flex overflow-hidden ${isOnboarding ? "" : "pt-12 md:pt-0"}`}>
-          <GradList />
-          <Outlet />
+      <VoiceRoomProvider>
+        <div className="h-dvh w-screen overflow-hidden grid grid-rows-[1fr_auto]">
+          <div className={`min-h-0 flex overflow-hidden ${isOnboarding ? "" : "pt-12 md:pt-0"}`}>
+            <GradList />
+            <Outlet />
+          </div>
+          {!isVoiceChat && !isOnboarding && <ActiveVoiceBar />}
         </div>
-        {!isVoiceChat && !isOnboarding && <ActiveVoiceBar />}
-      </div>
+      </VoiceRoomProvider>
     </MobileMenuProvider>
   );
 };

@@ -1,13 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export interface Participant {
-  identity: string;
-  name: string;
-  isSpeaking: boolean;
-  isMuted: boolean;
-  isLocal: boolean;
-}
-
 interface RoomState {
   connected: boolean;
   connecting: boolean;
@@ -16,7 +8,9 @@ interface RoomState {
   activeChannelId: string | null;
   activeChannelName: string | null;
   activeServerId: string | null;
-  participants: Participant[];
+  participantCount: number;
+  speakingCount: number;
+  isMuted: boolean;
   volumes: Record<string, number>;
   connectionQuality: "excellent" | "good" | "poor" | "lost" | "unknown";
   isScreenSharing: boolean;
@@ -24,6 +18,7 @@ interface RoomState {
     resolution: "1080p" | "720p" | "480p";
     fps: 15 | 30 | 60 | 120;
     bitrate: number;
+    audio: boolean;
   };
   isDeafened: boolean;
   callStartedAt: number | null;
@@ -37,10 +32,12 @@ const initialState: RoomState = {
   activeChannelId: null,
   activeChannelName: null,
   activeServerId: null,
-  participants: [],
+  participantCount: 0,
+  speakingCount: 0,
+  isMuted: false,
   volumes: {},
   isScreenSharing: false,
-  screenShareQuality: { resolution: "1080p", fps: 30, bitrate: 8 },
+  screenShareQuality: { resolution: "1080p", fps: 30, bitrate: 8, audio: true },
   isDeafened: false,
   callStartedAt: null,
   connectionQuality: "unknown",
@@ -76,24 +73,24 @@ const roomSlice = createSlice({
       state.activeChannelId = null;
       state.activeChannelName = null;
       state.activeServerId = null;
-      state.participants = [];
+      state.participantCount = 0;
+      state.speakingCount = 0;
+      state.isMuted = false;
+      state.isDeafened = false;
+      state.isScreenSharing = false;
     },
     setError(state, action: PayloadAction<string>) {
       state.error = action.payload;
       state.connecting = false;
     },
-    setParticipants(state, action: PayloadAction<Participant[]>) {
-      state.participants = action.payload;
+    setParticipantCount(state, action: PayloadAction<number>) {
+      state.participantCount = action.payload;
     },
-    updateSpeakers(state, action: PayloadAction<Set<string>>) {
-      state.participants = state.participants.map((p) => ({
-        ...p,
-        isSpeaking: action.payload.has(p.identity),
-      }));
+    setSpeakingCount(state, action: PayloadAction<number>) {
+      state.speakingCount = action.payload;
     },
-    updateLocalMute(state, action: PayloadAction<boolean>) {
-      const local = state.participants.find((p) => p.isLocal);
-      if (local) local.isMuted = action.payload;
+    setMuted(state, action: PayloadAction<boolean>) {
+      state.isMuted = action.payload;
     },
     setVolume(
       state,
@@ -110,9 +107,13 @@ const roomSlice = createSlice({
         resolution: "1080p" | "720p" | "480p";
         fps: 15 | 30 | 60 | 120;
         bitrate: number;
+        audio?: boolean;
       }>,
     ) {
-      state.screenShareQuality = action.payload;
+      state.screenShareQuality = {
+        ...state.screenShareQuality,
+        ...action.payload,
+      };
     },
     setDeafened(state, action: PayloadAction<boolean>) {
       state.isDeafened = action.payload;
@@ -132,9 +133,9 @@ export const {
   setDisconnected,
   setReconnecting,
   setError,
-  setParticipants,
-  updateSpeakers,
-  updateLocalMute,
+  setParticipantCount,
+  setSpeakingCount,
+  setMuted,
   setVolume,
   setScreenSharing,
   setScreenShareQuality,

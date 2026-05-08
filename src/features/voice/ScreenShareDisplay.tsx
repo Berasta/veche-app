@@ -1,37 +1,21 @@
 import { Monitor, Maximize2, Minimize2, X } from "lucide-react";
 import { useRef, useEffect, useState, useCallback } from "react";
-import { screenShareElements } from "@store/thunks/roomThunk";
+import type { TrackReferenceOrPlaceholder } from "@livekit/components-react";
+import { VideoTrack } from "@livekit/components-react";
 
 interface ScreenShareDisplayProps {
   sharerName: string;
-  sharerIdentity?: string;
+  trackRef: TrackReferenceOrPlaceholder;
   onClose?: () => void;
 }
 
 export function ScreenShareDisplay({
   sharerName,
-  sharerIdentity,
+  trackRef,
   onClose,
 }: ScreenShareDisplayProps) {
-  const videoRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
-    if (!videoRef.current || !sharerIdentity) return;
-    const container = videoRef.current;
-    const el = screenShareElements[sharerIdentity];
-    if (el) {
-      container.appendChild(el);
-      el.style.cssText = "width:100%;height:100%;object-fit:contain";
-      el.play().catch(() => {});
-    }
-    return () => {
-      if (el && container.contains(el)) {
-        container.removeChild(el);
-      }
-    };
-  }, [sharerIdentity]);
 
   const handleFullscreen = useCallback(async () => {
     if (!containerRef.current) return;
@@ -83,8 +67,12 @@ export function ScreenShareDisplay({
 
       {/* Область демонстрации */}
       <div className="aspect-video bg-black/90 flex items-center justify-center relative">
-        <div ref={videoRef} className="absolute inset-0" />
+        <VideoTrack
+          trackRef={trackRef}
+          style={{ width: "100%", height: "100%", objectFit: "contain" }}
+        />
       </div>
     </div>
   );
 }
+

@@ -70,6 +70,7 @@ pub fn run() {
         )
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_deep_link::init())
         .invoke_handler(tauri::generate_handler![toggle_overlay, open_overlay, register_shortcut, unregister_shortcut])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

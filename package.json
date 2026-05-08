@@ -13,6 +13,7 @@
   "dependencies": {
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
+    "@livekit/components-react": "^2.9.21",
     "@mui/icons-material": "7.3.5",
     "@mui/material": "7.3.5",
     "@popperjs/core": "2.11.8",
@@ -46,6 +47,7 @@
     "@sapphi-red/web-noise-suppressor": "^0.3.5",
     "@tanstack/react-query": "^5.100.7",
     "@tauri-apps/api": "^2.11.0",
+    "@tauri-apps/plugin-deep-link": "^2.4.9",
     "@tauri-apps/plugin-global-shortcut": "^2.3.1",
     "@tauri-apps/plugin-process": "^2.3.1",
     "@tauri-apps/plugin-updater": "^2.10.1",

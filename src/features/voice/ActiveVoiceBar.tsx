@@ -16,7 +16,7 @@ import {
   selectActiveChannelName,
   selectActiveChannelId,
   selectActiveServerId,
-  selectParticipants,
+  selectParticipantCount,
   selectIsMuted,
   selectSpeakingCount,
   selectIsScreenSharing,
@@ -43,7 +43,7 @@ export function ActiveVoiceBar() {
   const reconnecting = useAppSelector(selectReconnecting);
   const isScreenSharing = useAppSelector(selectIsScreenSharing);
   const channelName = useAppSelector(selectActiveChannelName);
-  const participants = useAppSelector(selectParticipants);
+  const participantCount = useAppSelector(selectParticipantCount);
   const isMuted = useAppSelector(selectIsMuted);
   const isDeafened = useAppSelector(selectIsDeafened);
   const speakingCount = useAppSelector(selectSpeakingCount);
@@ -104,7 +104,7 @@ export function ActiveVoiceBar() {
                     {channelName}
                   </span>
                   <span className="text-[10px] text-foreground/30 flex-shrink-0">
-                    {participants.length} уч.
+                    {participantCount} уч.
                   </span>
                   {speakingCount > 0 && (
                     <span className="text-[10px] text-primary flex-shrink-0 font-medium">

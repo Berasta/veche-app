@@ -1,6 +1,13 @@
 import { useState, useCallback, useEffect } from "react";
 import { Volume2, User, ArrowLeft, Clock } from "lucide-react";
-import { UserAvatar, type UserAvatarData } from "@entities/user/ui/UserAvatar";
+import { Track } from "livekit-client";
+import {
+  useParticipants,
+  useLocalParticipant,
+  useSpeakingParticipants,
+  useTracks,
+} from "@livekit/components-react";
+import { UserAvatar } from "@entities/user/ui/UserAvatar";
 import { ScreenShareModal, type ShareOptions } from "./ScreenShareModal";
 import { PageHeader } from "@shared/ui/PageHeader";
 import { IconButton } from "@shared/ui/IconButton";
@@ -10,11 +17,7 @@ import { useNavigate, useParams } from "react-router";
 import { useAppDispatch, useAppSelector } from "@app/hooks";
 import {
   selectActiveChannelName,
-  selectParticipants,
-  selectIsMuted,
   selectIsDeafened,
-  selectIsScreenSharing,
-  selectSpeakingCount,
   selectVolumes,
   selectError,
   selectCallStartedAt,
@@ -26,7 +29,6 @@ import {
   toggleDeafen,
   toggleScreenShare,
   setParticipantVolume,
-  screenShareElements,
 } from "@store/thunks/roomThunk";
 import { setScreenShareQuality } from "@entities/room/model/roomSlice";
 import { useVoiceData } from "@shared/hooks/useVoiceData";
@@ -55,18 +57,30 @@ export function VoiceChat() {
 
   useOverlay();
 
+  // LiveKit хуки — работают внутри VoiceRoomProvider (RoomContext.Provider)
+  const participants = useParticipants();
+  const speakingParticipants = useSpeakingParticipants();
+  const { isMicrophoneEnabled, isScreenShareEnabled } = useLocalParticipant();
+
+  // Экранные трансляции удалённых участников
+  const screenShareTracks = useTracks(
+    [{ source: Track.Source.ScreenShare, withPlaceholder: false }],
+    { onlySubscribed: true },
+  );
+  const sharingTrack = screenShareTracks[0];
+  const sharingIdentity = sharingTrack?.participant.identity;
+
+  // Redux — только для не-LiveKit стейта
   const connectError = useAppSelector(selectError);
-
   const channelName = useAppSelector(selectActiveChannelName);
-  const participants = useAppSelector(selectParticipants);
-  const isMuted = useAppSelector(selectIsMuted);
   const isDeafened = useAppSelector(selectIsDeafened);
-  const isScreenSharing = useAppSelector(selectIsScreenSharing);
-  const speakingCount = useAppSelector(selectSpeakingCount);
   const volumes = useAppSelector(selectVolumes);
-
   const callStartedAt = useAppSelector(selectCallStartedAt);
   const connectionQuality = useAppSelector(selectConnectionQuality);
+
+  const isMuted = !isMicrophoneEnabled;
+  const speakingCount = speakingParticipants.length;
+
   const [callDuration, setCallDuration] = useState("");
   const [muteMode, setMuteMode] = useState<MuteMode>("toggle");
 
@@ -107,11 +121,11 @@ export function VoiceChat() {
     const ud = userDataMap[p.identity];
     return {
       id: p.identity,
-      name: ud?.username || p.name,
+      name: p.isLocal ? "Вы" : (ud?.username || p.name || p.identity),
       avatarUrl: ud?.avatarUrl,
       avatarFrame: ud?.avatarFrame,
       isSpeaking: p.isSpeaking,
-      isMuted: p.isMuted,
+      isMuted: !p.isMicrophoneEnabled,
       isDeafened: p.isLocal ? isDeafened : false,
       volume: volumes[p.identity] ?? 100,
       role: roleMap[p.identity]?.name,
@@ -120,6 +134,10 @@ export function VoiceChat() {
       joinedAt: joinedAtMap[p.identity],
     };
   });
+
+  const sharerName = sharingIdentity
+    ? userDataMap[sharingIdentity]?.username || sharingIdentity
+    : undefined;
 
   const handleStartScreenShare = useCallback((options: ShareOptions) => {
     const qualityMap = {
@@ -140,12 +158,6 @@ export function VoiceChat() {
     dispatch(leaveChannel());
     handleCollapse();
   }, [dispatch, handleCollapse]);
-
-  const sharingIdentities = Object.keys(screenShareElements);
-  const sharingIdentity = sharingIdentities.length > 0 ? sharingIdentities[0] : undefined;
-  const sharerName = sharingIdentity
-    ? userDataMap[sharingIdentity]?.username || sharingIdentity
-    : undefined;
 
   return (
     <div className="flex-1 flex flex-col bg-background relative z-10 min-w-0 pt-14 md:pt-0">
@@ -197,8 +209,8 @@ export function VoiceChat() {
       <div className="flex-1 flex flex-col md:flex-row min-h-0">
         {/* Screen share / main area */}
         <div className="flex-1 flex flex-col min-h-0 p-2 md:p-4">
-          {isScreenSharing && sharerName && sharingIdentity ? (
-            <ScreenShareDisplay sharerName={sharerName} sharerIdentity={sharingIdentity} />
+          {sharingTrack && sharerName ? (
+            <ScreenShareDisplay sharerName={sharerName} trackRef={sharingTrack} />
           ) : (
             <div className="flex-1 flex items-center justify-center rounded-xl border border-dashed border-foreground/10 bg-black/5">
               <div className="text-center">
@@ -265,12 +277,12 @@ export function VoiceChat() {
       <VoiceControls
         isMuted={isMuted}
         isDeafened={isDeafened}
-        isScreenSharing={isScreenSharing}
+        isScreenSharing={isScreenShareEnabled}
         muteMode={muteMode}
         onToggleMute={() => dispatch(toggleMute())}
         onToggleDeafen={() => dispatch(toggleDeafen())}
         onToggleScreenShare={() => {
-          if (isScreenSharing) {
+          if (isScreenShareEnabled) {
             dispatch(toggleScreenShare());
           } else {
             setShowScreenShareModal(true);

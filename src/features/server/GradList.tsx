@@ -11,7 +11,7 @@ import { AppRoutes } from "@routes/routes";
 import { PalataList } from "@features/server/PalataList";
 import { ServerMembers } from "@features/server/ServerMembers";
 import { useMobileMenu } from "@app/layout/MobileMenuContext";
-import { selectParticipants } from "@entities/room/model/roomSelectors";
+
 import { pb } from "@shared/api/pb";
 import { Portal } from "@shared/ui/Portal";
 import { useIsMobile } from "@shared/ui/use-mobile";
@@ -26,7 +26,6 @@ export function GradList() {
   const isMobile = useIsMobile();
   const servers = useAppSelector((state) => state.servers.servers);
   const currentServer = servers.find((s) => s.id === serverId);
-  const participants = useAppSelector(selectParticipants);
   const [showDrawer, setShowDrawer] = useState(false);
   const [drawerTab, setDrawerTab] = useState<"channels" | "members">("channels");
   const [showMembers, setShowMembers] = useState(false);
@@ -49,9 +48,10 @@ export function GradList() {
   }, [isMobileMenuOpen, isMobile]);
 
   useEffect(() => {
-    if (user?.id) {
-      dispatch(fetchServers(user.id));
-    }
+    if (!user?.id) return;
+    dispatch(fetchServers(user.id));
+    const interval = setInterval(() => dispatch(fetchServers(user.id)), 60_000);
+    return () => clearInterval(interval);
   }, [dispatch, user?.id]);
 
   // Hide top bar on onboarding page
