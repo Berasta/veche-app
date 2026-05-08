@@ -7,7 +7,7 @@ import { useAppDispatch } from "@store/hooks";
 import { toggleMute } from "@store/thunks/roomThunk";
 import { useTauriHotkeys } from "@shared/hooks/useTauriHotkeys";
 import { useRealtime } from "@shared/hooks/useRealtime";
-import { isTauri } from "@lib/tauri";
+import { isTauri } from "@shared/lib/tauri";
 
 const DEFAULTS = {
   toggleMute: "Ctrl+Shift+M",
