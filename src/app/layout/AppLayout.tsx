@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { ActiveVoiceBar } from "@features/voice/ActiveVoiceBar";
-import { GradList } from "@features/server/GradList";
+import { ActiveVoiceBar } from "@components/activeVoice/ActiveVoiceBar";
+import { GradList } from "@components/servers/GradList";
 import { Outlet, useLocation } from "react-router";
 import { MobileMenuProvider } from "./MobileMenuContext";
-import { useAppDispatch } from "@app/hooks";
+import { useAppDispatch } from "@store/hooks";
 import { toggleMute } from "@store/thunks/roomThunk";
-import { useTauriHotkeys } from "@shared/hooks/useTauriHotkeys";
-import { useRealtime } from "@shared/hooks/useRealtime";
-import { isTauri } from "@shared/lib/tauri";
+import { useTauriHotkeys } from "@hooks/useTauriHotkeys";
+import { useRealtime } from "@hooks/useRealtime";
+import { isTauri } from "@lib/tauri";
 
 const DEFAULTS = {
   toggleMute: "Ctrl+Shift+M",

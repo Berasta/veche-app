@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef } from "react";
-import { isTauri } from "@shared/lib/tauri";
+import { useEffect, useRef } from "react";
+import { isTauri } from "@lib/tauri";
 
 export interface HotkeyBinding {
   id: string;
@@ -27,38 +27,15 @@ function normalize(shortcut: string): string {
   return [...mods.sort(), ...keys].join("+");
 }
 
-async function registerRust(shortcut: string) {
-  const { invoke } = await import("@tauri-apps/api/core");
-  return invoke("register_shortcut", { shortcutStr: shortcut });
-}
-
-async function unregisterRust(shortcut: string) {
-  const { invoke } = await import("@tauri-apps/api/core");
-  return invoke("unregister_shortcut", { shortcutStr: shortcut });
-}
-
 export function useTauriHotkeys(bindings: HotkeyBinding[]) {
   const bindingsRef = useRef(bindings);
   bindingsRef.current = bindings;
 
-  const depKey = useMemo(
-    () => bindings.map((b) => `${b.id}:${b.shortcut}`).sort().join("|"),
-    [bindings],
-  );
-
   useEffect(() => {
     if (!isTauri()) return;
 
-    const currentBindings = bindingsRef.current;
-
     let unlisten: (() => void) | null = null;
     let cancelled = false;
-
-    currentBindings.forEach((b) => {
-      registerRust(b.shortcut).catch((e) =>
-        console.error(`register ${b.shortcut}:`, e),
-      );
-    });
 
     import("@tauri-apps/api/event").then(({ listen }) => {
       if (cancelled) return;
@@ -67,16 +44,13 @@ export function useTauriHotkeys(bindings: HotkeyBinding[]) {
         const binding = bindingsRef.current.find(
           (b) => normalize(b.shortcut) === normalized,
         );
-        binding?.action();
+        if (binding) binding.action();
       }).then((fn) => { unlisten = fn; });
     });
 
     return () => {
       cancelled = true;
       unlisten?.();
-      currentBindings.forEach((b) => {
-        unregisterRust(b.shortcut).catch(() => {});
-      });
     };
-  }, [depKey]);
+  }, []);
 }

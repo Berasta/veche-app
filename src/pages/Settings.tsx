@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, Keyboard, User, ArrowLeft, Trash2, Crop, Loader2 } from "lucide-react";
+import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, User, ArrowLeft, Trash2, Crop, Loader2 } from "lucide-react";
 import { ThemeSwitcher } from "@features/theme/ThemeSwitcher";
 import { VoiceSettings } from "@features/voice/VoiceSettings";
-import { HotkeySettings } from "@features/voice/HotkeySettings";
 import { BannerRepositionDialog } from "@entities/user/ui/BannerRepositionDialog";
 import { useAuth } from "@entities/user/model/useAuth";
 import { pb, PB_URL } from "@shared/api/pb";
@@ -19,8 +18,6 @@ const TABS = [
   { id: "profile", label: "Профиль", icon: User },
   { id: "theme", label: "Тема", icon: Palette },
   { id: "voice", label: "Голосъ", icon: Headphones },
-
-  { id: "hotkeys", label: "Клавиши", icon: Keyboard },
 ];
 
 export function Settings() {
@@ -279,17 +276,6 @@ export function Settings() {
                 <h3 className="text-sm font-medium text-foreground/80">Голосъ</h3>
               </div>
               <VoiceSettings />
-            </div>
-          )}
-
-          {/* Hotkeys tab */}
-          {activeTab === "hotkeys" && (
-            <div className="bg-foreground/[0.02] backdrop-blur-sm rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Keyboard className="w-4 h-4 text-foreground/30" strokeWidth={1.5} />
-                <h3 className="text-sm font-medium text-foreground/80">Горячiя клавиши</h3>
-              </div>
-              <HotkeySettings />
             </div>
           )}
 
