@@ -5,7 +5,6 @@ TARGET         = x86_64-pc-windows-gnu
 BUNDLE_DIR     = src-tauri/target/$(TARGET)/release/bundle/nsis
 
 GHCR_FRONTEND  = ghcr.io/berasta/veche-app
-GHCR_UPDATER   = ghcr.io/berasta/veche-updater
 NAMESPACE      = veche
 UPDATES_DIR    = ../updates
 
@@ -41,20 +40,21 @@ deploy:
 
 deploy-updater:
 	@echo "=== Building updater image ==="
-	docker build --platform linux/amd64 -t $(GHCR_UPDATER):latest $(UPDATES_DIR)
+	$(eval _TAG := ttl.sh/veche-updater-$(shell date +%s):24h)
+	docker build --platform linux/amd64 -t $(_TAG) $(UPDATES_DIR)
 	@echo "=== Pushing ==="
-	docker push $(GHCR_UPDATER):latest
+	docker push $(_TAG)
 	@echo "=== Rolling out ==="
-	kubectl set image deployment/veche-updater updater=$(GHCR_UPDATER):latest -n $(NAMESPACE)
+	kubectl set image deployment/veche-updater updater=$(_TAG) -n $(NAMESPACE)
 	kubectl rollout status deployment/veche-updater -n $(NAMESPACE) --timeout=60s
-	@echo "=== Done ==="
+	@echo "=== Done: $(_TAG) ==="
 
 # ─── Full desktop release ────────────────────────────────────────────────────
 # Usage: make release VERSION=0.4.0
 # Requires ~/.tauri/veche.key (or override TAURI_KEY) and TAURI_KEY_PASS
 
 TAURI_KEY      ?= $(HOME)/.tauri/veche.key
-TAURI_KEY_PASS ?=
+TAURI_KEY_PASS ?= weche67
 
 release:
 ifndef VERSION
