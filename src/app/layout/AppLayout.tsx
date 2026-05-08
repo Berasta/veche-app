@@ -5,7 +5,7 @@ import { Outlet, useLocation } from "react-router";
 import { MobileMenuProvider } from "./MobileMenuContext";
 import { useAppDispatch } from "@store/hooks";
 import { toggleMute } from "@store/thunks/roomThunk";
-import { useTauriHotkeys } from "@hooks/useTauriHotkeys";
+import { useTauriHotkeys } from "@shared/hooks/useTauriHotkeys";
 import { useRealtime } from "@hooks/useRealtime";
 import { isTauri } from "@lib/tauri";
 
