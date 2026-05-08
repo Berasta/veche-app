@@ -1,4 +1,19 @@
 use tauri::{Emitter, Manager, WebviewUrl};
+use tauri_plugin_global_shortcut::GlobalShortcutExt;
+
+#[tauri::command]
+fn register_shortcut(app: tauri::AppHandle, shortcut: String) -> Result<(), String> {
+    app.global_shortcut()
+        .register(shortcut.as_str())
+        .map_err(|e| format!("{e}"))
+}
+
+#[tauri::command]
+fn unregister_shortcut(app: tauri::AppHandle, shortcut: String) -> Result<(), String> {
+    app.global_shortcut()
+        .unregister(shortcut.as_str())
+        .map_err(|e| format!("{e}"))
+}
 
 #[tauri::command]
 fn toggle_overlay(app: tauri::AppHandle) {
@@ -44,10 +59,6 @@ pub fn run() {
         .plugin(tauri_plugin_log::Builder::default().level(log::LevelFilter::Info).build())
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
-                .with_shortcut("Cmd+Shift+M")
-                .expect("invalid shortcut")
-                .with_shortcut("Cmd+Shift+O")
-                .expect("invalid shortcut")
                 .with_handler(move |app, shortcut, event| {
                     if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
                         let _ = app.emit("shortcut", shortcut.to_string());
@@ -56,7 +67,8 @@ pub fn run() {
                 .build(),
         )
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .invoke_handler(tauri::generate_handler![toggle_overlay, open_overlay])
+        .plugin(tauri_plugin_process::init())
+        .invoke_handler(tauri::generate_handler![toggle_overlay, open_overlay, register_shortcut, unregister_shortcut])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

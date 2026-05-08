@@ -29,8 +29,49 @@ function normalize(shortcut: string): string {
 
 export function useTauriHotkeys(bindings: HotkeyBinding[]) {
   const bindingsRef = useRef(bindings);
+  const prevShortcutsRef = useRef<string[]>([]);
   bindingsRef.current = bindings;
 
+  // Sync shortcuts with Tauri when bindings change
+  const shortcutsKey = bindings.map((b) => b.shortcut).join(",");
+  useEffect(() => {
+    if (!isTauri()) return;
+
+    const shortcuts = bindings.map((b) => b.shortcut);
+    const prev = prevShortcutsRef.current;
+
+    (async () => {
+      const { invoke } = await import("@tauri-apps/api/core");
+      // Unregister removed/changed shortcuts
+      for (const s of prev) {
+        if (!shortcuts.includes(s)) {
+          try { await invoke("unregister_shortcut", { shortcut: s }); } catch {}
+        }
+      }
+      // Register new shortcuts
+      for (const s of shortcuts) {
+        if (!prev.includes(s)) {
+          try { await invoke("register_shortcut", { shortcut: s }); } catch {}
+        }
+      }
+      prevShortcutsRef.current = shortcuts;
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shortcutsKey]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    if (!isTauri()) return;
+    return () => {
+      const shortcuts = prevShortcutsRef.current;
+      if (!shortcuts.length) return;
+      import("@tauri-apps/api/core").then(({ invoke }) => {
+        shortcuts.forEach((s) => invoke("unregister_shortcut", { shortcut: s }).catch(() => {}));
+      });
+    };
+  }, []);
+
+  // Listen for shortcut events
   useEffect(() => {
     if (!isTauri()) return;
 
