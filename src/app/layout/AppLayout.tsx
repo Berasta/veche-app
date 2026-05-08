@@ -10,7 +10,7 @@ import { useRealtime } from "@shared/hooks/useRealtime";
 import { isTauri } from "@shared/lib/tauri";
 
 const DEFAULTS = {
-  toggleMute: "Ctrl+Shift+M",
+  toggleMute: "Ctrl+M",
   toggleOverlay: "Ctrl+Shift+Space",
 };
 

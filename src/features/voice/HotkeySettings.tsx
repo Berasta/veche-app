@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Keyboard, X, RotateCcw } from "lucide-react";
 
 const STORAGE_KEY = "hotkeyBindings";
-const DEFAULT_MUTE = "Ctrl+Shift+M";
+const DEFAULT_MUTE = "Ctrl+M";
 
 function loadMuteKey(): string {
   try {

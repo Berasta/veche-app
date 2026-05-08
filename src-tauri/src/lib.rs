@@ -1,6 +1,7 @@
 use tauri::{Emitter, Manager, WebviewUrl};
 use tauri_plugin_global_shortcut::GlobalShortcutExt;
 
+#[allow(dead_code)]
 #[tauri::command]
 fn register_shortcut(app: tauri::AppHandle, shortcut: String) -> Result<(), String> {
     app.global_shortcut()
@@ -8,6 +9,7 @@ fn register_shortcut(app: tauri::AppHandle, shortcut: String) -> Result<(), Stri
         .map_err(|e| format!("{e}"))
 }
 
+#[allow(dead_code)]
 #[tauri::command]
 fn unregister_shortcut(app: tauri::AppHandle, shortcut: String) -> Result<(), String> {
     app.global_shortcut()
