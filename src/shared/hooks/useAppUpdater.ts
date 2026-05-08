@@ -19,7 +19,13 @@ export function useAppUpdater() {
 
   // Проверка обновлений при монтировании
   useEffect(() => {
-    checkForUpdates();
+    // Отложенная проверка обновлений (через 5 сек после старта)
+    // Чтобы не блокировать запуск приложения
+    const timer = setTimeout(() => {
+      checkForUpdates();
+    }, 5000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const checkForUpdates = async () => {
@@ -42,12 +48,21 @@ export function useAppUpdater() {
 
   // Проверка обновлений Tauri
   const checkTauriUpdates = async () => {
-    const { check } = await import("@tauri-apps/plugin-updater");
-    const { relaunch } = await import("@tauri-apps/plugin-process");
+    try {
+      const { check } = await import("@tauri-apps/plugin-updater");
+      const { relaunch } = await import("@tauri-apps/plugin-process");
 
-    const update = await check();
+      // Проверяем обновления с таймаутом
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("Update check timeout")), 10000)
+      );
+      
+      const update = await Promise.race([
+        check(),
+        timeoutPromise
+      ]) as Awaited<ReturnType<typeof check>>;
 
-    if (update?.available) {
+      if (update?.available) {
       setUpdateInfo({
         version: update.version,
         notes: update.body || "Доступна новая версия",
@@ -84,6 +99,16 @@ export function useAppUpdater() {
       setUpdateInfo({
         version: "current",
         notes: "У вас установлена последняя версия",
+        available: false,
+      });
+    }
+    } catch (err) {
+      // Тихо игнорируем ошибки проверки обновлений
+      // чтобы не ломать запуск приложения
+      console.warn("Update check failed (non-critical):", err);
+      setUpdateInfo({
+        version: "current",
+        notes: "Не удалось проверить обновления",
         available: false,
       });
     }
