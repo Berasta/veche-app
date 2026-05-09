@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { toast } from "sonner";
 import { isTauri } from "@shared/lib/tauri";
 
 export interface UpdateInfo {
@@ -7,34 +8,27 @@ export interface UpdateInfo {
   available: boolean;
 }
 
-/**
- * Хук для проверки и установки обновлений
- * Работает как для Tauri приложения, так и для PWA
- */
 export function useAppUpdater() {
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
   const [checking, setChecking] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [readyToInstall, setReadyToInstall] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const relaunchRef = useRef<(() => Promise<void>) | null>(null);
 
-  // Проверка обновлений при монтировании
   useEffect(() => {
-    // Отложенная проверка обновлений (через 5 сек после старта)
-    // Чтобы не блокировать запуск приложения
     const timer = setTimeout(() => {
-      checkForUpdates();
+      checkForUpdates(true);
     }, 5000);
-
     return () => clearTimeout(timer);
   }, []);
 
-  const checkForUpdates = async () => {
+  const checkForUpdates = async (silent = false) => {
     setChecking(true);
     setError(null);
-
     try {
       if (isTauri()) {
-        await checkTauriUpdates();
+        await checkTauriUpdates(silent);
       } else {
         await checkPWAUpdates();
       }
@@ -46,96 +40,92 @@ export function useAppUpdater() {
     }
   };
 
-  // Проверка обновлений Tauri
-  const checkTauriUpdates = async () => {
+  const checkTauriUpdates = async (silent = false) => {
     try {
       const { check } = await import("@tauri-apps/plugin-updater");
       const { relaunch } = await import("@tauri-apps/plugin-process");
 
-      // Проверяем обновления с таймаутом
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Update check timeout")), 10000)
-      );
-      
-      const update = await Promise.race([
-        check(),
-        timeoutPromise
-      ]) as Awaited<ReturnType<typeof check>>;
+      console.log("[updater] Checking for updates...");
+      const update = await check({ timeout: 10000 });
+      console.log("[updater] check() result:", update);
 
-      if (update?.available) {
-      setUpdateInfo({
-        version: update.version,
-        notes: update.body || "Доступна новая версия",
-        available: true,
-      });
+      if (update) {
+        console.log("[updater] version:", update.version, "currentVersion:", update.currentVersion);
 
-      // Автоматическая загрузка и установка
-      console.log(`Update to ${update.version} available! Downloading...`);
-      setDownloading(true);
-
-      try {
-        await update.downloadAndInstall((event) => {
-          switch (event.event) {
-            case "Started":
-              console.log(`Started downloading ${event.data.contentLength} bytes`);
-              break;
-            case "Progress":
-              console.log(`Downloaded ${event.data.chunkLength} bytes`);
-              break;
-            case "Finished":
-              console.log("Download finished");
-              break;
-          }
+        setUpdateInfo({
+          version: update.version,
+          notes: update.body || "Доступна новая версия",
+          available: true,
         });
 
-        console.log("Update installed, restarting app...");
-        await relaunch();
-      } catch (err) {
-        console.error("Update installation failed:", err);
-        setError("Не удалось установить обновление");
-        setDownloading(false);
+        // В passive (silent) режиме — качаем в фоне, не перезапускаем
+        if (silent) {
+          toast.info(`Загружаю обновленiе v${update.version} в фоне...`, { duration: 4000 });
+          setDownloading(true);
+          try {
+            await update.download((event) => {
+              if (event.event === "Started") console.log(`[updater] Download started, size: ${event.data.contentLength} bytes`);
+              if (event.event === "Progress") console.log(`[updater] Downloaded chunk: ${event.data.chunkLength} bytes`);
+              if (event.event === "Finished") console.log("[updater] Download finished");
+            });
+            relaunchRef.current = relaunch;
+            setReadyToInstall(true);
+            setDownloading(false);
+            toast.success(`Обновленiе v${update.version} готово — перезапустите приложенiе`, {
+              duration: 0,
+              action: { label: "Перезапустить", onClick: () => applyUpdate() },
+            });
+          } catch (err) {
+            console.error("[updater] Background download failed:", err);
+            setDownloading(false);
+          }
+        } else {
+          // В ручном режиме — качаем и сразу устанавливаем
+          toast.info(`Загружаю обновленiе до v${update.version}...`);
+          setDownloading(true);
+          try {
+            await update.downloadAndInstall((event) => {
+              if (event.event === "Started") console.log(`[updater] Download started, size: ${event.data.contentLength} bytes`);
+              if (event.event === "Progress") console.log(`[updater] Downloaded chunk: ${event.data.chunkLength} bytes`);
+              if (event.event === "Finished") console.log("[updater] Download finished");
+            });
+            console.log("[updater] Update installed, relaunching...");
+            await relaunch();
+          } catch (err) {
+            console.error("[updater] Installation failed:", err);
+            toast.error("Не удалось установить обновленiе");
+            setError("Не удалось установить обновление");
+            setDownloading(false);
+          }
+        }
+      } else {
+        console.log("[updater] No update available (check() returned null)");
+        setUpdateInfo({ version: "current", notes: "У вас установлена последняя версия", available: false });
+        if (!silent) toast.success("Актуальная версiя установлена");
       }
-    } else {
-      setUpdateInfo({
-        version: "current",
-        notes: "У вас установлена последняя версия",
-        available: false,
-      });
-    }
     } catch (err) {
-      // Тихо игнорируем ошибки проверки обновлений
-      // чтобы не ломать запуск приложения
-      console.warn("Update check failed (non-critical):", err);
-      setUpdateInfo({
-        version: "current",
-        notes: "Не удалось проверить обновления",
-        available: false,
-      });
+      console.warn("[updater] Check failed:", err);
+      if (!silent) toast.error("Не удалось проверить обновленiя");
+      setUpdateInfo({ version: "current", notes: "Не удалось проверить обновления", available: false });
     }
   };
 
-  // Проверка обновлений PWA
+  const applyUpdate = async () => {
+    if (relaunchRef.current) {
+      await relaunchRef.current();
+    }
+  };
+
   const checkPWAUpdates = async () => {
-    // Service Worker должен обновиться автоматически благодаря VitePWA
     if ("serviceWorker" in navigator) {
       const registration = await navigator.serviceWorker.ready;
-      
-      // Проверяем наличие обновления
       await registration.update();
-
-      // Слушаем события обновления
       registration.addEventListener("updatefound", () => {
         const newWorker = registration.installing;
         if (newWorker) {
-          setUpdateInfo({
-            version: "latest",
-            notes: "Доступно обновление веб-приложения",
-            available: true,
-          });
-
+          setUpdateInfo({ version: "latest", notes: "Доступно обновление веб-приложения", available: true });
           newWorker.addEventListener("statechange", () => {
             if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-              // Новая версия готова
               console.log("New PWA version available");
             }
           });
@@ -144,17 +134,20 @@ export function useAppUpdater() {
     }
   };
 
-  const installPWAUpdate = () => {
-    // Перезагружаем страницу для активации нового Service Worker
-    window.location.reload();
-  };
-
   return {
     updateInfo,
     checking,
     downloading,
+    readyToInstall,
     error,
     checkForUpdates,
-    installUpdate: isTauri() ? () => {} : installPWAUpdate, // Для Tauri обновление автоматическое
+    applyUpdate,
+    installUpdate: isTauri() ? applyUpdate : () => window.location.reload(),
   };
+}
+
+export interface UpdateInfo {
+  version: string;
+  notes: string;
+  available: boolean;
 }

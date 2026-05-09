@@ -18,6 +18,13 @@ fn unregister_shortcut(app: tauri::AppHandle, shortcut: String) -> Result<(), St
 }
 
 #[tauri::command]
+fn open_devtools(app: tauri::AppHandle) {
+    if let Some(window) = app.get_webview_window("main") {
+        window.open_devtools();
+    }
+}
+
+#[tauri::command]
 fn toggle_overlay(app: tauri::AppHandle) {
     if let Some(overlay) = app.get_webview_window("overlay") {
         if overlay.is_visible().unwrap_or(false) {
@@ -71,7 +78,23 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_deep_link::init())
-        .invoke_handler(tauri::generate_handler![toggle_overlay, open_overlay, register_shortcut, unregister_shortcut])
+        .plugin(tauri_plugin_store::Builder::default().build())
+        .setup(|app| {
+            #[cfg(debug_assertions)]
+            {
+                let window = app.get_webview_window("main").unwrap();
+                window.open_devtools();
+            }
+
+            // Clear WebView cache so updated assets load after auto-update
+            // Auth token is persisted in tauri-plugin-store, not localStorage
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.clear_all_browsing_data();
+            }
+
+            Ok(())
+        })
+        .invoke_handler(tauri::generate_handler![toggle_overlay, open_overlay, register_shortcut, unregister_shortcut, open_devtools])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -65,6 +65,9 @@ endif
 	@echo "--- 1/4 Bumping version ---"
 	jq '.version = "$(VERSION)"' src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.tmp \
 		&& mv src-tauri/tauri.conf.json.tmp src-tauri/tauri.conf.json
+	jq '.version = "$(VERSION)"' package.json > package.json.tmp \
+		&& mv package.json.tmp package.json
+	sed -i '' 's/^version = "[0-9]*\.[0-9]*\.[0-9]*"/version = "$(VERSION)"/' src-tauri/Cargo.toml
 	@echo "--- 2/4 Building Windows installer (signed) ---"
 	TAURI_SIGNING_PRIVATE_KEY="$$(cat $(TAURI_KEY))" \
 	TAURI_SIGNING_PRIVATE_KEY_PASSWORD="$(TAURI_KEY_PASS)" \

@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
-import { MessageSquare, Volume2, Users, Crown, Shield, Zap } from "lucide-react";
+import { MessageSquare, Volume2, Users, Crown, ArrowRight } from "lucide-react";
+
+const OFFICIAL_INVITE_CODE = "2kgUSlAXMN4E";
 
 const STEPS = [
   {
@@ -28,7 +30,12 @@ const STEPS = [
 export function OnboardingPage() {
   const navigate = useNavigate();
 
-  const handleStart = () => {
+  const handleJoinOfficial = () => {
+    localStorage.setItem("onboarding_seen", "true");
+    navigate(`/invite/${OFFICIAL_INVITE_CODE}`, { replace: true });
+  };
+
+  const handleSkip = () => {
     localStorage.setItem("onboarding_seen", "true");
     navigate("/app", { replace: true });
   };
@@ -80,22 +87,46 @@ export function OnboardingPage() {
           ))}
         </div>
 
+        {/* Official server invite */}
+        <motion.div
+          className="mb-6"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+        >
+          <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 ring-1 ring-primary/10">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center flex-shrink-0 ring-1 ring-primary/20">
+                <span className="text-lg font-serif text-primary">В</span>
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground">Официальный градъ Вече</p>
+                <p className="text-xs text-muted-foreground">Общайтесь с командой и другими пользователями</p>
+              </div>
+            </div>
+            <button
+              onClick={handleJoinOfficial}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm transition-all shadow-lg shadow-primary/20 hover:shadow-primary/30 active:scale-[0.98]"
+            >
+              Вступить въ градъ
+              <ArrowRight className="w-4 h-4" strokeWidth={2} />
+            </button>
+          </div>
+        </motion.div>
+
         {/* CTA */}
         <motion.div
           className="text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 0.9 }}
         >
           <button
-            onClick={handleStart}
-            className="w-full px-6 py-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm transition-all shadow-lg shadow-primary/20 hover:shadow-primary/30 active:scale-[0.98]"
+            onClick={handleSkip}
+            className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors underline underline-offset-2"
           >
-            Начать пользоваться
+            Пропустить и войти самостоятельно
           </button>
-          <p className="mt-3 text-[10px] text-muted-foreground/50">
-            Вы всегда можете изменить настройки позже
-          </p>
         </motion.div>
 
         {/* Footer ornament */}

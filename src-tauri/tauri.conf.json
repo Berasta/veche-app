@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "veche",
-  "version": "0.3.7",
+  "version": "0.3.19",
   "identifier": "com.veche.app",
   "build": {
     "frontendDist": "../dist",
@@ -27,6 +27,7 @@
   },
   "bundle": {
     "active": true,
+    "createUpdaterArtifacts": true,
     "targets": [
       "nsis",
       "dmg"
@@ -65,12 +66,10 @@
       }
     },
     "updater": {
-      "active": true,
       "endpoints": [
         "https://updates.weche.ru/updates/{{target}}/{{current_version}}"
       ],
-      "dialog": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IENCRkI4QTcxNEU0Qjk3MDYKUldRR2wwdE9jWXI3eTQrMTRWZlIwN3pLR1VvL2ozV2E1SEhlRTV5NDVRV1k1aHY5TExvS2ZlNDMK"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDRGRjhDREY5Q0U2QTJFMQpSV1Rob3VhYzM0ei9CRlNncjdpaGdHQ1JYd25Za1ZuR0Jqb2lSSjI1bkppWTd6YkQ1a1ZzYWErYQo="
     }
   }
 }

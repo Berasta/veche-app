@@ -16,7 +16,20 @@ import { Portal } from "@shared/ui/Portal";
 import { applyShopItem, removeShopItem } from "@entities/user/model/userApi";
 import { FRAME_CLASSES, FRAME_LABELS, FRAME_IDS } from "@shared/lib/frames";
 
+import { isTauri } from "@shared/lib/tauri";
+
 const APP_VERSION = __APP_VERSION__;
+
+function useTauriVersion() {
+  const [version, setVersion] = useState<string>(APP_VERSION);
+  useEffect(() => {
+    if (!isTauri()) return;
+    import("@tauri-apps/api/app").then(({ getVersion }) =>
+      getVersion().then(setVersion).catch(() => {})
+    );
+  }, []);
+  return version;
+}
 
 const TABS = [
   { id: "profile", label: "Профиль", icon: User },
@@ -29,7 +42,8 @@ export function Settings() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { updateInfo, checking, downloading, checkForUpdates } = useAppUpdater();
+  const { updateInfo, checking, downloading, readyToInstall, checkForUpdates, applyUpdate } = useAppUpdater();
+  const appVersion = useTauriVersion();
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState("");
@@ -270,16 +284,16 @@ export function Settings() {
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5">
                     <Info className="w-3 h-3 text-foreground/15" strokeWidth={1.5} />
-                    <span className="text-xs text-foreground/20 font-mono">Вече v{APP_VERSION}</span>
+                    <span className="text-xs text-foreground/20 font-mono">Вече v{appVersion}</span>
                   </div>
                   <button
-                    onClick={checkForUpdates}
+                    onClick={readyToInstall ? applyUpdate : checkForUpdates}
                     disabled={checking || downloading}
                     className="flex items-center gap-1 text-xs text-foreground/30 hover:text-foreground/60 transition-colors disabled:pointer-events-none"
-                    title="Проверить обновления"
+                    title={readyToInstall ? "Перезапустить и установить" : "Проверить обновления"}
                   >
                     <RefreshCw className={`w-3 h-3 ${checking ? "animate-spin" : ""}`} strokeWidth={1.5} />
-                    <span>{checking ? "Проверка..." : "Обновить"}</span>
+                    <span>{checking ? "Проверка..." : readyToInstall ? "Перезапустить" : "Обновить"}</span>
                   </button>
                 </div>
                 {downloading && (
