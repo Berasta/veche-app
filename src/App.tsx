@@ -8,7 +8,6 @@ import { UpdateNotification } from "@features/app-update/UpdateNotification";
 
 export const App = () => {
   const dispatch = useAppDispatch();
-  const token = useAppSelector((s) => s.auth.token);
   const fetched = useRef(false);
   const mounted = useRef(false);
 

@@ -81,23 +81,27 @@ export function useTauriHotkeys(bindings: HotkeyBinding[]) {
   useEffect(() => {
     if (!isTauri()) return;
 
-    let unlisten: (() => void) | null = null;
     let cancelled = false;
+    let unlistenPromise: Promise<() => void> | null = null;
 
     import("@tauri-apps/api/event").then(({ listen }) => {
       if (cancelled) return;
-      listen<string>("shortcut", (event) => {
+      unlistenPromise = listen<string>("shortcut", (event) => {
         const normalized = normalize(event.payload);
         const binding = bindingsRef.current.find(
           (b) => normalize(b.shortcut) === normalized,
         );
         if (binding) binding.action();
-      }).then((fn) => { unlisten = fn; });
+      });
     });
 
     return () => {
       cancelled = true;
-      unlisten?.();
+      // If listen() already resolved — call unlisten immediately.
+      // If still pending — attach cleanup so it runs once the promise settles.
+      if (unlistenPromise) {
+        unlistenPromise.then((fn) => fn()).catch(() => {});
+      }
     };
   }, []);
 }

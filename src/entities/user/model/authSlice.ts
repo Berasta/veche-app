@@ -7,17 +7,16 @@ import type {
   RegisterInput,
 } from "@shared/api/authApi";
 import * as authApi from "@shared/api/authApi";
+import { pb, pbReady } from "@shared/api/pb";
 
 export interface AuthState {
   user: AuthUser | null;
-  token: string | null;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: AuthState = {
   user: null,
-  token: null,
   loading: false,
   error: null,
 };
@@ -54,11 +53,13 @@ export const fetchCurrentUser = createAsyncThunk<
   AuthUser,
   void,
   { state: { auth: AuthState }; rejectValue: string }
->("auth/fetchCurrentUser", async (_, { getState, rejectWithValue }) => {
-  const token = localStorage.getItem("authToken");
-  if (!token) return rejectWithValue("No token");
+>("auth/fetchCurrentUser", async (_, { rejectWithValue }) => {
+  // pbReady resolves immediately in browser (PocketBase loads from localStorage sync),
+  // and waits for the Tauri store to finish loading in desktop builds.
+  await pbReady;
+  if (!pb.authStore.isValid) return rejectWithValue("No token");
   try {
-    const { user } = await authApi.getCurrentUser(token);
+    const { user } = await authApi.getCurrentUser();
     return user;
   } catch (err: any) {
     return rejectWithValue(
@@ -73,7 +74,6 @@ const authSlice = createSlice({
   reducers: {
     logout(state) {
       state.user = null;
-      state.token = null;
       state.error = null;
     },
   },
@@ -88,7 +88,6 @@ const authSlice = createSlice({
         (state, action: PayloadAction<AuthResponse>) => {
           state.loading = false;
           state.user = action.payload.user;
-          state.token = action.payload.token;
         },
       )
       .addCase(registerUser.rejected, (state, action) => {
@@ -104,8 +103,8 @@ const authSlice = createSlice({
         (state, action: PayloadAction<AuthResponse>) => {
           state.loading = false;
           state.user = action.payload.user;
-          state.token = action.payload.token;
-          localStorage.setItem("authToken", action.payload.token);
+          // Token is persisted by pb.authStore.onChange → tauri-plugin-store (Tauri)
+          // or by PocketBase's default localStorage adapter (browser).
         },
       )
       .addCase(loginUser.rejected, (state, action) => {

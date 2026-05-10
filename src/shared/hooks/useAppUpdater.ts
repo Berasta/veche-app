@@ -15,6 +15,7 @@ export function useAppUpdater() {
   const [readyToInstall, setReadyToInstall] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const relaunchRef = useRef<(() => Promise<void>) | null>(null);
+  const installRef = useRef<(() => Promise<void>) | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -68,6 +69,7 @@ export function useAppUpdater() {
               if (event.event === "Progress") console.log(`[updater] Downloaded chunk: ${event.data.chunkLength} bytes`);
               if (event.event === "Finished") console.log("[updater] Download finished");
             });
+            installRef.current = () => update.install();
             relaunchRef.current = relaunch;
             setReadyToInstall(true);
             setDownloading(false);
@@ -111,6 +113,9 @@ export function useAppUpdater() {
   };
 
   const applyUpdate = async () => {
+    if (installRef.current) {
+      await installRef.current();
+    }
     if (relaunchRef.current) {
       await relaunchRef.current();
     }

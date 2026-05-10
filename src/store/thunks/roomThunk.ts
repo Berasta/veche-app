@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { Room, RoomEvent, ConnectionQuality } from "livekit-client";
-import PocketBase from "pocketbase";
+import { Room, RoomEvent, ConnectionQuality, LocalVideoTrack, Track } from "livekit-client";
+import { pb } from "@shared/api/pb";
 import { toast } from "sonner";
 import {
   setConnecting,
@@ -14,10 +14,7 @@ import {
   setScreenSharing,
 } from "@entities/room/model/roomSlice";
 import { setActiveRoom } from "@shared/lib/voiceRoom";
-import { RootState } from "@app/store";
-
-const PB_URL = import.meta.env.VITE_PB_URL || "http://localhost:8090";
-const pb = new PocketBase(PB_URL);
+import type { AppDispatch, RootState } from "@app/store";
 
 // Room объект живёт вне Redux — он не сериализуемый (содержит WebSocket, WebRTC и т.д.)
 // Redux хранит только сериализуемый стейт (строки, булевы, числа)
@@ -227,26 +224,58 @@ export const toggleScreenShare = createAsyncThunk(
         // Выключаем — без опций
         await activeRoom.localParticipant.setScreenShareEnabled(false);
       } else {
-        // Включаем — с опциями качества
-        await activeRoom.localParticipant.setScreenShareEnabled(
-          true,
-          {
-            audio,
-            selfBrowserSurface: "exclude",
-            resolution: {
-              width: RESOLUTION_MAP[resolution].width,
-              height: RESOLUTION_MAP[resolution].height,
-              frameRate: fps,
-            },
-            contentHint: "motion",
+        const captureOptions = {
+          selfBrowserSurface: "exclude",
+          resolution: {
+            width: RESOLUTION_MAP[resolution].width,
+            height: RESOLUTION_MAP[resolution].height,
+            frameRate: fps,
           },
-          {
-            videoEncoding: {
-              maxBitrate: bitrate * 1_000_000,
-              maxFramerate: fps,
-            },
+          contentHint: "motion",
+        } as const;
+        const publishOptions = {
+          videoEncoding: {
+            maxBitrate: bitrate * 1_000_000,
+            maxFramerate: fps,
           },
-        );
+        };
+
+        if (audio) {
+          try {
+            await activeRoom.localParticipant.setScreenShareEnabled(
+              true,
+              { ...captureOptions, audio: true },
+              publishOptions,
+            );
+          } catch (audioErr: any) {
+            // System audio capture is often unsupported on Windows/WebView2.
+            // Retry without audio rather than failing entirely.
+            const msg: string = audioErr?.message ?? "";
+            const isAudioError =
+              audioErr?.name === "NotSupportedError" ||
+              audioErr?.name === "NotReadableError" ||
+              msg.includes("audio") ||
+              msg.includes("loopback");
+            if (isAudioError) {
+              toast.error(
+                "Захватъ системного звука не поддерживается — демонстрацiя безъ звука",
+              );
+              await activeRoom.localParticipant.setScreenShareEnabled(
+                true,
+                { ...captureOptions, audio: false },
+                publishOptions,
+              );
+            } else {
+              throw audioErr;
+            }
+          }
+        } else {
+          await activeRoom.localParticipant.setScreenShareEnabled(
+            true,
+            { ...captureOptions, audio: false },
+            publishOptions,
+          );
+        }
       }
       dispatch(setScreenSharing(!isSharing));
     } catch (e: any) {
@@ -254,3 +283,39 @@ export const toggleScreenShare = createAsyncThunk(
     }
   },
 );
+
+/**
+ * Publish a pre-captured MediaStream as a screen share track directly to LiveKit.
+ * Used when the custom screen picker successfully captures without the OS dialog.
+ * The stream is stopped automatically when the user calls toggleScreenShare() to stop.
+ */
+export function publishCustomScreenShare(
+  stream: MediaStream,
+  fps: number,
+  bitrate: number,
+) {
+  return async (dispatch: AppDispatch): Promise<void> => {
+    if (!activeRoom) {
+      stream.getTracks().forEach((t) => t.stop());
+      return;
+    }
+
+    const videoTrackRaw = stream.getVideoTracks()[0];
+    if (!videoTrackRaw) return;
+
+    try {
+      const videoTrack = new LocalVideoTrack(videoTrackRaw, undefined, false);
+      await activeRoom.localParticipant.publishTrack(videoTrack, {
+        source: Track.Source.ScreenShare,
+        videoEncoding: {
+          maxBitrate: bitrate * 1_000_000,
+          maxFramerate: fps,
+        },
+      });
+      dispatch(setScreenSharing(true));
+    } catch (e: any) {
+      stream.getTracks().forEach((t) => t.stop());
+      if (e.name !== "NotAllowedError") dispatch(setError(e.message));
+    }
+  };
+}

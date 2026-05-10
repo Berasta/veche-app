@@ -272,7 +272,7 @@ export function Settings() {
 
               {/* Logout */}
               <div className="pt-2">
-                <button onClick={() => { pb.authStore.clear(); localStorage.removeItem("authToken"); dispatch(logout()); navigate("/auth/login"); }}
+                <button onClick={() => { pb.authStore.clear(); dispatch(logout()); navigate("/auth/login"); }}
                   className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm text-red-500/60 hover:text-red-500 hover:bg-red-500/5 transition-colors">
                   <LogOut className="w-4 h-4" strokeWidth={1.5} />
                   <span>Выйти изъ града</span>

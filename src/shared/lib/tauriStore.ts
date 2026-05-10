@@ -2,9 +2,16 @@ import { isTauri } from "./tauri";
 
 const STORE_FILE = "veche.json";
 
-async function getStore() {
-  const { load } = await import("@tauri-apps/plugin-store");
-  return load(STORE_FILE, { autoSave: true });
+// Singleton — reuse the same Store instance to avoid load/flush races.
+let storePromise: Promise<import("@tauri-apps/plugin-store").Store> | null = null;
+
+function getStore() {
+  if (!storePromise) {
+    storePromise = import("@tauri-apps/plugin-store").then(({ load }) =>
+      load(STORE_FILE, { autoSave: false }),
+    );
+  }
+  return storePromise;
 }
 
 export async function storeGet<T>(key: string): Promise<T | null> {
@@ -23,6 +30,8 @@ export async function storeSet(key: string, value: unknown): Promise<void> {
   try {
     const store = await getStore();
     await store.set(key, value);
+    // Explicitly flush to disk — don't rely on autoSave timing.
+    await store.save();
   } catch {
     // ignore
   }
@@ -33,6 +42,7 @@ export async function storeDelete(key: string): Promise<void> {
   try {
     const store = await getStore();
     await store.delete(key);
+    await store.save();
   } catch {
     // ignore
   }

@@ -1,8 +1,11 @@
 import { X, MonitorPlay, Settings } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useAppDispatch } from "@app/hooks";
-import { toggleScreenShare } from "@store/thunks/roomThunk";
+import { toggleScreenShare, publishCustomScreenShare } from "@store/thunks/roomThunk";
 import { setScreenShareQuality } from "@entities/room/model/roomSlice";
+import { isTauri } from "@shared/lib/tauri";
+import { captureScreenStream, type ScreenSource } from "@shared/lib/screenSources";
+import { ScreenSourcePicker } from "./ScreenSourcePicker";
 
 export type ShareOptions = {
   quality: "low" | "medium" | "high";
@@ -49,6 +52,16 @@ export function ScreenShareModal({ onClose, onStart }: Props) {
   const [quality, setQuality] = useState<Quality>(saved.quality);
   const [fps, setFps] = useState<Fps>(saved.fps);
   const [bitrate, setBitrate] = useState(saved.bitrate);
+  const [selectedSourceIndex, setSelectedSourceIndex] = useState<number | null>(null);
+  const [loadingScreens, setLoadingScreens] = useState(isTauri());
+
+  const handleSourcesLoaded = useCallback((sources: ScreenSource[]) => {
+    setLoadingScreens(false);
+    if (sources.length > 0) {
+      const primary = sources.find((s) => s.is_primary) ?? sources[0];
+      setSelectedSourceIndex(primary.index);
+    }
+  }, []);
 
   const handleQuality = (q: Quality) => { setQuality(q); saveQuality(q, fps, bitrate); };
   const handleFps = (f: Fps) => { setFps(f); saveQuality(quality, f, bitrate); };
@@ -56,6 +69,19 @@ export function ScreenShareModal({ onClose, onStart }: Props) {
 
   const handleStart = async () => {
     const options: ShareOptions = { quality, fps, bitrate, audio: shareAudio };
+    const res = QUALITY_MAP[quality];
+
+    // In Tauri with a selected monitor: try Chromium desktop capture API (no OS dialog)
+    if (isTauri() && selectedSourceIndex !== null) {
+      const stream = await captureScreenStream(selectedSourceIndex, res.width, res.height, fps);
+      if (stream) {
+        dispatch(publishCustomScreenShare(stream, fps, bitrate));
+        onClose();
+        return;
+      }
+      // chromeMediaSource not supported in this WebView2 — fall through to normal path
+    }
+
     if (onStart) {
       onStart(options);
     } else {
@@ -91,6 +117,15 @@ export function ScreenShareModal({ onClose, onStart }: Props) {
 
         {/* Content */}
         <div className="p-6 space-y-5">
+          {/* Screen source picker (Tauri only) */}
+          {isTauri() && (
+            <ScreenSourcePicker
+              selectedIndex={selectedSourceIndex}
+              onSelect={(s) => setSelectedSourceIndex(s.index)}
+              onSourcesLoaded={handleSourcesLoaded}
+            />
+          )}
+
           {/* Audio Option */}
           <div className="space-y-3">
             <label className="flex items-center gap-3 cursor-pointer group">
@@ -207,7 +242,8 @@ export function ScreenShareModal({ onClose, onStart }: Props) {
           </button>
           <button
             onClick={handleStart}
-            className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium transition-colors shadow-sm"
+            disabled={loadingScreens}
+            className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:pointer-events-none"
           >
             Начати показъ
           </button>

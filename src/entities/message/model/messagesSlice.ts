@@ -2,6 +2,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RecordSubscription } from "pocketbase";
 import { pb, PB_URL } from "@shared/api/pb";
+import type { AppDispatch } from "@app/store";
 
 export interface Message {
   id: string;
@@ -111,31 +112,36 @@ export const deleteMessage = createAsyncThunk(
 
 // Подписка на realtime обновления канала
 // Возвращает функцию отписки — вызывай при размонтировании
-export const subscribeToChannel = (channelId: string, dispatch: any) => {
-  pb.collection("messages").subscribe(
-    "*",
-    (e: RecordSubscription) => {
-      const msg = normalizeMessage(e.record);
-      switch (e.action) {
-        case "create":
-          dispatch(messageReceived(msg));
-          break;
-        case "update":
-          if (msg.is_deleted) {
-            dispatch(messageDeleted(msg.id));
-          } else {
-            dispatch(messageUpdated(msg));
-          }
-          break;
-        case "delete":
-          dispatch(messageDeleted(msg.id));
-          break;
-      }
-    },
-    { filter: `channel_id = "${channelId}"`, expand: "user_id" },
-  );
+export const subscribeToChannel = (channelId: string, dispatch: AppDispatch) => {
+  let unsub: (() => Promise<void>) | null = null;
 
-  return () => pb.collection("messages").unsubscribe("*");
+  pb.collection("messages")
+    .subscribe(
+      "*",
+      (e: RecordSubscription) => {
+        const msg = normalizeMessage(e.record);
+        switch (e.action) {
+          case "create":
+            dispatch(messageReceived(msg));
+            break;
+          case "update":
+            if (msg.is_deleted) {
+              dispatch(messageDeleted(msg.id));
+            } else {
+              dispatch(messageUpdated(msg));
+            }
+            break;
+          case "delete":
+            dispatch(messageDeleted(msg.id));
+            break;
+        }
+      },
+      { filter: `channel_id = "${channelId}"`, expand: "user_id" },
+    )
+    .then((fn) => { unsub = fn; })
+    .catch((err) => console.warn("[messages] subscribe failed:", err));
+
+  return () => { unsub?.(); };
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

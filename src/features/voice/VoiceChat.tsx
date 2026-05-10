@@ -22,6 +22,8 @@ import {
   selectError,
   selectCallStartedAt,
   selectConnectionQuality,
+  selectConnected,
+  selectConnecting,
 } from "@entities/room/model/roomSelectors";
 import {
   leaveChannel,
@@ -50,10 +52,10 @@ interface VoiceMemberData {
   joinedAt?: string;
 }
 
-export function VoiceChat() {
+// Inner component — only rendered when RoomContext is guaranteed to exist.
+function VoiceChatConnected({ serverId }: { serverId?: string }) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { serverId } = useParams();
 
   useOverlay();
 
@@ -84,21 +86,16 @@ export function VoiceChat() {
   const [callDuration, setCallDuration] = useState("");
   const [muteMode, setMuteMode] = useState<MuteMode>("toggle");
 
-  // Читаем режим мьюта из localStorage
+  // Читаем режим мьюта из localStorage один раз при монтировании
   useEffect(() => {
-    const readMuteMode = () => {
-      try {
-        const saved = localStorage.getItem("muteMode");
-        if (saved && ["toggle", "push-to-talk", "push-to-mute"].includes(saved)) {
-          setMuteMode(saved as MuteMode);
-        }
-      } catch (err) {
-        console.error("Ошибка чтенiя режима мьюта", err);
+    try {
+      const saved = localStorage.getItem("muteMode");
+      if (saved && ["toggle", "push-to-talk", "push-to-mute"].includes(saved)) {
+        setMuteMode(saved as MuteMode);
       }
-    };
-    readMuteMode();
-    const interval = setInterval(readMuteMode, 1000);
-    return () => clearInterval(interval);
+    } catch (err) {
+      console.warn("[VoiceChat] Failed to read muteMode:", err);
+    }
   }, []);
 
   useEffect(() => {
@@ -306,4 +303,29 @@ export function VoiceChat() {
       )}
     </div>
   );
+}
+
+// Outer wrapper — guards against rendering LiveKit hooks without a RoomContext.
+export function VoiceChat() {
+  const connected = useAppSelector(selectConnected);
+  const connecting = useAppSelector(selectConnecting);
+  const navigate = useNavigate();
+  const { serverId } = useParams();
+
+  // Redirect back if there's no active call and we're not in the process of connecting.
+  useEffect(() => {
+    if (!connected && !connecting) {
+      navigate(serverId ? `/app/server/${serverId}` : "/app", { replace: true });
+    }
+  }, [connected, connecting, navigate, serverId]);
+
+  if (!connected) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <Volume2 className="w-8 h-8 text-foreground/10 animate-pulse" strokeWidth={1.5} />
+      </div>
+    );
+  }
+
+  return <VoiceChatConnected serverId={serverId} />;
 }
