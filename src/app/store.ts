@@ -7,6 +7,7 @@ import messagesReducer from "../entities/message/model/messagesSlice";
 import presenceReducer from "../entities/presence/model/presenceSlice";
 import typingReducer from "../entities/typing/model/typingSlice";
 import membersReducer from "../entities/member/model/membersSlice";
+import { notificationMiddleware } from "../store/middleware/notificationMiddleware";
 
 export const store = configureStore({
   reducer: {
@@ -24,7 +25,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: ["room/updateSpeakers"],
       },
-    }),
+    }).concat(notificationMiddleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

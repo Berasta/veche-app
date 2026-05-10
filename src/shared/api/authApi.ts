@@ -25,6 +25,7 @@ export interface AuthUser {
   avatar_frame?: string;
   banner_skin?: string;
   avatar_accessory?: string;
+  bio?: string;
   created_at?: string;
 }
 
@@ -108,6 +109,7 @@ export async function getCurrentUser(): Promise<AuthMeResponse> {
       avatar_frame: user.avatar_frame || undefined,
       banner_skin: user.banner_skin || undefined,
       avatar_accessory: user.avatar_accessory || undefined,
+      bio: user.bio || undefined,
       created_at: user.created,
     },
   };

@@ -1,7 +1,7 @@
 {
   "name": "@figma/my-make-file",
   "private": true,
-  "version": "0.3.26",
+  "version": "0.4.1",
   "type": "module",
   "scripts": {
     "build": "vite build",
@@ -49,6 +49,7 @@
     "@tauri-apps/api": "^2.11.0",
     "@tauri-apps/plugin-deep-link": "^2.4.9",
     "@tauri-apps/plugin-global-shortcut": "^2.3.1",
+    "@tauri-apps/plugin-notification": "^2.3.3",
     "@tauri-apps/plugin-process": "^2.3.1",
     "@tauri-apps/plugin-store": "^2.4.3",
     "@tauri-apps/plugin-updater": "^2.10.1",

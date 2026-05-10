@@ -1,8 +1,9 @@
 import { useRef, useEffect, useState, useCallback, ReactNode } from "react";
 import { Portal } from "@shared/ui/Portal";
-import { Volume2, Crown, Calendar } from "lucide-react";
+import { Crown, Calendar } from "lucide-react";
 import { PB_URL } from "@shared/api/pb";
 import { getFrameClass } from "@shared/lib/frames";
+
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -14,11 +15,10 @@ export interface UserProfile {
   roleColor?: string;
   joinedAt?: string;
   userId?: string;
+  bio?: string;
 }
 
 interface UserPopoverProps extends UserProfile {
-  volume?: number;
-  onVolumeChange?: (volume: number) => void;
   frame?: string;
   children: ReactNode;
 }
@@ -26,9 +26,11 @@ interface UserPopoverProps extends UserProfile {
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 const POPOVER_WIDTH = 256;
-const POPOVER_HEIGHT = 220;
+const POPOVER_HEIGHT = 260;
 const GAP = 8;
 const BANNER_COLLECTION = "_pb_users_auth_";
+const HOVER_DELAY_MS = 150;
+const HOVER_LEAVE_MS = 120;
 
 
 
@@ -224,6 +226,7 @@ export function UserPopover({
   joinedAt,
   frame,
   userId,
+  bio,
   children,
 }: UserPopoverProps) {
   const bannerUrl = buildBannerUrl(bannerId, userId);
@@ -258,7 +261,7 @@ export function UserPopover({
             ref={popoverRef}
             onMouseEnter={keepOpen}
             onMouseLeave={close}
-            className="fixed z-[100] w-64 bg-foreground/[0.02] backdrop-blur-xl rounded-2xl"
+            className="fixed z-[100] w-64 bg-card/95 backdrop-blur-xl rounded-2xl border border-border/30 shadow-2xl shadow-black/40 overflow-hidden"
             style={{ top: popoverPos.top, left: popoverPos.left }}
           >
             <BannerSection bannerUrl={bannerUrl} bannerPos={bannerPos}>
@@ -273,7 +276,18 @@ export function UserPopover({
               </div>
             </BannerSection>
 
-            <div className="px-4 pt-3 pb-2 space-y-2">
+            <div className="px-4 pt-3 pb-3 space-y-2.5">
+              {/* Bio */}
+              {bio && (
+                <div>
+                  <p className="text-[10px] font-semibold text-foreground/30 uppercase tracking-widest mb-1">
+                    О себѣ
+                  </p>
+                  <p className="text-sm text-foreground/70 leading-snug line-clamp-3">{bio}</p>
+                </div>
+              )}
+
+              {/* Role */}
               <div>
                 <p className="text-[10px] font-semibold text-foreground/30 uppercase tracking-widest mb-1.5">
                   Чины
@@ -284,12 +298,12 @@ export function UserPopover({
                   <p className="text-sm text-foreground/30">Нѣтъ чина</p>
                 )}
               </div>
+
               {joinedAt && <JoinedDate joinedAt={joinedAt} />}
             </div>
           </div>
         </Portal>
       )}
-
     </>
   );
 }

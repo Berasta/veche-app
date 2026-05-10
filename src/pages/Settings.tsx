@@ -51,6 +51,9 @@ export function Settings() {
   const [customBannerUrl, setCustomBannerUrl] = useState<string | null>(null);
   const [bannerPosition, setBannerPosition] = useState({ x: 50, y: 50 });
   const [repositionFile, setRepositionFile] = useState<{ url: string; filename: string } | null>(null);
+  const [bioText, setBioText] = useState("");
+  const [isEditingBio, setIsEditingBio] = useState(false);
+  const [savingBio, setSavingBio] = useState(false);
   const [showFrameSelector, setShowFrameSelector] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const bannerInputRef = useRef<HTMLInputElement | null>(null);
@@ -65,6 +68,7 @@ export function Settings() {
         if (pos) setBannerPosition(JSON.parse(pos));
       } catch {}
     }
+    if (user?.bio) setBioText(user.bio);
   }, [user]);
 
   useEffect(() => {
@@ -119,6 +123,20 @@ export function Settings() {
       dispatch(fetchCurrentUser());
       setIsEditing(false);
     } finally { setSaving(false); }
+  };
+
+  const saveBio = async () => {
+    if (!user) return;
+    setSavingBio(true);
+    try {
+      await pb.collection("users").update(user.id, { bio: bioText.trim() });
+      dispatch(fetchCurrentUser());
+      setIsEditingBio(false);
+    } catch (err) {
+      console.warn("[Settings] Failed to save bio:", err);
+    } finally {
+      setSavingBio(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -268,6 +286,58 @@ export function Settings() {
                   )}
                   <p className="text-xs text-foreground/20 mt-1 font-mono">{user?.id}</p>
                 </div>
+              </div>
+
+              {/* Bio */}
+              <div className="bg-foreground/[0.02] rounded-2xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[10px] font-semibold text-foreground/30 uppercase tracking-widest">О себѣ</p>
+                  {!isEditingBio && (
+                    <button
+                      onClick={() => setIsEditingBio(true)}
+                      className="w-6 h-6 rounded-lg hover:bg-foreground/5 text-foreground/30 hover:text-foreground/60 flex items-center justify-center transition-colors"
+                      title="Измѣнити"
+                    >
+                      <Edit2 className="w-3 h-3" strokeWidth={1.5} />
+                    </button>
+                  )}
+                </div>
+                {isEditingBio ? (
+                  <div className="space-y-2">
+                    <textarea
+                      value={bioText}
+                      onChange={(e) => setBioText(e.target.value)}
+                      maxLength={300}
+                      rows={3}
+                      className="w-full bg-foreground/5 rounded-xl px-3 py-2 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20 resize-none"
+                      placeholder="Расскажите о себѣ..."
+                    />
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs text-foreground/20">{bioText.length}/300</span>
+                      <div className="flex gap-1.5">
+                        <button
+                          onClick={() => { setIsEditingBio(false); setBioText(user?.bio ?? ""); }}
+                          disabled={savingBio}
+                          className="px-3 py-1.5 rounded-xl text-xs text-foreground/40 hover:text-foreground/60 hover:bg-foreground/5 transition-colors"
+                        >
+                          Отмѣна
+                        </button>
+                        <button
+                          onClick={saveBio}
+                          disabled={savingBio}
+                          className="px-3 py-1.5 rounded-xl text-xs bg-foreground/10 text-foreground/60 hover:text-foreground flex items-center gap-1.5 transition-colors"
+                        >
+                          {savingBio ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" strokeWidth={1.5} />}
+                          Сохранити
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-foreground/50 leading-snug">
+                    {bioText || <span className="italic text-foreground/25">Не заполнено</span>}
+                  </p>
+                )}
               </div>
 
               {/* Logout */}
