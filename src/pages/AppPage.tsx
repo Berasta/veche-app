@@ -1,14 +1,9 @@
-import { Navigate, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { Castle, MessageSquare, Volume2, Users, ArrowRight, Link as LinkIcon } from "lucide-react";
 
 export const AppPage = () => {
   const navigate = useNavigate();
-  const onboardingSeen = localStorage.getItem("onboarding_seen");
-
-  if (!onboardingSeen) {
-    return <Navigate to="/app/onboarding" replace />;
-  }
 
   return (
     <div className="flex-1 flex items-center justify-center bg-background relative overflow-hidden min-w-0">

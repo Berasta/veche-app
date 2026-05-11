@@ -5,9 +5,10 @@ import {
   selectConnecting,
 } from "@entities/room/model/roomSelectors";
 import { joinChannel } from "@store/thunks/roomThunk";
-import { Loader2, Volume2 } from "lucide-react";
+import { Loader2, Volume2, Lock } from "lucide-react";
 import { motion } from "motion/react";
 import { useParams, useNavigate } from "react-router";
+import { toast } from "sonner";
 
 interface Props {
   channelId: string;
@@ -15,9 +16,11 @@ interface Props {
   index: number;
   participantCount?: number;
   participantAvatars?: string[];
+  isLocked?: boolean;
+  canManage?: boolean;
 }
 
-export function Palata({ channelId, channelName, index, participantCount = 0, participantAvatars }: Props) {
+export function Palata({ channelId, channelName, index, participantCount = 0, participantAvatars, isLocked, canManage }: Props) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { serverId } = useParams();
@@ -30,6 +33,10 @@ export function Palata({ channelId, channelName, index, participantCount = 0, pa
 
   const handleClick = () => {
     if (!serverId) return;
+    if (isLocked && !canManage) {
+      toast.error("Сія палата заперта");
+      return;
+    }
     // Если уже активен звонок — открываем раскрытый вид
     if (connected && activeChannelId) {
       navigate(`/app/server/${serverId}/voice/${activeChannelId}`);
@@ -49,6 +56,7 @@ export function Palata({ channelId, channelName, index, participantCount = 0, pa
       className={`
         cursor-pointer w-full px-2.5 py-2 rounded-xl text-left
         transition-all duration-100 flex items-center gap-2.5 group
+        ${isLocked && !canManage ? "opacity-60" : ""}
         ${
           isActive
             ? "bg-primary/8 text-foreground"
@@ -66,6 +74,9 @@ export function Palata({ channelId, channelName, index, participantCount = 0, pa
         />
       )}
       <span className="flex-1 min-w-0 truncate">{channelName}</span>
+      {isLocked && (
+        <Lock size={11} strokeWidth={1.5} className="text-foreground/30 flex-shrink-0" />
+      )}
       {participantCount > 0 && (
         <div className="flex items-center gap-1 flex-shrink-0">
           <div className="flex -space-x-1.5">

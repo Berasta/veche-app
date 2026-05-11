@@ -15,6 +15,7 @@ import { useMobileMenu } from "@app/layout/MobileMenuContext";
 import { pb } from "@shared/api/pb";
 import { Portal } from "@shared/ui/Portal";
 import { useIsMobile } from "@shared/ui/use-mobile";
+import { isTauri } from "@shared/lib/tauri";
 
 export function GradList() {
   const dispatch = useAppDispatch();

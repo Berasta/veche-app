@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { Room, RoomEvent, ConnectionQuality, LocalVideoTrack, Track } from "livekit-client";
+import { Room, RoomEvent, ConnectionQuality } from "livekit-client";
 import { pb } from "@shared/api/pb";
 import { toast } from "sonner";
 import {
@@ -11,10 +11,10 @@ import {
   setVolume,
   setDeafened,
   setConnectionQuality,
-  setScreenSharing,
 } from "@entities/room/model/roomSlice";
 import { setActiveRoom } from "@shared/lib/voiceRoom";
-import type { AppDispatch, RootState } from "@app/store";
+import { destroyP2PScreenShare } from "@features/voice/lib/p2pScreenShare";
+import type { RootState } from "@app/store";
 
 // Room объект живёт вне Redux — он не сериализуемый (содержит WebSocket, WebRTC и т.д.)
 // Redux хранит только сериализуемый стейт (строки, булевы, числа)
@@ -77,6 +77,33 @@ export const joinChannel = createAsyncThunk(
     dispatch(setConnecting(true));
 
     try {
+      // 0. Проверяем, не заперта ли палата
+      const channel = await pb.collection("channels").getOne(channelId);
+      if (channel.is_locked) {
+        // Проверяем права пользователя — владелец сервера или MANAGE_CHANNELS проходит
+        const userId = pb.authStore.record?.id;
+        let canEnter = false;
+        if (userId) {
+          try {
+            const server = await pb.collection("servers").getOne(serverId);
+            canEnter = server.owner_id === userId;
+            if (!canEnter) {
+              const members = await pb.collection("members").getFullList({
+                filter: `server_id = "${serverId}" && user_id = "${userId}"`,
+                expand: "role_id",
+              });
+              const perms: string[] = members[0]?.expand?.role_id?.permissions ?? [];
+              canEnter = perms.includes("manage_channels");
+            }
+          } catch { /* сервер недоступен — не даём войти */ }
+        }
+        if (!canEnter) {
+          dispatch(setConnecting(false));
+          dispatch(setError("Сія палата заперта"));
+          return;
+        }
+      }
+
       // 1. Получаем LiveKit токен от PocketBase
       const res = await pb.send("/api/livekit-token", {
         method: "POST",
@@ -160,6 +187,7 @@ export const joinChannel = createAsyncThunk(
 export const leaveChannel = createAsyncThunk(
   "room/leave",
   async (_, { dispatch }) => {
+    destroyP2PScreenShare();
     if (activeRoom) {
       releaseWakeLock();
       setActiveRoom(null);
@@ -203,119 +231,3 @@ export const setParticipantVolume = createAsyncThunk(
     dispatch(setVolume({ identity, volume }));
   },
 );
-
-const RESOLUTION_MAP = {
-  "1080p": { width: 1920, height: 1080 },
-  "720p": { width: 1280, height: 720 },
-  "480p": { width: 854, height: 480 },
-};
-
-export const toggleScreenShare = createAsyncThunk(
-  "room/toggleScreenShare",
-  async (_, { dispatch, getState }) => {
-    if (!activeRoom) return;
-
-    const isSharing = activeRoom.localParticipant.isScreenShareEnabled;
-    const { resolution, fps, bitrate, audio } = (getState() as RootState).room
-      .screenShareQuality;
-
-    try {
-      if (isSharing) {
-        // Выключаем — без опций
-        await activeRoom.localParticipant.setScreenShareEnabled(false);
-      } else {
-        const captureOptions = {
-          selfBrowserSurface: "exclude",
-          resolution: {
-            width: RESOLUTION_MAP[resolution].width,
-            height: RESOLUTION_MAP[resolution].height,
-            frameRate: fps,
-          },
-          contentHint: "motion",
-        } as const;
-        const publishOptions = {
-          videoEncoding: {
-            maxBitrate: bitrate * 1_000_000,
-            maxFramerate: fps,
-          },
-        };
-
-        if (audio) {
-          try {
-            await activeRoom.localParticipant.setScreenShareEnabled(
-              true,
-              { ...captureOptions, audio: true },
-              publishOptions,
-            );
-          } catch (audioErr: any) {
-            // System audio capture is often unsupported on Windows/WebView2.
-            // Retry without audio rather than failing entirely.
-            const msg: string = audioErr?.message ?? "";
-            const isAudioError =
-              audioErr?.name === "NotSupportedError" ||
-              audioErr?.name === "NotReadableError" ||
-              msg.includes("audio") ||
-              msg.includes("loopback");
-            if (isAudioError) {
-              toast.error(
-                "Захватъ системного звука не поддерживается — демонстрацiя безъ звука",
-              );
-              await activeRoom.localParticipant.setScreenShareEnabled(
-                true,
-                { ...captureOptions, audio: false },
-                publishOptions,
-              );
-            } else {
-              throw audioErr;
-            }
-          }
-        } else {
-          await activeRoom.localParticipant.setScreenShareEnabled(
-            true,
-            { ...captureOptions, audio: false },
-            publishOptions,
-          );
-        }
-      }
-      dispatch(setScreenSharing(!isSharing));
-    } catch (e: any) {
-      if (e.name !== "NotAllowedError") dispatch(setError(e.message));
-    }
-  },
-);
-
-/**
- * Publish a pre-captured MediaStream as a screen share track directly to LiveKit.
- * Used when the custom screen picker successfully captures without the OS dialog.
- * The stream is stopped automatically when the user calls toggleScreenShare() to stop.
- */
-export function publishCustomScreenShare(
-  stream: MediaStream,
-  fps: number,
-  bitrate: number,
-) {
-  return async (dispatch: AppDispatch): Promise<void> => {
-    if (!activeRoom) {
-      stream.getTracks().forEach((t) => t.stop());
-      return;
-    }
-
-    const videoTrackRaw = stream.getVideoTracks()[0];
-    if (!videoTrackRaw) return;
-
-    try {
-      const videoTrack = new LocalVideoTrack(videoTrackRaw, undefined, false);
-      await activeRoom.localParticipant.publishTrack(videoTrack, {
-        source: Track.Source.ScreenShare,
-        videoEncoding: {
-          maxBitrate: bitrate * 1_000_000,
-          maxFramerate: fps,
-        },
-      });
-      dispatch(setScreenSharing(true));
-    } catch (e: any) {
-      stream.getTracks().forEach((t) => t.stop());
-      if (e.name !== "NotAllowedError") dispatch(setError(e.message));
-    }
-  };
-}

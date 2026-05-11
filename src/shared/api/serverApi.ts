@@ -56,6 +56,7 @@ export interface Channel {
   name: string;
   server_id: string;
   type: string;
+  is_locked?: boolean;
 }
 
 export interface ListChannelsResponse {

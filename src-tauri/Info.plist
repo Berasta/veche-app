@@ -6,7 +6,7 @@
     <string>Вече использует микрофон для голосовой связи в голосовых палатахъ</string>
     <key>NSCameraUsageDescription</key>
     <string>Вече использует камеру для демонстрации экрана</string>
-    <key>NSScreenCaptureDescription</key>
+    <key>NSScreenCaptureUsageDescription</key>
     <string>Вече использует запись экрана для демонстрации экрана въ голосовыхъ палатахъ</string>
     <key>UIBackgroundModes</key>
     <array>

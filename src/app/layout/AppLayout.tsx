@@ -16,6 +16,7 @@ const DEFAULTS = {
   toggleOverlay: "Ctrl+Shift+Space",
 };
 
+// True only on macOS desktop Tauri build (titleBarStyle: Overlay is macOS-only)
 function readBindings(): Record<string, string> {
   try {
     const saved = localStorage.getItem("hotkeyBindings");
@@ -33,7 +34,6 @@ export const AppLayout = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const isVoiceChat = location.pathname.includes("/voice/");
-  const isOnboarding = location.pathname.includes("/onboarding");
   const [bindings, setBindings] = useState(readBindings);
 
   useRealtime();
@@ -67,11 +67,11 @@ export const AppLayout = () => {
     <MobileMenuProvider>
       <VoiceRoomProvider>
         <div className="h-dvh w-screen overflow-hidden grid grid-rows-[1fr_auto]">
-          <div className={`min-h-0 flex overflow-hidden ${isOnboarding ? "" : "pt-12 md:pt-0"}`}>
+          <div className="min-h-0 flex overflow-hidden pt-12 md:pt-0">
             <GradList />
             <Outlet />
           </div>
-          {!isVoiceChat && !isOnboarding && <ActiveVoiceBar />}
+          {!isVoiceChat && <ActiveVoiceBar />}
         </div>
       </VoiceRoomProvider>
     </MobileMenuProvider>

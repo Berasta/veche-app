@@ -10,7 +10,6 @@ export enum AppRoutes {
 
   SETTINGS = "/app/settings",
   TEXT_CHANNEL = "/app/server/:serverId/text/:channelId",
-  ONBOARDING = "/app/onboarding",
 
   OVERLAY = "/overlay",
 }

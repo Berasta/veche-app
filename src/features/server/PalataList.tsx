@@ -16,6 +16,8 @@ import {
   Settings,
   Pencil,
   Trash2,
+  Lock,
+  LockOpen,
 } from "lucide-react";
 import { pb, PB_URL } from "@shared/api/pb";
 import { fetchChannels } from "@entities/channel/model/channelsSlice";
@@ -134,6 +136,16 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
     }
   };
 
+  const handleToggleLock = async (id: string, currentLocked: boolean) => {
+    try {
+      await pb.collection("channels").update(id, { is_locked: !currentLocked });
+      if (serverId) dispatch(fetchChannels(serverId));
+    } catch (err) {
+      console.error("Ошибка измѣненiя доступа палаты", err);
+      toast.error("Не удалось измѣнить доступъ");
+    }
+  };
+
   const handleDeleteChannel = async () => {
     if (!deletingChannelId) return;
     try {
@@ -218,9 +230,15 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
             <div className="space-y-0.5">
               {channels.filter((c) => c.type === "text").map((palata, index) => (
                 <div key={palata.id} className="group relative">
-                  <TextPalata index={index} channelId={palata.id} channelName={palata.name} serverId={palata.server_id} />
+                  <TextPalata index={index} channelId={palata.id} channelName={palata.name} serverId={palata.server_id}
+                    isLocked={palata.is_locked} canManage={canManageChannels} />
                   {canManageChannels && (
                     <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-0.5 bg-background/80 backdrop-blur-sm rounded-xl p-0.5">
+                      <button onClick={() => handleToggleLock(palata.id, !!palata.is_locked)}
+                        className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
+                        title={palata.is_locked ? "Открыти" : "Запереть"}>
+                        {palata.is_locked ? <LockOpen className="w-3 h-3" strokeWidth={1.5} /> : <Lock className="w-3 h-3" strokeWidth={1.5} />}
+                      </button>
                       <button onClick={() => setEditingChannel({ id: palata.id, name: palata.name })}
                         className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
                         title="Переименовати">
@@ -261,9 +279,15 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
                 <div key={palata.id} className="group relative">
                   <Palata index={index} channelId={palata.id} channelName={palata.name}
                     participantCount={participantCounts[palata.id] || 0}
-                    participantAvatars={participantAvatars[palata.id]} />
+                    participantAvatars={participantAvatars[palata.id]}
+                    isLocked={palata.is_locked} canManage={canManageChannels} />
                   {canManageChannels && (
                     <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-0.5 bg-background/80 backdrop-blur-sm rounded-xl p-0.5">
+                      <button onClick={() => handleToggleLock(palata.id, !!palata.is_locked)}
+                        className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
+                        title={palata.is_locked ? "Открыти" : "Запереть"}>
+                        {palata.is_locked ? <LockOpen className="w-3 h-3" strokeWidth={1.5} /> : <Lock className="w-3 h-3" strokeWidth={1.5} />}
+                      </button>
                       <button onClick={() => setEditingChannel({ id: palata.id, name: palata.name })}
                         className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
                         title="Переименовати">

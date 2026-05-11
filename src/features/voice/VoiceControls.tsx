@@ -3,9 +3,9 @@ import {
   MicOff,
   Ear,
   EarOff,
+  PhoneOff,
   Monitor,
   MonitorOff,
-  PhoneOff,
 } from "lucide-react";
 
 export type MuteMode = "toggle" | "push-to-talk" | "push-to-mute";
@@ -13,23 +13,25 @@ export type MuteMode = "toggle" | "push-to-talk" | "push-to-mute";
 interface VoiceControlsProps {
   isMuted: boolean;
   isDeafened: boolean;
-  isScreenSharing: boolean;
   onToggleMute: () => void;
   onToggleDeafen: () => void;
-  onToggleScreenShare: () => void;
   onDisconnect: () => void;
   muteMode?: MuteMode;
+  isScreenSharing?: boolean;
+  isScreenShareBusy?: boolean;
+  onToggleScreenShare?: () => void;
 }
 
 export function VoiceControls({
   isMuted,
   isDeafened,
-  isScreenSharing,
   onToggleMute,
   onToggleDeafen,
-  onToggleScreenShare,
   onDisconnect,
   muteMode = "toggle",
+  isScreenSharing = false,
+  isScreenShareBusy = false,
+  onToggleScreenShare,
 }: VoiceControlsProps) {
   const getMuteLabel = () => {
     if (muteMode === "push-to-talk") {
@@ -82,17 +84,30 @@ export function VoiceControls({
           {isDeafened ? <EarOff size={16} /> : <Ear size={16} />}
         </button>
 
-        <button
-          onClick={onToggleScreenShare}
-          title={isScreenSharing ? "Остановити показъ" : "Показати свой экранъ"}
-          className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
-            isScreenSharing
-              ? "bg-blue-500/15 text-blue-500"
-              : "text-foreground/30 hover:text-foreground/60 hover:bg-foreground/5"
-          }`}
-        >
-          {isScreenSharing ? <MonitorOff size={16} /> : <Monitor size={16} />}
-        </button>
+        <div className="w-px h-5 bg-foreground/10" />
+
+        {onToggleScreenShare && (
+          <button
+            onClick={onToggleScreenShare}
+            disabled={isScreenShareBusy && !isScreenSharing}
+            title={
+              isScreenSharing
+                ? "Остановить демонстрацiю экрана"
+                : isScreenShareBusy
+                ? "Кто-то уже демонстрирует экранъ"
+                : "Демонстрировать экранъ"
+            }
+            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
+              isScreenSharing
+                ? "bg-primary/15 text-primary"
+                : isScreenShareBusy
+                ? "text-foreground/20 cursor-not-allowed"
+                : "text-foreground/30 hover:text-foreground/60 hover:bg-foreground/5"
+            }`}
+          >
+            {isScreenSharing ? <MonitorOff size={16} /> : <Monitor size={16} />}
+          </button>
+        )}
 
         <div className="w-px h-5 bg-foreground/10" />
 

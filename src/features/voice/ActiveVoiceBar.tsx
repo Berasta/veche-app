@@ -7,7 +7,6 @@ import {
   Ear,
   EarOff,
   Monitor,
-  MonitorOff,
 } from "lucide-react";
 import {
   selectConnected,
@@ -19,19 +18,17 @@ import {
   selectParticipantCount,
   selectIsMuted,
   selectSpeakingCount,
-  selectIsScreenSharing,
   selectError,
   selectIsDeafened,
+  selectScreenSharerId,
 } from "@entities/room/model/roomSelectors";
 import { useAppDispatch, useAppSelector } from "@app/hooks";
 import {
   leaveChannel,
   toggleMute,
-  toggleScreenShare,
   toggleDeafen,
 } from "@store/thunks/roomThunk";
 import { useState, useEffect } from "react";
-import { ScreenShareModal } from "./ScreenShareModal";
 import { useNavigate } from "react-router";
 import type { MuteMode } from "./VoiceControls";
 
@@ -41,7 +38,6 @@ export function ActiveVoiceBar() {
   const connected = useAppSelector(selectConnected);
   const connecting = useAppSelector(selectConnecting);
   const reconnecting = useAppSelector(selectReconnecting);
-  const isScreenSharing = useAppSelector(selectIsScreenSharing);
   const channelName = useAppSelector(selectActiveChannelName);
   const participantCount = useAppSelector(selectParticipantCount);
   const isMuted = useAppSelector(selectIsMuted);
@@ -50,8 +46,8 @@ export function ActiveVoiceBar() {
   const activeChannelId = useAppSelector(selectActiveChannelId);
   const activeServerId = useAppSelector(selectActiveServerId);
   const error = useAppSelector(selectError);
+  const screenSharerId = useAppSelector(selectScreenSharerId);
 
-  const [showScreenModal, setShowScreenModal] = useState(false);
   const [muteMode, setMuteMode] = useState<MuteMode>("toggle");
 
   // Читаем режим мьюта из localStorage
@@ -111,6 +107,11 @@ export function ActiveVoiceBar() {
                       · {speakingCount}
                     </span>
                   )}
+                  {screenSharerId && (
+                    <span title="Демонстрация экрана" className="flex-shrink-0">
+                      <Monitor size={10} className="text-primary" />
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -148,22 +149,6 @@ export function ActiveVoiceBar() {
                 {isDeafened ? <EarOff size={13} /> : <Ear size={13} />}
               </button>
 
-              <button
-                onClick={() =>
-                  isScreenSharing
-                    ? dispatch(toggleScreenShare())
-                    : setShowScreenModal(true)
-                }
-                title={isScreenSharing ? "Остановить показъ" : "Показать экранъ"}
-                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
-                  isScreenSharing
-                    ? "bg-blue-500/15 text-blue-500"
-                    : "hover:bg-foreground/5 text-foreground/30 hover:text-foreground/60"
-                }`}
-              >
-                {isScreenSharing ? <MonitorOff size={13} /> : <Monitor size={13} />}
-              </button>
-
               {activeServerId && activeChannelId && (
                 <button
                   onClick={() => navigate(`/app/server/${activeServerId}/voice/${activeChannelId}`)}
@@ -188,9 +173,6 @@ export function ActiveVoiceBar() {
         ) : null}
       </div>
 
-      {showScreenModal && (
-        <ScreenShareModal onClose={() => setShowScreenModal(false)} />
-      )}
     </>
   );
 }

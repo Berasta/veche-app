@@ -13,15 +13,9 @@ interface RoomState {
   isMuted: boolean;
   volumes: Record<string, number>;
   connectionQuality: "excellent" | "good" | "poor" | "lost" | "unknown";
-  isScreenSharing: boolean;
-  screenShareQuality: {
-    resolution: "1080p" | "720p" | "480p";
-    fps: 15 | 30 | 60 | 120;
-    bitrate: number;
-    audio: boolean;
-  };
   isDeafened: boolean;
   callStartedAt: number | null;
+  screenSharerId: string | null;
 }
 
 const initialState: RoomState = {
@@ -36,11 +30,10 @@ const initialState: RoomState = {
   speakingCount: 0,
   isMuted: false,
   volumes: {},
-  isScreenSharing: false,
-  screenShareQuality: { resolution: "1080p", fps: 30, bitrate: 8, audio: true },
   isDeafened: false,
   callStartedAt: null,
   connectionQuality: "unknown",
+  screenSharerId: null,
 };
 
 const roomSlice = createSlice({
@@ -77,7 +70,7 @@ const roomSlice = createSlice({
       state.speakingCount = 0;
       state.isMuted = false;
       state.isDeafened = false;
-      state.isScreenSharing = false;
+      state.screenSharerId = null;
     },
     setError(state, action: PayloadAction<string>) {
       state.error = action.payload;
@@ -98,23 +91,6 @@ const roomSlice = createSlice({
     ) {
       state.volumes[action.payload.identity] = action.payload.volume;
     },
-    setScreenSharing(state, action: PayloadAction<boolean>) {
-      state.isScreenSharing = action.payload;
-    },
-    setScreenShareQuality(
-      state,
-      action: PayloadAction<{
-        resolution: "1080p" | "720p" | "480p";
-        fps: 15 | 30 | 60 | 120;
-        bitrate: number;
-        audio?: boolean;
-      }>,
-    ) {
-      state.screenShareQuality = {
-        ...state.screenShareQuality,
-        ...action.payload,
-      };
-    },
     setDeafened(state, action: PayloadAction<boolean>) {
       state.isDeafened = action.payload;
     },
@@ -123,6 +99,9 @@ const roomSlice = createSlice({
     },
     setConnectionQuality(state, action: PayloadAction<RoomState["connectionQuality"]>) {
       state.connectionQuality = action.payload;
+    },
+    setScreenSharerId(state, action: PayloadAction<string | null>) {
+      state.screenSharerId = action.payload;
     },
   },
 });
@@ -137,11 +116,10 @@ export const {
   setSpeakingCount,
   setMuted,
   setVolume,
-  setScreenSharing,
-  setScreenShareQuality,
   setDeafened,
   setCallStartedAt,
   setConnectionQuality,
+  setScreenSharerId,
 } = roomSlice.actions;
 
 export default roomSlice.reducer;

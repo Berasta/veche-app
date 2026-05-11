@@ -8,6 +8,8 @@ import {
   useParticipants,
   useLocalParticipant,
   useSpeakingParticipants,
+  useRoomContext,
+  isTrackReference,
 } from "@livekit/components-react";
 import { subscribeRoom, getActiveRoom } from "@shared/lib/voiceRoom";
 import { useAppDispatch, useAppSelector } from "@app/hooks";
@@ -16,8 +18,12 @@ import {
   setParticipantCount,
   setSpeakingCount,
   setMuted,
-  setScreenSharing,
+  setScreenSharerId,
 } from "@entities/room/model/roomSlice";
+import {
+  initP2PScreenShare,
+  destroyP2PScreenShare,
+} from "@features/voice/lib/p2pScreenShare";
 
 // Рендерит <audio> элементы для каждого удалённого участника с поддержкой
 // индивидуальной громкости и оглушения (deafen).
@@ -35,7 +41,7 @@ function VoiceAudioRenderer() {
 
   return (
     <>
-      {audioTracks.map((trackRef) => {
+      {audioTracks.filter(isTrackReference).map((trackRef) => {
         const identity = trackRef.participant.identity;
         const vol = isDeafened ? 0 : (volumes[identity] ?? 100) / 100;
         return (
@@ -56,7 +62,7 @@ function VoiceStateSyncer() {
   const dispatch = useAppDispatch();
   const participants = useParticipants();
   const speakingParticipants = useSpeakingParticipants();
-  const { isMicrophoneEnabled, isScreenShareEnabled } = useLocalParticipant();
+  const { isMicrophoneEnabled } = useLocalParticipant();
 
   useEffect(() => {
     dispatch(setParticipantCount(participants.length));
@@ -70,9 +76,20 @@ function VoiceStateSyncer() {
     dispatch(setMuted(!isMicrophoneEnabled));
   }, [isMicrophoneEnabled, dispatch]);
 
+  return null;
+}
+
+// Initialises the P2P screen share manager and syncs sharer identity to Redux.
+function P2PScreenShareSyncer() {
+  const room = useRoomContext();
+  const { localParticipant } = useLocalParticipant();
+  const dispatch = useAppDispatch();
+
   useEffect(() => {
-    dispatch(setScreenSharing(isScreenShareEnabled));
-  }, [isScreenShareEnabled, dispatch]);
+    const mgr = initP2PScreenShare(room, localParticipant.identity);
+    mgr.subscribeSharer((id) => dispatch(setScreenSharerId(id)));
+    return () => destroyP2PScreenShare();
+  }, [room, localParticipant.identity, dispatch]);
 
   return null;
 }
@@ -94,6 +111,7 @@ export function VoiceRoomProvider({ children }: { children: React.ReactNode }) {
     <RoomContext.Provider value={room}>
       <VoiceAudioRenderer />
       <VoiceStateSyncer />
+      <P2PScreenShareSyncer />
       {children}
     </RoomContext.Provider>
   );
