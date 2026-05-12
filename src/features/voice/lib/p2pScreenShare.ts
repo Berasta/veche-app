@@ -13,14 +13,14 @@ const ICE_CONFIG: RTCConfiguration = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
-    // coturn relay — ensures connectivity through symmetric NAT / strict firewalls
+    // own coturn relay — ensures connectivity through symmetric NAT / strict firewalls
     {
       urls: [
-        "turn:veche.theaesthetics.ru:3478?transport=udp",
-        "turn:veche.theaesthetics.ru:3478?transport=tcp",
+        "turn:veche.theaesthetics.ru:3479?transport=udp",
+        "turn:veche.theaesthetics.ru:3479?transport=tcp",
       ],
       username: "veche",
-      credential: "veche-turn-password",
+      credential: "veche-turn-secret",
     },
   ],
 };
