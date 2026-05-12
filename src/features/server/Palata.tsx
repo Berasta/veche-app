@@ -37,8 +37,8 @@ export function Palata({ channelId, channelName, index, participantCount = 0, pa
       toast.error("Сія палата заперта");
       return;
     }
-    // Если уже активен звонок — открываем раскрытый вид
-    if (connected && activeChannelId) {
+    // Если кликнули на уже активный канал — открываем раскрытый вид
+    if (connected && isActive) {
       navigate(`/app/server/${serverId}/voice/${activeChannelId}`);
       return;
     }
