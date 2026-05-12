@@ -16,6 +16,37 @@ const ICE_CONFIG: RTCConfiguration = {
   ],
 };
 
+export type ScreenShareQuality = "1fps" | "5fps" | "10fps" | "15fps" | "24fps" | "30fps" | "60fps" | "120fps" | "144fps";
+
+// FPS presets
+const QUALITY_PRESETS: Record<ScreenShareQuality, { idealFps: number; maxFps: number; label: string }> = {
+  "1fps":   { idealFps: 1,   maxFps: 1,   label: "1 FPS" },
+  "5fps":   { idealFps: 5,   maxFps: 5,   label: "5 FPS" },
+  "10fps":  { idealFps: 10,  maxFps: 10,  label: "10 FPS" },
+  "15fps":  { idealFps: 15,  maxFps: 15,  label: "15 FPS" },
+  "24fps":  { idealFps: 24,  maxFps: 24,  label: "24 FPS" },
+  "30fps":  { idealFps: 30,  maxFps: 30,  label: "30 FPS" },
+  "60fps":  { idealFps: 60,  maxFps: 60,  label: "60 FPS" },
+  "120fps": { idealFps: 120, maxFps: 120, label: "120 FPS" },
+  "144fps": { idealFps: 144, maxFps: 144, label: "144 FPS" },
+};
+
+export function getQualityPresets() { return QUALITY_PRESETS; }
+
+const LS_QUALITY_KEY = "screenShareQuality";
+
+export function getSavedScreenShareQuality(): ScreenShareQuality {
+  try {
+    const v = localStorage.getItem(LS_QUALITY_KEY);
+    if (v && v in QUALITY_PRESETS) return v as ScreenShareQuality;
+  } catch {}
+  return "30fps";
+}
+
+export function saveScreenShareQuality(q: ScreenShareQuality) {
+  try { localStorage.setItem(LS_QUALITY_KEY, q); } catch {}
+}
+
 type StreamCb = (stream: MediaStream | null) => void;
 type SharerCb = (id: string | null) => void;
 
@@ -143,13 +174,17 @@ export class P2PScreenShare {
 
   // ─── Public API ────────────────────────────────────────────────────────────
 
-  async startSharing(): Promise<"ok" | "busy" | "denied"> {
+  async startSharing(quality?: ScreenShareQuality): Promise<"ok" | "busy" | "denied"> {
     if (this._sharerId) return "busy";
+
+    const q = quality ?? getSavedScreenShareQuality();
+    saveScreenShareQuality(q);
+    const preset = QUALITY_PRESETS[q];
 
     let stream: MediaStream;
     try {
       stream = await navigator.mediaDevices.getDisplayMedia({
-        video: { frameRate: { ideal: 15, max: 30 } },
+        video: { frameRate: { ideal: preset.idealFps, max: preset.maxFps } },
         audio: false,
       });
     } catch {

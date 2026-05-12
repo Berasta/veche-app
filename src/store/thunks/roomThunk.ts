@@ -68,6 +68,11 @@ export const joinChannel = createAsyncThunk(
 
     // Если в другом канале — сначала выходим
     if (activeRoom) {
+      // Сначала обновляем Redux (connected → false, screenSharerId → null),
+      // чтобы VoiceChatConnected размонтировался ДО того, как RoomContext исчезнет.
+      // Иначе LiveKit-хуки бросают "No room provided".
+      dispatch(setDisconnected());
+      dispatch(setConnecting(true));
       releaseWakeLock();
       setActiveRoom(null);
       await activeRoom.disconnect();

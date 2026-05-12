@@ -11,6 +11,11 @@ import { IconButton } from "@shared/ui/IconButton";
 import { VoiceControls, type MuteMode } from "./VoiceControls";
 import { ScreenShareView } from "./ScreenShareView";
 import { getP2PScreenShare } from "./lib/p2pScreenShare";
+import {
+  getSavedScreenShareQuality,
+  getQualityPresets,
+  type ScreenShareQuality,
+} from "./lib/p2pScreenShare";
 import { useNavigate, useParams } from "react-router";
 import { useAppDispatch, useAppSelector } from "@app/hooks";
 import {
@@ -129,16 +134,20 @@ function VoiceChatConnected({ serverId }: { serverId?: string }) {
     handleCollapse();
   }, [dispatch, handleCollapse]);
 
+  const [screenShareQuality, setScreenShareQuality] = useState<ScreenShareQuality>(
+    () => getSavedScreenShareQuality(),
+  );
+
   const handleToggleScreenShare = useCallback(async () => {
     const mgr = getP2PScreenShare();
     if (!mgr) return;
     if (mgr.isLocalSharing) {
       mgr.stopSharing();
     } else {
-      const result = await mgr.startSharing();
+      const result = await mgr.startSharing(screenShareQuality);
       if (result === "busy") toast.error("Кто-то уже демонстрирует экранъ");
     }
-  }, []);
+  }, [screenShareQuality]);
 
   return (
     <div className="flex-1 flex flex-col bg-background relative z-10 min-w-0 pt-14 md:pt-0">
@@ -264,6 +273,8 @@ function VoiceChatConnected({ serverId }: { serverId?: string }) {
         isScreenSharing={screenSharerId !== null && screenSharerId === getP2PScreenShare()?.localIdentity}
         isScreenShareBusy={screenSharerId !== null && screenSharerId !== getP2PScreenShare()?.localIdentity}
         onToggleScreenShare={handleToggleScreenShare}
+        screenShareQuality={screenShareQuality}
+        onScreenShareQualityChange={(q) => setScreenShareQuality(q)}
       />
 
       {connectError && (
