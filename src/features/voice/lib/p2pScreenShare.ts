@@ -13,7 +13,10 @@ const ICE_CONFIG: RTCConfiguration = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
+    { urls: "stun:stun2.l.google.com:19302" },
+    { urls: "stun:stun3.l.google.com:19302" },
   ],
+  iceCandidatePoolSize: 4,
 };
 
 export type ScreenShareQuality = "1fps" | "5fps" | "10fps" | "15fps" | "24fps" | "30fps" | "60fps" | "120fps" | "144fps";
@@ -57,8 +60,12 @@ export class P2PScreenShare {
   private localStream: MediaStream | null = null;
   // sharer side: one RTCPeerConnection per viewer
   private viewerConns = new Map<string, RTCPeerConnection>();
+  // sharer side: buffered ICE candidates per viewer (before answer arrives)
+  private pendingViewerIce = new Map<string, RTCIceCandidateInit[]>();
   // viewer side: one RTCPeerConnection to the sharer
   private sharerConn: RTCPeerConnection | null = null;
+  // viewer side: buffered ICE candidates from sharer (before offer processed)
+  private pendingSharerIce: RTCIceCandidateInit[] = [];
   private _remoteStream: MediaStream | null = null;
   private _sharerId: string | null = null;
 
@@ -210,6 +217,7 @@ export class P2PScreenShare {
   private _doStop(announce: boolean) {
     for (const pc of this.viewerConns.values()) pc.close();
     this.viewerConns.clear();
+    this.pendingViewerIce.clear();
     this.localStream?.getTracks().forEach((t) => t.stop());
     this.localStream = null;
     if (this._sharerId === this.localIdentity) {
@@ -244,6 +252,13 @@ export class P2PScreenShare {
       this.send(sharerId, { type: "SS_ICE", candidate: e.candidate });
 
     await pc.setRemoteDescription({ type: "offer", sdp });
+
+    // Apply any ICE candidates that arrived before the offer was processed
+    const queued = this.pendingSharerIce.splice(0);
+    for (const c of queued) {
+      try { await pc.addIceCandidate(c); } catch { /* ignore stale */ }
+    }
+
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
     this.send(sharerId, { type: "SS_ANSWER", sdp: answer.sdp! });
@@ -251,7 +266,15 @@ export class P2PScreenShare {
 
   private async _handleAnswer(viewerIdentity: string, sdp: string) {
     const pc = this.viewerConns.get(viewerIdentity);
-    if (pc) await pc.setRemoteDescription({ type: "answer", sdp });
+    if (!pc) return;
+    await pc.setRemoteDescription({ type: "answer", sdp });
+
+    // Apply any ICE candidates that arrived before the answer was processed
+    const queued = this.pendingViewerIce.get(viewerIdentity) ?? [];
+    this.pendingViewerIce.delete(viewerIdentity);
+    for (const c of queued) {
+      try { await pc.addIceCandidate(c); } catch { /* ignore stale */ }
+    }
   }
 
   private async _handleIce(
@@ -259,17 +282,33 @@ export class P2PScreenShare {
     candidate: RTCIceCandidateInit | null,
   ) {
     if (!candidate) return;
-    if (from === this._sharerId && this.sharerConn) {
-      await this.sharerConn.addIceCandidate(candidate);
+
+    if (from === this._sharerId) {
+      // Viewer side: candidate from the sharer
+      if (this.sharerConn && this.sharerConn.remoteDescription) {
+        try { await this.sharerConn.addIceCandidate(candidate); } catch { /* ignore */ }
+      } else {
+        // Buffer until offer is processed
+        this.pendingSharerIce.push(candidate);
+      }
     } else {
+      // Sharer side: candidate from a viewer
       const pc = this.viewerConns.get(from);
-      if (pc) await pc.addIceCandidate(candidate);
+      if (pc && pc.remoteDescription) {
+        try { await pc.addIceCandidate(candidate); } catch { /* ignore */ }
+      } else {
+        // Buffer until answer is processed
+        const buf = this.pendingViewerIce.get(from) ?? [];
+        buf.push(candidate);
+        this.pendingViewerIce.set(from, buf);
+      }
     }
   }
 
   private _closeViewerConn() {
     this.sharerConn?.close();
     this.sharerConn = null;
+    this.pendingSharerIce = [];
     this._remoteStream = null;
   }
 }
