@@ -21,8 +21,13 @@ export function ScreenShareView({ sharerId }: ScreenShareViewProps) {
   }, []);
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.srcObject = stream;
+    const video = videoRef.current;
+    if (!video) return;
+    video.srcObject = stream;
+    if (stream) {
+      video.play().catch(() => {
+        // Autoplay may be blocked in some contexts; user interaction will unblock it.
+      });
     }
   }, [stream]);
 

@@ -16,8 +16,28 @@ const ICE_CONFIG: RTCConfiguration = {
     { urls: "stun:stun2.l.google.com:19302" },
     { urls: "stun:stun3.l.google.com:19302" },
   ],
-  iceCandidatePoolSize: 4,
 };
+
+/**
+ * Wait for ICE gathering to complete (Vanilla ICE / non-trickle).
+ * Falls back after timeoutMs to avoid hanging indefinitely.
+ * This sidesteps mDNS obfuscation issues between Chrome and WKWebView.
+ */
+function waitForGathering(pc: RTCPeerConnection, timeoutMs = 5000): Promise<void> {
+  if (pc.iceGatheringState === "complete") return Promise.resolve();
+  return new Promise((resolve) => {
+    const done = () => {
+      clearTimeout(timer);
+      pc.removeEventListener("icegatheringstatechange", handler);
+      resolve();
+    };
+    const timer = setTimeout(done, timeoutMs);
+    function handler() {
+      if (pc.iceGatheringState === "complete") done();
+    }
+    pc.addEventListener("icegatheringstatechange", handler);
+  });
+}
 
 export type ScreenShareQuality = "1fps" | "5fps" | "10fps" | "15fps" | "24fps" | "30fps" | "60fps" | "120fps" | "144fps";
 
@@ -60,12 +80,8 @@ export class P2PScreenShare {
   private localStream: MediaStream | null = null;
   // sharer side: one RTCPeerConnection per viewer
   private viewerConns = new Map<string, RTCPeerConnection>();
-  // sharer side: buffered ICE candidates per viewer (before answer arrives)
-  private pendingViewerIce = new Map<string, RTCIceCandidateInit[]>();
   // viewer side: one RTCPeerConnection to the sharer
   private sharerConn: RTCPeerConnection | null = null;
-  // viewer side: buffered ICE candidates from sharer (before offer processed)
-  private pendingSharerIce: RTCIceCandidateInit[] = [];
   private _remoteStream: MediaStream | null = null;
   private _sharerId: string | null = null;
 
@@ -217,7 +233,6 @@ export class P2PScreenShare {
   private _doStop(announce: boolean) {
     for (const pc of this.viewerConns.values()) pc.close();
     this.viewerConns.clear();
-    this.pendingViewerIce.clear();
     this.localStream?.getTracks().forEach((t) => t.stop());
     this.localStream = null;
     if (this._sharerId === this.localIdentity) {
@@ -234,12 +249,13 @@ export class P2PScreenShare {
     for (const track of this.localStream!.getTracks()) {
       pc.addTrack(track, this.localStream!);
     }
-    pc.onicecandidate = (e) =>
-      this.send(viewerIdentity, { type: "SS_ICE", candidate: e.candidate });
 
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
-    this.send(viewerIdentity, { type: "SS_OFFER", sdp: offer.sdp! });
+    // Wait for all ICE candidates to be gathered (Vanilla ICE).
+    // This ensures the complete SDP is sent, bypassing mDNS issues.
+    await waitForGathering(pc);
+    this.send(viewerIdentity, { type: "SS_OFFER", sdp: pc.localDescription!.sdp! });
   }
 
   private async _handleOffer(sharerId: string, sdp: string) {
@@ -247,60 +263,43 @@ export class P2PScreenShare {
     const pc = new RTCPeerConnection(ICE_CONFIG);
     this.sharerConn = pc;
 
-    pc.ontrack = (e) => this.emit(e.streams[0] ?? new MediaStream([e.track]));
-    pc.onicecandidate = (e) =>
-      this.send(sharerId, { type: "SS_ICE", candidate: e.candidate });
+    pc.ontrack = (e) => {
+      const stream = (e.streams && e.streams.length > 0)
+        ? e.streams[0]
+        : new MediaStream([e.track]);
+      // Emit now; also re-emit when track becomes active (may be muted initially)
+      this.emit(stream);
+      e.track.addEventListener("unmute", () => this.emit(stream), { once: true });
+    };
 
     await pc.setRemoteDescription({ type: "offer", sdp });
 
-    // Apply any ICE candidates that arrived before the offer was processed
-    const queued = this.pendingSharerIce.splice(0);
-    for (const c of queued) {
-      try { await pc.addIceCandidate(c); } catch { /* ignore stale */ }
-    }
-
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
-    this.send(sharerId, { type: "SS_ANSWER", sdp: answer.sdp! });
+    // Wait for all ICE candidates to be gathered (Vanilla ICE).
+    await waitForGathering(pc);
+    this.send(sharerId, { type: "SS_ANSWER", sdp: pc.localDescription!.sdp! });
   }
 
   private async _handleAnswer(viewerIdentity: string, sdp: string) {
     const pc = this.viewerConns.get(viewerIdentity);
     if (!pc) return;
     await pc.setRemoteDescription({ type: "answer", sdp });
-
-    // Apply any ICE candidates that arrived before the answer was processed
-    const queued = this.pendingViewerIce.get(viewerIdentity) ?? [];
-    this.pendingViewerIce.delete(viewerIdentity);
-    for (const c of queued) {
-      try { await pc.addIceCandidate(c); } catch { /* ignore stale */ }
-    }
+    // ICE candidates are embedded in the SDP (Vanilla ICE) — no separate addIceCandidate needed.
   }
 
   private async _handleIce(
     from: string,
     candidate: RTCIceCandidateInit | null,
   ) {
+    // Vanilla ICE: candidates are embedded in SDP, SS_ICE kept for compat only.
     if (!candidate) return;
-
-    if (from === this._sharerId) {
-      // Viewer side: candidate from the sharer
-      if (this.sharerConn && this.sharerConn.remoteDescription) {
-        try { await this.sharerConn.addIceCandidate(candidate); } catch { /* ignore */ }
-      } else {
-        // Buffer until offer is processed
-        this.pendingSharerIce.push(candidate);
-      }
+    if (from === this._sharerId && this.sharerConn?.remoteDescription) {
+      try { await this.sharerConn.addIceCandidate(candidate); } catch { /* ignore */ }
     } else {
-      // Sharer side: candidate from a viewer
       const pc = this.viewerConns.get(from);
-      if (pc && pc.remoteDescription) {
+      if (pc?.remoteDescription) {
         try { await pc.addIceCandidate(candidate); } catch { /* ignore */ }
-      } else {
-        // Buffer until answer is processed
-        const buf = this.pendingViewerIce.get(from) ?? [];
-        buf.push(candidate);
-        this.pendingViewerIce.set(from, buf);
       }
     }
   }
@@ -308,7 +307,6 @@ export class P2PScreenShare {
   private _closeViewerConn() {
     this.sharerConn?.close();
     this.sharerConn = null;
-    this.pendingSharerIce = [];
     this._remoteStream = null;
   }
 }
