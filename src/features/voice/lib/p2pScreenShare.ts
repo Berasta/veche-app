@@ -30,7 +30,7 @@ const ICE_CONFIG: RTCConfiguration = {
  * Falls back after timeoutMs to avoid hanging indefinitely.
  * This sidesteps mDNS obfuscation issues between Chrome and WKWebView.
  */
-function waitForGathering(pc: RTCPeerConnection, timeoutMs = 5000): Promise<void> {
+function waitForGathering(pc: RTCPeerConnection, timeoutMs = 10000): Promise<void> {
   if (pc.iceGatheringState === "complete") return Promise.resolve();
   return new Promise((resolve) => {
     const done = () => {
@@ -253,37 +253,62 @@ export class P2PScreenShare {
     const pc = new RTCPeerConnection(ICE_CONFIG);
     this.viewerConns.set(viewerIdentity, pc);
 
+    pc.oniceconnectionstatechange = () =>
+      console.log(`[SS sharer→${viewerIdentity}] iceConnectionState:`, pc.iceConnectionState);
+    pc.onconnectionstatechange = () =>
+      console.log(`[SS sharer→${viewerIdentity}] connectionState:`, pc.connectionState);
+    pc.onicegatheringstatechange = () =>
+      console.log(`[SS sharer→${viewerIdentity}] iceGatheringState:`, pc.iceGatheringState);
+    pc.onicecandidate = (e) =>
+      console.log(`[SS sharer→${viewerIdentity}] candidate:`, e.candidate?.candidate ?? "null (done)");
+
     for (const track of this.localStream!.getTracks()) {
       pc.addTrack(track, this.localStream!);
     }
 
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
-    // Wait for all ICE candidates to be gathered (Vanilla ICE).
-    // This ensures the complete SDP is sent, bypassing mDNS issues.
+    console.log(`[SS sharer→${viewerIdentity}] waiting for gathering...`);
     await waitForGathering(pc);
+    console.log(`[SS sharer→${viewerIdentity}] gathering done, sending offer`);
     this.send(viewerIdentity, { type: "SS_OFFER", sdp: pc.localDescription!.sdp! });
   }
 
   private async _handleOffer(sharerId: string, sdp: string) {
+    console.log(`[SS viewer←${sharerId}] received offer, len=${sdp.length}`);
     this._closeViewerConn();
     const pc = new RTCPeerConnection(ICE_CONFIG);
     this.sharerConn = pc;
 
+    pc.oniceconnectionstatechange = () =>
+      console.log(`[SS viewer←${sharerId}] iceConnectionState:`, pc.iceConnectionState);
+    pc.onconnectionstatechange = () =>
+      console.log(`[SS viewer←${sharerId}] connectionState:`, pc.connectionState);
+    pc.onicegatheringstatechange = () =>
+      console.log(`[SS viewer←${sharerId}] iceGatheringState:`, pc.iceGatheringState);
+    pc.onicecandidate = (e) =>
+      console.log(`[SS viewer←${sharerId}] candidate:`, e.candidate?.candidate ?? "null (done)");
+
     // Use addTrack approach for cross-platform robustness (WKWebView / Chrome)
     const remoteStream = new MediaStream();
     pc.ontrack = (e) => {
+      console.log(`[SS viewer←${sharerId}] ontrack kind=${e.track.kind} readyState=${e.track.readyState} muted=${e.track.muted}`);
       if (!remoteStream.getTrackById(e.track.id)) {
         remoteStream.addTrack(e.track);
       }
       this.emit(remoteStream);
-      e.track.addEventListener("unmute", () => this.emit(remoteStream), { once: true });
+      e.track.addEventListener("unmute", () => {
+        console.log(`[SS viewer←${sharerId}] track unmuted, re-emitting`);
+        this.emit(remoteStream);
+      }, { once: true });
     };
 
     // If ICE fails, retry once automatically
     let retried = false;
     pc.onconnectionstatechange = () => {
+      console.log(`[SS viewer←${sharerId}] connectionState:`, pc.connectionState);
       if (pc.connectionState === "failed" && !retried && this._sharerId === sharerId) {
+        console.log(`[SS viewer←${sharerId}] connection failed, retrying...`);
         retried = true;
         this._closeViewerConn();
         setTimeout(() => {
@@ -298,8 +323,9 @@ export class P2PScreenShare {
 
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
-    // Wait for all ICE candidates to be gathered (Vanilla ICE).
+    console.log(`[SS viewer←${sharerId}] waiting for gathering...`);
     await waitForGathering(pc);
+    console.log(`[SS viewer←${sharerId}] gathering done, sending answer`);
     this.send(sharerId, { type: "SS_ANSWER", sdp: pc.localDescription!.sdp! });
   }
 
