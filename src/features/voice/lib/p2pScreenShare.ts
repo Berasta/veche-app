@@ -13,8 +13,15 @@ const ICE_CONFIG: RTCConfiguration = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
-    { urls: "stun:stun2.l.google.com:19302" },
-    { urls: "stun:stun3.l.google.com:19302" },
+    // coturn relay — ensures connectivity through symmetric NAT / strict firewalls
+    {
+      urls: [
+        "turn:veche.theaesthetics.ru:3478?transport=udp",
+        "turn:veche.theaesthetics.ru:3478?transport=tcp",
+      ],
+      username: "veche",
+      credential: "veche-turn-password",
+    },
   ],
 };
 
@@ -263,13 +270,28 @@ export class P2PScreenShare {
     const pc = new RTCPeerConnection(ICE_CONFIG);
     this.sharerConn = pc;
 
+    // Use addTrack approach for cross-platform robustness (WKWebView / Chrome)
+    const remoteStream = new MediaStream();
     pc.ontrack = (e) => {
-      const stream = (e.streams && e.streams.length > 0)
-        ? e.streams[0]
-        : new MediaStream([e.track]);
-      // Emit now; also re-emit when track becomes active (may be muted initially)
-      this.emit(stream);
-      e.track.addEventListener("unmute", () => this.emit(stream), { once: true });
+      if (!remoteStream.getTrackById(e.track.id)) {
+        remoteStream.addTrack(e.track);
+      }
+      this.emit(remoteStream);
+      e.track.addEventListener("unmute", () => this.emit(remoteStream), { once: true });
+    };
+
+    // If ICE fails, retry once automatically
+    let retried = false;
+    pc.onconnectionstatechange = () => {
+      if (pc.connectionState === "failed" && !retried && this._sharerId === sharerId) {
+        retried = true;
+        this._closeViewerConn();
+        setTimeout(() => {
+          if (this._sharerId === sharerId) {
+            this.send(sharerId, { type: "SS_REQUEST" });
+          }
+        }, 500);
+      }
     };
 
     await pc.setRemoteDescription({ type: "offer", sdp });
