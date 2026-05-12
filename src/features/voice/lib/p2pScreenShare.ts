@@ -26,9 +26,8 @@ const ICE_CONFIG: RTCConfiguration = {
 };
 
 /**
- * Wait for ICE gathering to complete (Vanilla ICE / non-trickle).
- * Falls back after timeoutMs to avoid hanging indefinitely.
- * This sidesteps mDNS obfuscation issues between Chrome and WKWebView.
+ * Wait for ICE gathering to complete.
+ * Uses a longer timeout to ensure relay (TURN) candidates are included.
  */
 function waitForGathering(pc: RTCPeerConnection, timeoutMs = 10000): Promise<void> {
   if (pc.iceGatheringState === "complete") return Promise.resolve();
@@ -87,8 +86,12 @@ export class P2PScreenShare {
   private localStream: MediaStream | null = null;
   // sharer side: one RTCPeerConnection per viewer
   private viewerConns = new Map<string, RTCPeerConnection>();
+  // sharer side: ICE candidates buffered until viewer's answer sets remoteDescription
+  private pendingViewerIce = new Map<string, RTCIceCandidateInit[]>();
   // viewer side: one RTCPeerConnection to the sharer
   private sharerConn: RTCPeerConnection | null = null;
+  // viewer side: ICE candidates from sharer buffered until offer sets remoteDescription
+  private pendingSharerIce: RTCIceCandidateInit[] = [];
   private _remoteStream: MediaStream | null = null;
   private _sharerId: string | null = null;
 
@@ -240,6 +243,7 @@ export class P2PScreenShare {
   private _doStop(announce: boolean) {
     for (const pc of this.viewerConns.values()) pc.close();
     this.viewerConns.clear();
+    this.pendingViewerIce.clear();
     this.localStream?.getTracks().forEach((t) => t.stop());
     this.localStream = null;
     if (this._sharerId === this.localIdentity) {
@@ -257,10 +261,12 @@ export class P2PScreenShare {
       console.log(`[SS sharer→${viewerIdentity}] iceConnectionState:`, pc.iceConnectionState);
     pc.onconnectionstatechange = () =>
       console.log(`[SS sharer→${viewerIdentity}] connectionState:`, pc.connectionState);
-    pc.onicegatheringstatechange = () =>
-      console.log(`[SS sharer→${viewerIdentity}] iceGatheringState:`, pc.iceGatheringState);
-    pc.onicecandidate = (e) =>
+
+    // Trickle ICE: send each candidate as it arrives
+    pc.onicecandidate = (e) => {
       console.log(`[SS sharer→${viewerIdentity}] candidate:`, e.candidate?.candidate ?? "null (done)");
+      this.send(viewerIdentity, { type: "SS_ICE", candidate: e.candidate });
+    };
 
     for (const track of this.localStream!.getTracks()) {
       pc.addTrack(track, this.localStream!);
@@ -268,9 +274,7 @@ export class P2PScreenShare {
 
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
-    console.log(`[SS sharer→${viewerIdentity}] waiting for gathering...`);
-    await waitForGathering(pc);
-    console.log(`[SS sharer→${viewerIdentity}] gathering done, sending offer`);
+    console.log(`[SS sharer→${viewerIdentity}] sending offer`);
     this.send(viewerIdentity, { type: "SS_OFFER", sdp: pc.localDescription!.sdp! });
   }
 
@@ -282,14 +286,7 @@ export class P2PScreenShare {
 
     pc.oniceconnectionstatechange = () =>
       console.log(`[SS viewer←${sharerId}] iceConnectionState:`, pc.iceConnectionState);
-    pc.onconnectionstatechange = () =>
-      console.log(`[SS viewer←${sharerId}] connectionState:`, pc.connectionState);
-    pc.onicegatheringstatechange = () =>
-      console.log(`[SS viewer←${sharerId}] iceGatheringState:`, pc.iceGatheringState);
-    pc.onicecandidate = (e) =>
-      console.log(`[SS viewer←${sharerId}] candidate:`, e.candidate?.candidate ?? "null (done)");
 
-    // Use addTrack approach for cross-platform robustness (WKWebView / Chrome)
     const remoteStream = new MediaStream();
     pc.ontrack = (e) => {
       console.log(`[SS viewer←${sharerId}] ontrack kind=${e.track.kind} readyState=${e.track.readyState} muted=${e.track.muted}`);
@@ -301,6 +298,12 @@ export class P2PScreenShare {
         console.log(`[SS viewer←${sharerId}] track unmuted, re-emitting`);
         this.emit(remoteStream);
       }, { once: true });
+    };
+
+    // Trickle ICE: send each candidate as it arrives
+    pc.onicecandidate = (e) => {
+      console.log(`[SS viewer←${sharerId}] candidate:`, e.candidate?.candidate ?? "null (done)");
+      this.send(sharerId, { type: "SS_ICE", candidate: e.candidate });
     };
 
     // If ICE fails, retry once automatically
@@ -321,11 +324,15 @@ export class P2PScreenShare {
 
     await pc.setRemoteDescription({ type: "offer", sdp });
 
+    // Apply any ICE candidates that arrived before the offer was processed
+    const queued = this.pendingSharerIce.splice(0);
+    for (const c of queued) {
+      try { await pc.addIceCandidate(c); } catch { /* ignore stale */ }
+    }
+
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
-    console.log(`[SS viewer←${sharerId}] waiting for gathering...`);
-    await waitForGathering(pc);
-    console.log(`[SS viewer←${sharerId}] gathering done, sending answer`);
+    console.log(`[SS viewer←${sharerId}] sending answer`);
     this.send(sharerId, { type: "SS_ANSWER", sdp: pc.localDescription!.sdp! });
   }
 
@@ -333,21 +340,37 @@ export class P2PScreenShare {
     const pc = this.viewerConns.get(viewerIdentity);
     if (!pc) return;
     await pc.setRemoteDescription({ type: "answer", sdp });
-    // ICE candidates are embedded in the SDP (Vanilla ICE) — no separate addIceCandidate needed.
+
+    // Apply any ICE candidates that arrived before the answer was processed
+    const queued = this.pendingViewerIce.get(viewerIdentity) ?? [];
+    this.pendingViewerIce.delete(viewerIdentity);
+    for (const c of queued) {
+      try { await pc.addIceCandidate(c); } catch { /* ignore stale */ }
+    }
   }
 
   private async _handleIce(
     from: string,
     candidate: RTCIceCandidateInit | null,
   ) {
-    // Vanilla ICE: candidates are embedded in SDP, SS_ICE kept for compat only.
     if (!candidate) return;
-    if (from === this._sharerId && this.sharerConn?.remoteDescription) {
-      try { await this.sharerConn.addIceCandidate(candidate); } catch { /* ignore */ }
+
+    if (from === this._sharerId) {
+      // Viewer side: candidate from the sharer
+      if (this.sharerConn?.remoteDescription) {
+        try { await this.sharerConn.addIceCandidate(candidate); } catch { /* ignore */ }
+      } else {
+        this.pendingSharerIce.push(candidate);
+      }
     } else {
+      // Sharer side: candidate from a viewer
       const pc = this.viewerConns.get(from);
       if (pc?.remoteDescription) {
         try { await pc.addIceCandidate(candidate); } catch { /* ignore */ }
+      } else {
+        const buf = this.pendingViewerIce.get(from) ?? [];
+        buf.push(candidate);
+        this.pendingViewerIce.set(from, buf);
       }
     }
   }
@@ -355,6 +378,7 @@ export class P2PScreenShare {
   private _closeViewerConn() {
     this.sharerConn?.close();
     this.sharerConn = null;
+    this.pendingSharerIce = [];
     this._remoteStream = null;
   }
 }
