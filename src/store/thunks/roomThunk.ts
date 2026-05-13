@@ -14,6 +14,7 @@ import {
 } from "@entities/room/model/roomSlice";
 import { setActiveRoom } from "@shared/lib/voiceRoom";
 import { destroyP2PScreenShare } from "@features/voice/lib/p2pScreenShare";
+import { playMuteSound, playUnmuteSound } from "@features/voice/lib/voiceSounds";
 import type { RootState } from "@app/store";
 
 // Room объект живёт вне Redux — он не сериализуемый (содержит WebSocket, WebRTC и т.д.)
@@ -209,6 +210,11 @@ export const toggleMute = createAsyncThunk(
     if (!activeRoom) return;
     const enabled = activeRoom.localParticipant.isMicrophoneEnabled;
     await activeRoom.localParticipant.setMicrophoneEnabled(!enabled);
+    if (enabled) {
+      playMuteSound();
+    } else {
+      playUnmuteSound();
+    }
     // VoiceStateSyncer в VoiceRoomProvider обновит Redux реактивно через useLocalParticipant
   },
 );

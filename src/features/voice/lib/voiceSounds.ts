@@ -61,6 +61,30 @@ export function playLeaveSound() {
   }
 }
 
+/** Звук включения микрофона (размьют): короткий мягкий «тик» вверх */
+export function playUnmuteSound() {
+  try {
+    const audioCtx = getCtx();
+    const now = audioCtx.currentTime;
+    playTone(800, 0.08, 0.14, "sine", now, audioCtx);
+    playTone(1100, 0.06, 0.10, "sine", now + 0.06, audioCtx);
+  } catch {
+    // ignore
+  }
+}
+
+/** Звук выключения микрофона (мьют): короткий мягкий «тик» вниз */
+export function playMuteSound() {
+  try {
+    const audioCtx = getCtx();
+    const now = audioCtx.currentTime;
+    playTone(1100, 0.08, 0.14, "sine", now, audioCtx);
+    playTone(700, 0.06, 0.10, "sine", now + 0.06, audioCtx);
+  } catch {
+    // ignore
+  }
+}
+
 /** Звук запуска демонстрации экрана: короткий «свист» вверх */
 export function playScreenShareSound() {
   try {
