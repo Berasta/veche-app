@@ -28,8 +28,10 @@ import {
   toggleMute,
   toggleDeafen,
 } from "@store/thunks/roomThunk";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
+import { getP2PScreenShare, getSavedScreenShareQuality } from "./lib/p2pScreenShare";
 import type { MuteMode } from "./VoiceControls";
 
 export function ActiveVoiceBar() {
@@ -49,6 +51,20 @@ export function ActiveVoiceBar() {
   const screenSharerId = useAppSelector(selectScreenSharerId);
 
   const [muteMode, setMuteMode] = useState<MuteMode>("toggle");
+
+  const isLocalSharing = screenSharerId !== null && screenSharerId === getP2PScreenShare()?.localIdentity;
+  const isScreenShareBusy = screenSharerId !== null && !isLocalSharing;
+
+  const handleToggleScreenShare = useCallback(async () => {
+    const mgr = getP2PScreenShare();
+    if (!mgr) return;
+    if (mgr.isLocalSharing) {
+      mgr.stopSharing();
+    } else {
+      const result = await mgr.startSharing(getSavedScreenShareQuality());
+      if (result === "busy") toast.error("Кто-то уже демонстрирует экранъ");
+    }
+  }, []);
 
   // Читаем режим мьюта из localStorage
   useEffect(() => {
@@ -147,6 +163,27 @@ export function ActiveVoiceBar() {
                 }`}
               >
                 {isDeafened ? <EarOff size={13} /> : <Ear size={13} />}
+              </button>
+
+              <button
+                onClick={handleToggleScreenShare}
+                disabled={isScreenShareBusy}
+                title={
+                  isLocalSharing
+                    ? "Остановить демонстрацiю"
+                    : isScreenShareBusy
+                    ? "Демонстрацiя занята"
+                    : "Демонстрировать экранъ"
+                }
+                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
+                  isLocalSharing
+                    ? "bg-primary/15 text-primary"
+                    : isScreenShareBusy
+                    ? "text-foreground/20 cursor-not-allowed"
+                    : "hover:bg-foreground/5 text-foreground/30 hover:text-foreground/60"
+                }`}
+              >
+                <Monitor size={13} />
               </button>
 
               {activeServerId && activeChannelId && (
