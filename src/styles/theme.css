@@ -1083,8 +1083,8 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Old Standard TT', Georgia, serif;
-    font-feature-settings: "liga" 1, "calt" 1;
+    font-family: 'Alegreya', Georgia, serif;
+    font-feature-settings: "liga" 1, "calt" 1, "kern" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow: hidden;
@@ -1306,7 +1306,7 @@
 }
 
 .ornament-divider span {
-  font-family: 'Old Standard TT', Georgia, serif;
+  font-family: 'Alegreya', Georgia, serif;
   letter-spacing: 0.3em;
 }
 

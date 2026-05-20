@@ -1,26 +1,18 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Shield, Plus, Trash2, Pencil } from "lucide-react";
-import { listRoles, createRole, updateRole, deleteRole, listAssignments, setUserRole, removeUserRole, type ServerRole, type RoleAssignment, PERMISSIONS } from "@shared/api/rolesApi";
+import { Plus, Trash2, Pencil, ChevronLeft } from "lucide-react";
+import { listRoles, createRole, updateRole, deleteRole, listAssignments, setUserRole, removeUserRole, type ServerRole, type RoleAssignment } from "@shared/api/rolesApi";
 import { pb, PB_URL } from "@shared/api/pb";
 import { RoleForm } from "./RoleForm";
-import { Portal } from "@shared/ui/Portal";
 
-const PERMISSION_META: Record<string, { label: string; desc: string }> = {
-  [PERMISSIONS.MANAGE_CHANNELS]: { label: "Управление каналами", desc: "Создание, переименование и удаление палат" },
-  [PERMISSIONS.MANAGE_INVITES]: { label: "Управление приглашениями", desc: "Создание и удаление ссылок-приглашений" },
-  [PERMISSIONS.MANAGE_ROLES]: { label: "Управление ролями", desc: "Изменение прав и назначение ролей" },
-  [PERMISSIONS.DELETE_MESSAGES]: { label: "Удаление сообщений", desc: "Удаление грамотъ другихъ бояръ" },
-  [PERMISSIONS.KICK_MEMBERS]: { label: "Изгнание участников", desc: "Изгнание бояръ изъ града" },
-  [PERMISSIONS.MUTE_MEMBERS]: { label: "Заглушение участников", desc: "Отключение микрофона въ голосовыхъ палатахъ" },
-};
+type View = "list" | "create" | "edit";
 
 export function RolesManager({ serverId }: { serverId: string }) {
   const [roles, setRoles] = useState<ServerRole[]>([]);
   const [assignments, setAssignments] = useState<RoleAssignment[]>([]);
   const [members, setMembers] = useState<{ id: string; username: string; avatarUrl: string | null }[]>([]);
+  const [view, setView] = useState<View>("list");
   const [editingRoleId, setEditingRoleId] = useState<string | null>(null);
-  const [showCreate, setShowCreate] = useState(false);
 
   const load = async () => {
     const [r, a] = await Promise.all([listRoles(serverId), listAssignments(serverId)]);
@@ -42,42 +34,50 @@ export function RolesManager({ serverId }: { serverId: string }) {
 
   const userRoleId = (userId: string) => assignments.find((a) => a.user_id === userId)?.role_id || "";
 
+  // --- Create view ---
+  if (view === "create") {
+    return (
+      <div className="space-y-3">
+        <button onClick={() => setView("list")} className="flex items-center gap-1.5 text-sm text-foreground/50 hover:text-foreground/80 transition-colors">
+          <ChevronLeft className="w-4 h-4" strokeWidth={1.5} /> Назад к ролям
+        </button>
+        <RoleForm
+          onSave={async (d) => { await createRole(serverId, d); toast.success("Роль создана"); load(); setView("list"); }}
+          onCancel={() => setView("list")}
+        />
+      </div>
+    );
+  }
+
+  // --- Edit view ---
+  if (view === "edit" && editingRoleId) {
+    const role = roles.find((r) => r.id === editingRoleId);
+    if (!role) { setView("list"); return null; }
+    return (
+      <div className="space-y-3">
+        <button onClick={() => setView("list")} className="flex items-center gap-1.5 text-sm text-foreground/50 hover:text-foreground/80 transition-colors">
+          <ChevronLeft className="w-4 h-4" strokeWidth={1.5} /> Назад к ролям
+        </button>
+        <RoleForm
+          initial={role}
+          onSave={async (d) => { await updateRole(role.id, d); toast.success("Роль обновлена"); load(); setView("list"); }}
+          onCancel={() => setView("list")}
+        />
+      </div>
+    );
+  }
+
+  // --- List view ---
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <p className="text-xs text-foreground/50 uppercase tracking-wider font-semibold">{roles.length} ролей · {members.length} участников</p>
-        <button onClick={() => setShowCreate(true)}
+        <button onClick={() => setView("create")}
           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-foreground/5 hover:bg-foreground/10 text-foreground/60 hover:text-foreground text-sm transition-colors">
           <Plus className="w-3.5 h-3.5" strokeWidth={1.5} /> Создать
         </button>
       </div>
-
-      {/* Create modal */}
-      {showCreate && (
-        <Portal>
-          <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowCreate(false)}>
-            <div className="bg-background/80 backdrop-blur-xl rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-              <RoleForm onSave={async (d) => { await createRole(serverId, d); toast.success("Роль создана"); setShowCreate(false); load(); }} onCancel={() => setShowCreate(false)} />
-            </div>
-          </div>
-        </Portal>
-      )}
-
-      {/* Edit modal */}
-      {editingRoleId && (() => {
-        const role = roles.find((r) => r.id === editingRoleId);
-        if (!role) return null;
-        return (
-          <Portal key={editingRoleId}>
-            <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setEditingRoleId(null)}>
-              <div className="bg-background/80 backdrop-blur-xl rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-                <RoleForm initial={role} onSave={async (d) => { await updateRole(role.id, d); toast.success("Роль обновлена"); setEditingRoleId(null); load(); }} onCancel={() => setEditingRoleId(null)} />
-              </div>
-            </div>
-          </Portal>
-        );
-      })()}
 
       {/* Roles list */}
       <div className="space-y-1">
@@ -87,23 +87,23 @@ export function RolesManager({ serverId }: { serverId: string }) {
           roles.map((role) => (
             <div key={role.id} className="rounded-xl overflow-hidden bg-foreground/[0.02] group">
               <div className="p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: role.color }} />
-                      <span className="text-sm text-foreground/70 truncate">{role.name}</span>
-                      <span className="text-[10px] text-foreground/30"> {role.permissions.length} прав</span>
-                    </div>
-                    <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => setEditingRoleId(role.id)}
-                        className="w-6 h-6 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors">
-                        <Pencil className="w-3 h-3" strokeWidth={1.5} />
-                      </button>
-                      <button onClick={async () => { await deleteRole(role.id); toast.success("Роль удалена"); load(); }}
-                        className="w-6 h-6 rounded-lg hover:bg-red-500/10 flex items-center justify-center text-foreground/30 hover:text-red-500/70 transition-colors">
-                        <Trash2 className="w-3 h-3" strokeWidth={1.5} />
-                      </button>
-                    </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: role.color }} />
+                    <span className="text-sm text-foreground/70 truncate">{role.name}</span>
+                    <span className="text-[10px] text-foreground/30"> {role.permissions.length} прав</span>
                   </div>
+                  <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => { setEditingRoleId(role.id); setView("edit"); }}
+                      className="w-6 h-6 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors">
+                      <Pencil className="w-3 h-3" strokeWidth={1.5} />
+                    </button>
+                    <button onClick={async () => { await deleteRole(role.id); toast.success("Роль удалена"); load(); }}
+                      className="w-6 h-6 rounded-lg hover:bg-red-500/10 flex items-center justify-center text-foreground/30 hover:text-red-500/70 transition-colors">
+                      <Trash2 className="w-3 h-3" strokeWidth={1.5} />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           ))

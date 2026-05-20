@@ -8,17 +8,15 @@ export interface MessageHeaderProps {
   userId?: string;
   role?: string;
   roleColor?: string;
-  bannerId?: string | null;
   joinedAt?: string;
-  frame?: string;
 }
 
-export function MessageHeader({ author, avatar, time, userId, role, roleColor, bannerId, joinedAt, frame }: MessageHeaderProps) {
-  const user = { id: userId || "", username: author, avatarUrl: avatar, avatarFrame: frame, role, roleColor };
+export function MessageHeader({ author, avatar, time, userId, role, roleColor, joinedAt }: MessageHeaderProps) {
+  const user = { id: userId || "", username: author, avatarUrl: avatar, role, roleColor };
 
   return (
     <div className="flex items-center gap-2 mb-1">
-      <UserPopover username={author} avatarUrl={avatar} bannerId={bannerId} userId={userId} role={role} roleColor={roleColor} joinedAt={joinedAt} frame={frame}>
+      <UserPopover username={author} avatarUrl={avatar} userId={userId} role={role} roleColor={roleColor} joinedAt={joinedAt}>
         <UserAvatar user={user} size="sm" showName />
       </UserPopover>
       <span className="text-xs text-foreground/40">{time}</span>

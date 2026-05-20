@@ -1,20 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { Crown, Edit2, Image, Check, X, LogOut, Headphones, Palette, User, ArrowLeft, Trash2, Crop, Loader2, Info, Keyboard, RefreshCw, Download, CheckCircle2, AlertCircle } from "lucide-react";
+import { Crown, Edit2, Check, X, LogOut, Headphones, Palette, User, Loader2, Info, Keyboard, RefreshCw, Download, CheckCircle2, AlertCircle } from "lucide-react";
 import { ThemeSwitcher } from "@features/theme/ThemeSwitcher";
 import { VoiceSettings } from "@features/voice/VoiceSettings";
 import { HotkeySettings } from "@features/voice/HotkeySettings";
 import { useAppUpdater } from "@shared/hooks/useAppUpdater";
-import { BannerRepositionDialog } from "@entities/user/ui/BannerRepositionDialog";
 import { useAuth } from "@entities/user/model/useAuth";
-import { pb, PB_URL } from "@shared/api/pb";
+import { pb } from "@shared/api/pb";
 import { fetchCurrentUser, logout } from "@entities/user/model/authSlice";
 import { useAppDispatch } from "@app/hooks";
 import { UserAvatar } from "@entities/user/ui/UserAvatar";
-import { Portal } from "@shared/ui/Portal";
-import { applyShopItem, removeShopItem } from "@entities/user/model/userApi";
-import { FRAME_CLASSES, FRAME_LABELS, FRAME_IDS } from "@shared/lib/frames";
 
 import { isTauri } from "@shared/lib/tauri";
 
@@ -38,38 +34,33 @@ const TABS = [
   { id: "hotkeys", label: "Клавиши", icon: Keyboard },
 ];
 
-export function Settings() {
+export function Settings({ onClose }: { onClose?: () => void }) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { updateInfo, checking, downloading, readyToInstall, checkForUpdates, applyUpdate } = useAppUpdater();
   const appVersion = useTauriVersion();
   const [activeTab, setActiveTab] = useState("profile");
+  const [hotkeyResetTrigger, setHotkeyResetTrigger] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState("");
   const [saving, setSaving] = useState(false);
-  const [customBannerUrl, setCustomBannerUrl] = useState<string | null>(null);
-  const [bannerPosition, setBannerPosition] = useState({ x: 50, y: 50 });
-  const [repositionFile, setRepositionFile] = useState<{ url: string; filename: string } | null>(null);
   const [bioText, setBioText] = useState("");
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [savingBio, setSavingBio] = useState(false);
-  const [showFrameSelector, setShowFrameSelector] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const bannerInputRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (user?.banner) {
-      const colId = (pb.authStore.record as any)?.collectionId || "_pb_users_auth_";
-      setCustomBannerUrl(`${PB_URL}/api/files/${colId}/${user.id}/${user.banner}`);
-      try {
-        const pos = localStorage.getItem(`bannerPosition_${user.banner}`);
-        if (pos) setBannerPosition(JSON.parse(pos));
-      } catch {}
-    }
     if (user?.bio) setBioText(user.bio);
   }, [user]);
+
+  useEffect(() => {
+    if (!onClose) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -92,24 +83,6 @@ export function Settings() {
   };
 
   const triggerFileSelect = () => fileInputRef.current?.click();
-
-  const handleCustomUpload = async (file: File) => {
-    if (!user) return;
-    const formData = new FormData();
-    formData.append("banner", file);
-    const updated = await pb.collection("users").update(user.id, formData);
-    const filename = (updated as any).banner;
-    const colId = (updated as any).collectionId || "_pb_users_auth_";
-    const url = `${PB_URL}/api/files/${colId}/${user.id}/${filename}`;
-    setCustomBannerUrl(url);
-    dispatch(fetchCurrentUser());
-    setRepositionFile({ url, filename });
-  };
-
-  const handleRepositionSave = (x: number, y: number) => {
-    setBannerPosition({ x, y });
-    setRepositionFile(null);
-  };
 
   const startEditing = () => { setNickname(user?.username || ""); setIsEditing(true); };
   const cancelEditing = () => { setIsEditing(false); setNickname(""); };
@@ -145,21 +118,15 @@ export function Settings() {
   };
 
   return (
-    <div className="flex-1 flex flex-col md:flex-row bg-background min-w-0">
-      {/* Mobile header */}
-      <div className="md:hidden h-12 bg-background/40 backdrop-blur-xl flex items-center px-4 flex-shrink-0">
-        <Crown className="w-4 h-4 text-foreground/30 mr-2" strokeWidth={1.5} />
-        <h3 className="text-sm font-medium text-foreground/80">Настройки</h3>
-      </div>
-
-      {/* Nav: horizontal on mobile, vertical sidebar on desktop */}
-      <div className="md:w-56 bg-background/40 flex-shrink-0 flex md:flex-col overflow-x-auto md:overflow-y-auto md:pt-2 relative">
-        <div className="md:absolute md:right-0 md:top-0 md:bottom-0 md:w-px bg-foreground/5 pointer-events-none" />
-        <div className="hidden md:block px-5 pb-2 mb-2 relative">
-          <h3 className="text-xs text-foreground/50 tracking-[0.15em] uppercase font-semibold">Настройки</h3>
-          <div className="absolute bottom-0 left-3 right-3 h-px bg-foreground/5" />
+    <div className="flex flex-col sm:flex-row w-full h-full overflow-hidden">
+      {/* Nav sidebar */}
+      <div className="sm:w-48 bg-foreground/[0.02] flex-shrink-0 flex sm:flex-col overflow-x-auto sm:overflow-y-auto border-b sm:border-b-0 sm:border-r border-foreground/5">
+        <div className="hidden sm:flex items-center gap-2 px-4 pt-4 pb-3 relative">
+          <Crown className="w-3.5 h-3.5 text-foreground/30 flex-shrink-0" strokeWidth={1.5} />
+          <h3 className="text-xs text-foreground/50 tracking-[0.15em] uppercase font-semibold flex-1">Настройки</h3>
+          <div className="absolute bottom-0 left-3 right-3 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
         </div>
-        <nav className="flex md:flex-col gap-0.5 px-2 py-2 md:py-0 md:flex-1">
+        <nav className="flex sm:flex-col gap-0.5 px-2 py-2 sm:py-0 sm:flex-1">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -173,8 +140,7 @@ export function Settings() {
                 }`}
               >
                 <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
-                <span className="hidden md:inline">{tab.label}</span>
-                <span className="md:hidden text-xs">{tab.label}</span>
+                <span className="text-xs sm:text-sm">{tab.label}</span>
               </button>
             );
           })}
@@ -182,82 +148,41 @@ export function Settings() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto">
-        {/* Mobile back button */}
-        <div className="md:hidden flex items-center gap-2 px-4 h-12 bg-background/40">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-8 h-8 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
-          </button>
-          <span className="text-sm text-foreground/80">Настройки</span>
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="sticky top-0 flex items-center justify-end px-4 pt-3 pb-1 bg-background/90 backdrop-blur-sm z-10">
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="w-7 h-7 rounded-xl hover:bg-foreground/10 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
+            >
+              <X className="w-4 h-4" strokeWidth={1.5} />
+            </button>
+          )}
         </div>
-        <div className="max-w-2xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
+        <div className="px-5 pb-5 space-y-4">
 
           {/* Profile tab */}
           {activeTab === "profile" && (
             <>
-              {/* Banner */}
-              <div
-                onClick={() => bannerInputRef.current?.click()}
-                className="relative w-full aspect-[3.2/1] rounded-xl overflow-hidden bg-foreground/[0.02] group cursor-pointer hover:bg-foreground/[0.04] transition-colors"
-              >
-                {customBannerUrl ? (
-                  <img src={customBannerUrl} alt="" className="absolute inset-0 w-full h-full object-cover"
-                    style={{ objectPosition: `${bannerPosition.x}% ${bannerPosition.y}%` }} />
-                ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-muted-foreground/40 group-hover:text-muted-foreground/70 transition-colors">
-                    <Image className="w-8 h-8" strokeWidth={1} />
-                    <span className="text-xs font-medium">Нажмите, чтобы загрузить хоругвь</span>
-                  </div>
-                )}
-                <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  await handleCustomUpload(file);
-                }} />
-                {customBannerUrl && (
-                  <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={(e) => { e.stopPropagation(); bannerInputRef.current?.click(); }}
-                      className="w-7 h-7 rounded-lg bg-background/60 backdrop-blur-sm hover:bg-foreground/10 text-foreground/30 hover:text-foreground/60 flex items-center justify-center transition-colors"
-                      title="Замѣнити хоругвь">
-                      <Image className="w-3.5 h-3.5" strokeWidth={1.5} />
-                    </button>
-                    <button onClick={async (e) => { e.stopPropagation(); if (!user) return; await pb.collection("users").update(user.id, { banner: "" }); setCustomBannerUrl(null); dispatch(fetchCurrentUser()); }}
-                      className="w-7 h-7 rounded-lg bg-background/60 backdrop-blur-sm hover:bg-foreground/10 text-foreground/30 hover:text-red-500/70 flex items-center justify-center transition-colors"
-                      title="Удалити хоругвь">
-                      <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
-                    </button>
-                    {customBannerUrl && (
-                      <button onClick={(e) => { e.stopPropagation(); const filename = customBannerUrl.split("/").pop() || ""; setRepositionFile({ url: customBannerUrl, filename }); }}
-                        className="w-7 h-7 rounded-lg bg-background/60 backdrop-blur-sm hover:bg-foreground/10 text-foreground/30 hover:text-foreground/60 flex items-center justify-center transition-colors"
-                        title="Настроить область">
-                        <Crop className="w-3.5 h-3.5" strokeWidth={1.5} />
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-
               {/* Avatar & Name */}
-              <div className="relative -mt-12 flex flex-col md:flex-row items-start md:items-end gap-3 md:gap-4">
+              <div className="flex flex-col md:flex-row items-start md:items-end gap-3 md:gap-4">
                 <div className="relative group">
-                  <div onClick={() => setShowFrameSelector(true)} className="cursor-pointer">
+                  <div onClick={triggerFileSelect} className="cursor-pointer">
                     {user && (
                       <UserAvatar
-                        user={{ id: user.id, username: user.username, avatarUrl: user.avatar_url, avatarFrame: user.avatar_frame }}
+                        user={{ id: user.id, username: user.username, avatarUrl: user.avatar_url }}
                         size="2xl"
                       />
                     )}
                   </div>
                   <div className="absolute -bottom-1 -right-1">
-                    <button onClick={() => setShowFrameSelector(true)}
+                    <button onClick={triggerFileSelect}
                       className="w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm hover:bg-foreground/10 text-foreground/40 hover:text-foreground/70 flex items-center justify-center transition-colors shadow-sm border border-foreground/5"
-                      title="Измѣнити аватарку или оправу">
+                      title="Измѣнити аватарку">
                       <Edit2 className="w-3 h-3" strokeWidth={1.5} />
                     </button>
                   </div>
+                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
                 </div>
 
                 <div className="flex-1 pb-2 min-w-0 w-full md:w-auto">
@@ -409,89 +334,24 @@ export function Settings() {
           {/* Hotkeys tab */}
           {activeTab === "hotkeys" && (
             <div className="bg-foreground/[0.02] backdrop-blur-sm rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Keyboard className="w-4 h-4 text-foreground/30" strokeWidth={1.5} />
-                <h3 className="text-sm font-medium text-foreground/80">Горячiя клавиши</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-foreground/70">Горячiя клавиши</h3>
+                <button
+                  onClick={() => setHotkeyResetTrigger((n) => n + 1)}
+                  className="group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-foreground/5 text-foreground/30 hover:text-foreground/60 transition-colors text-xs"
+                  title="Сбросить к умолчанiю"
+                >
+                  <RefreshCw className="w-3 h-3 transition-transform duration-500 ease-out group-hover:rotate-180" strokeWidth={1.5} />
+                  Сбросить
+                </button>
               </div>
-              <HotkeySettings />
+              <HotkeySettings resetTrigger={hotkeyResetTrigger} />
             </div>
           )}
 
         </div>
       </div>
-
-      {/* Avatar & Frame Modal */}
-      {showFrameSelector && user && (
-        <Portal>
-          <div className="fixed inset-0 z-[150] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowFrameSelector(false)}>
-            <div className="bg-background/80 backdrop-blur-xl rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="p-5 space-y-5">
-                {/* Avatar preview */}
-                <div className="flex flex-col items-center gap-3">
-                      <UserAvatar user={{ id: user.id, username: user.username, avatarUrl: user.avatar_url, avatarFrame: user.avatar_frame }} size="2xl" />
-                  <span className="text-sm text-foreground/60">{user.username}</span>
-                  <button onClick={() => { fileInputRef.current?.click(); setShowFrameSelector(false); }}
-                    className="px-4 py-2 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground/60 hover:text-foreground text-sm font-medium transition-colors">
-                    Загрузити аватарку
-                  </button>
-                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-                </div>
-
-                {/* Frame selection */}
-                <div>
-                  <p className="text-[10px] font-semibold text-foreground/30 uppercase tracking-widest mb-2">Оправы</p>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                    <FrameOption name="" empty active={!user.avatar_frame} onClick={async () => { await removeShopItem(user.id, "frame"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }} />
-                    {FRAME_IDS.map((id) => (
-                      <FrameOption key={id} name={FRAME_LABELS[id]} frameClass={FRAME_CLASSES[id]} active={user.avatar_frame === id}
-                        onClick={async () => { await applyShopItem(user.id, id, "frame"); dispatch(fetchCurrentUser()); setShowFrameSelector(false); }} />
-                    ))}
-                  </div>
-                </div>
-
-
-              </div>
-            </div>
-          </div>
-        </Portal>
-      )}
-
-      {/* Banner Selector Modal */}
-      {repositionFile && (
-        <BannerRepositionDialog
-          bannerUrl={repositionFile.url}
-          filename={repositionFile.filename}
-          onSave={handleRepositionSave}
-          onClose={() => setRepositionFile(null)}
-        />
-      )}
     </div>
   );
 }
-
-function FrameOption({ name, frameClass, active, empty, onClick }: { name: string; frameClass?: string; active: boolean; empty?: boolean; onClick: () => void }) {
-  return (
-    <button onClick={onClick}
-      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all ${
-        active ? "border-primary/30 bg-primary/[0.04]" : "border-foreground/5 bg-foreground/[0.02] hover:border-foreground/10"
-      }`}
-    >
-      {empty ? (
-        <div className={`w-12 h-12 rounded-full bg-foreground/5 flex items-center justify-center text-foreground/30 ${active ? "ring-2 ring-primary/50" : ""}`}>
-          <X className="w-4 h-4" strokeWidth={1.5} />
-        </div>
-      ) : (
-        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${active ? "ring-2 ring-primary/50" : ""}`}>
-          <div className={`w-full h-full rounded-full ${frameClass || "bg-foreground/5"} flex items-center justify-center`}>
-            <div className="w-7 h-7 rounded-full bg-background flex items-center justify-center text-[10px] font-bold text-foreground/30">
-              {name?.slice(0, 2)}
-            </div>
-          </div>
-        </div>
-      )}
-      <span className="text-[10px] text-foreground/50 text-center leading-tight">{name || "Нѣтъ"}</span>
-    </button>
-  );
-}
-
 

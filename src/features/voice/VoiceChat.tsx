@@ -4,7 +4,9 @@ import {
   useParticipants,
   useLocalParticipant,
   useSpeakingParticipants,
+  RoomContext,
 } from "@livekit/components-react";
+import { getActiveRoom, subscribeRoom } from "@shared/lib/voiceRoom";
 import { UserAvatar } from "@entities/user/ui/UserAvatar";
 import { PageHeader } from "@shared/ui/PageHeader";
 import { IconButton } from "@shared/ui/IconButton";
@@ -292,6 +294,9 @@ export function VoiceChat() {
   const connecting = useAppSelector(selectConnecting);
   const navigate = useNavigate();
   const { serverId } = useParams();
+  const [room, setRoom] = useState(() => getActiveRoom());
+
+  useEffect(() => subscribeRoom(setRoom), []);
 
   // Redirect back if there's no active call and we're not in the process of connecting.
   useEffect(() => {
@@ -300,7 +305,7 @@ export function VoiceChat() {
     }
   }, [connected, connecting, navigate, serverId]);
 
-  if (!connected) {
+  if (!connected || !room) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <Volume2 className="w-8 h-8 text-foreground/10 animate-pulse" strokeWidth={1.5} />
@@ -308,5 +313,9 @@ export function VoiceChat() {
     );
   }
 
-  return <VoiceChatConnected serverId={serverId} />;
+  return (
+    <RoomContext.Provider value={room}>
+      <VoiceChatConnected serverId={serverId} />
+    </RoomContext.Provider>
+  );
 }

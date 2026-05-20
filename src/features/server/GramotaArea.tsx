@@ -9,7 +9,6 @@ import { MessageList } from "@entities/message/ui/MessageList";
 import { GramotaMessage } from "@entities/message/ui/GramotaMessage";
 import { TypingIndicator } from "@entities/message/ui/TypingIndicator";
 import { MessageSkeleton } from "@shared/ui/Skeleton";
-import type { ReactionGroup } from "@entities/message/ui/ReactionsBar";
 import { useAppDispatch, useAppSelector } from "@app/hooks";
 import {
   fetchMessages,
@@ -26,11 +25,12 @@ import {
   selectMessagesError,
   selectHasMore,
 } from "@entities/message/model/messagesSelectors";
-import { fetchReactions, addReaction, removeReaction } from "@shared/api/reactionApi";
-import { pb } from "@shared/api/pb";
 import { selectServerMembers } from "@entities/member/model/membersSlice";
+import type { MemberData } from "@entities/member/model/membersSlice";
 import { useAuth } from "@entities/user/model/useAuth";
 import { useTypingBroadcast } from "@shared/hooks/useTyping";
+import { useDragAndDrop } from "@shared/hooks/useDragAndDrop";
+import { useChannelReactions } from "./hooks/useChannelReactions";
 interface GramotaAreaProps {
   channelId?: string;
   channelName?: string;
@@ -56,124 +56,45 @@ export function GramotaArea({
   const hasMore = useAppSelector(selectHasMore);
   const [loadingMore, setLoadingMore] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<GramotaInputHandle>(null);
-  const [reactionMap, setReactionMap] = useState<
-    Record<string, ReactionGroup[]>
-  >({});
-  const [joinedAtMap, setJoinedAtMap] = useState<Record<string, string>>({});
-  const [isDragging, setIsDragging] = useState(false);
-  const reactionGenRef = useRef(0);
   const { startTyping, stopTyping } = useTypingBroadcast(channelId);
 
-  // Drag-and-drop files
-  useEffect(() => {
-    const el = dragRef.current;
-    if (!el) return;
+  const { dragRef, isDragging } = useDragAndDrop(
+    useCallback((files: File[]) => inputRef.current?.addFiles(files), []),
+  );
 
-    const handleDragOver = (e: DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (e.dataTransfer?.types.includes("Files")) {
-        setIsDragging(true);
-      }
-    };
-
-    const handleDragLeave = (e: DragEvent) => {
-      if (!el.contains(e.relatedTarget as Node)) {
-        setIsDragging(false);
-      }
-    };
-
-    const handleDrop = (e: DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(false);
-      const files = Array.from(e.dataTransfer?.files || []).filter((f) =>
-        f.type.startsWith("image/"),
-      );
-      if (files.length > 0) {
-        inputRef.current?.addFiles(files);
-      }
-    };
-
-    el.addEventListener("dragover", handleDragOver);
-    el.addEventListener("dragleave", handleDragLeave);
-    el.addEventListener("drop", handleDrop);
-    return () => {
-      el.removeEventListener("dragover", handleDragOver);
-      el.removeEventListener("dragleave", handleDragLeave);
-      el.removeEventListener("drop", handleDrop);
-    };
-  }, [channelId, dispatch]);
+  const { reactionMap, handleReaction } = useChannelReactions(
+    channelId,
+    messages,
+    user?.id,
+  );
 
   useEffect(() => {
     if (!channelId) return;
-
     dispatch(fetchMessages(channelId));
-
     const unsubscribe = subscribeToChannel(channelId, dispatch);
-
     return () => {
       dispatch(clearMessages());
       unsubscribe();
     };
   }, [channelId, dispatch]);
 
-  const serverMembers = useAppSelector((state) => serverId ? selectServerMembers(serverId)(state) : []);
-
-  useEffect(() => {
-    const jMap: Record<string, string> = {};
-    for (const m of serverMembers) {
-      if (m.joinedAt) jMap[m.userId] = m.joinedAt;
-    }
-    setJoinedAtMap(jMap);
-  }, [serverMembers]);
-
-  const buildReactionMap = useCallback(
-    async (chId: string) => {
-      const gen = ++reactionGenRef.current;
-      const all = await fetchReactions(chId);
-      if (gen !== reactionGenRef.current) return;
-      const map: Record<
-        string,
-        Record<string, { emoji: string; userIds: Set<string> }>
-      > = {};
-      for (const r of all) {
-        if (!map[r.message_id]) map[r.message_id] = {};
-        if (!map[r.message_id][r.emoji])
-          map[r.message_id][r.emoji] = { emoji: r.emoji, userIds: new Set() };
-        map[r.message_id][r.emoji].userIds.add(r.user_id);
-      }
-      const result: Record<string, ReactionGroup[]> = {};
-      for (const [msgId, groups] of Object.entries(map)) {
-        result[msgId] = Object.values(groups).map((g) => ({
-          emoji: g.emoji,
-          count: g.userIds.size,
-          hasMe: g.userIds.has(user?.id || ""),
-        }));
-      }
-      if (gen !== reactionGenRef.current) return;
-      setReactionMap(result);
-    },
-    [user?.id],
+  const serverMembers = useAppSelector((state) =>
+    serverId ? selectServerMembers(serverId)(state) : [],
   );
 
-  useEffect(() => {
-    if (!channelId || messages.length === 0) return;
-    buildReactionMap(channelId);
-  }, [channelId, messages, buildReactionMap]);
+  const memberByUserId = useMemo(
+    () => Object.fromEntries(serverMembers.map((m: MemberData) => [m.userId, m])),
+    [serverMembers],
+  );
 
-  // Real-time reactions
-  useEffect(() => {
-    if (!channelId) return;
-    pb.collection("reactions").subscribe("*", () => {
-      buildReactionMap(channelId);
-    });
-    return () => {
-      pb.collection("reactions").unsubscribe("*");
-    };
-  }, [channelId, buildReactionMap]);
+  const joinedAtMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const m of serverMembers) {
+      if (m.joinedAt) map[m.userId] = m.joinedAt;
+    }
+    return map;
+  }, [serverMembers]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -201,21 +122,6 @@ export function GramotaArea({
       dispatch(deleteMessage(msgId));
     },
     [dispatch],
-  );
-
-  const handleReaction = useCallback(
-    async (messageId: string, emoji: string) => {
-      const existing = reactionMap[messageId]?.find((r) => r.emoji === emoji);
-      if (existing?.hasMe) {
-        await removeReaction(messageId, emoji);
-      } else {
-        await addReaction(messageId, emoji);
-      }
-      if (channelId) {
-        await buildReactionMap(channelId);
-      }
-    },
-    [reactionMap, channelId, buildReactionMap],
   );
 
   const handleLoadMore = useCallback(() => {
@@ -304,44 +210,40 @@ export function GramotaArea({
           </div>
         )}
 
-        {groupedMessages.map(({ msg, showHeader, dateLabel }) => (
-          <div key={msg.id}>
-            {dateLabel && (
-              <div className="flex items-center gap-3 py-4">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-foreground/5 to-transparent" />
-                <span className="text-[10px] font-medium text-foreground/25 uppercase tracking-[0.15em] flex-shrink-0 px-2">
-                  {dateLabel}
-                </span>
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-foreground/5 to-transparent" />
-              </div>
-            )}
-            {(() => {
-              const member = serverMembers.find((m) => m.userId === msg.user_id);
-              return (
-                <GramotaMessage
-                  author={member?.username || "Пользователь"}
-                  avatar={showHeader ? member?.avatarUrl : undefined}
-                  time={formatMessageTime(msg.created)}
-                  content={msg.content}
-                  images={msg.images.length > 0 ? msg.images : undefined}
-                  reactions={reactionMap[msg.id]}
-                  onReaction={handleReaction}
-                  messageId={msg.id}
-                  authorId={msg.user_id}
-                  authorRole={member?.role}
-                  authorRoleColor={member?.roleColor}
-                  authorBanner={member?.banner}
-                  authorFrame={member?.avatarFrame}
-                  authorJoinedAt={joinedAtMap[msg.user_id]}
-                  isOwn={user?.id === msg.user_id}
-                  edited={!!msg.edited_at}
-                  onEdit={handleEdit}
-                  onDelete={user?.id === msg.user_id ? handleDelete : undefined}
-                />
-              );
-            })()}
-          </div>
-        ))}
+        {groupedMessages.map(({ msg, showHeader, dateLabel }) => {
+          const member = memberByUserId[msg.user_id];
+          return (
+            <div key={msg.id}>
+              {dateLabel && (
+                <div className="flex items-center gap-3 py-4">
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
+                  <span className="text-[10px] font-medium text-foreground/50 uppercase tracking-[0.15em] flex-shrink-0 px-2">
+                    {dateLabel}
+                  </span>
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
+                </div>
+              )}
+              <GramotaMessage
+                author={member?.username || "Пользователь"}
+                avatar={showHeader ? member?.avatarUrl : undefined}
+                time={formatMessageTime(msg.created)}
+                content={msg.content}
+                images={msg.images.length > 0 ? msg.images : undefined}
+                reactions={reactionMap[msg.id]}
+                onReaction={handleReaction}
+                messageId={msg.id}
+                authorId={msg.user_id}
+                authorRole={member?.role}
+                authorRoleColor={member?.roleColor}
+                authorJoinedAt={joinedAtMap[msg.user_id]}
+                isOwn={user?.id === msg.user_id}
+                edited={!!msg.edited_at}
+                onEdit={handleEdit}
+                onDelete={user?.id === msg.user_id ? handleDelete : undefined}
+              />
+            </div>
+          );
+        })}
         <div ref={bottomRef} />
       </MessageList>
 

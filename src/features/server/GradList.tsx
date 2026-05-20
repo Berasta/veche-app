@@ -11,6 +11,7 @@ import { AppRoutes } from "@routes/routes";
 import { PalataList } from "@features/server/PalataList";
 import { ServerMembers } from "@features/server/ServerMembers";
 import { useMobileMenu } from "@app/layout/MobileMenuContext";
+import { Tooltip } from "@shared/ui/Tooltip";
 
 import { pb } from "@shared/api/pb";
 import { Portal } from "@shared/ui/Portal";
@@ -248,13 +249,14 @@ export function GradList() {
                 ))}
               </>
             )}
-            <button
-              onClick={() => setShowCreateServer(true)}
-              className="w-11 h-11 rounded-2xl border border-dashed border-foreground/10 flex items-center justify-center text-foreground/20 hover:text-foreground/60 hover:border-foreground/30 transition-all flex-shrink-0"
-              title="Создати градъ"
-            >
-              <Plus className="w-4 h-4" strokeWidth={1.5} />
-            </button>
+            <Tooltip content="Создати градъ" side="right">
+              <button
+                onClick={() => setShowCreateServer(true)}
+                className="w-11 h-11 rounded-2xl border border-dashed border-foreground/10 flex items-center justify-center text-foreground/20 hover:text-foreground/60 hover:border-foreground/30 transition-all flex-shrink-0"
+              >
+                <Plus className="w-4 h-4" strokeWidth={1.5} />
+              </button>
+            </Tooltip>
           </div>
 
           <div className="flex-1 min-w-0 overflow-hidden">

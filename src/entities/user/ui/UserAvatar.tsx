@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import { Crown, MicOff, EarOff } from "lucide-react";
-import { getFrameClass } from "@shared/lib/frames";
 
 export interface UserAvatarData {
   id: string;
@@ -39,8 +38,6 @@ interface UserAvatarProps {
 
 export function UserAvatar({ user, size = "md", showName, isSpeaking, onClick, children }: UserAvatarProps) {
   const s = SIZE_MAP[size];
-  const frame = user.avatarFrame || (user as any).frame;
-  const frameClass = frame ? getFrameClass(frame) : "";
   const speaking = isSpeaking ?? user.isSpeaking;
 
   return (
@@ -62,11 +59,7 @@ export function UserAvatar({ user, size = "md", showName, isSpeaking, onClick, c
             <Crown className={s.icon} strokeWidth={1.5} />
           )}
         </div>
-        {/* Frame overlay on top of avatar */}
-        {frameClass && (
-          <div className={`absolute inset-0 rounded-full pointer-events-none ${frameClass}`} />
-        )}
-        {/* Speaking ring (on top of frame) */}
+        {/* Speaking ring */}
         {speaking && (
           <div className="absolute inset-0 rounded-full ring-2 ring-primary ring-offset-1 ring-offset-background pointer-events-none" />
         )}
@@ -90,7 +83,7 @@ export function UserAvatar({ user, size = "md", showName, isSpeaking, onClick, c
           className={`truncate ${s.text} font-medium ${
             speaking ? "text-foreground/80" : "text-foreground/50"
           }`}
-          style={user.roleColor ? { color: user.roleColor } : undefined}
+
         >
           {user.username}
         </span>

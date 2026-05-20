@@ -8,7 +8,6 @@ import { OverlayPage } from "@pages/OverlayPage";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
-const Settings = lazy(() => import("@pages/Settings").then((m) => ({ default: m.Settings })));
 const ServerSettingsPage = lazy(() => import("@pages/ServerSettingsPage").then((m) => ({ default: m.ServerSettingsPage })));
 const VoiceChat = lazy(() => import("@features/voice/VoiceChat").then((m) => ({ default: m.VoiceChat })));
 const InvitePage = lazy(() => import("@pages/InvitePage").then((m) => ({ default: m.InvitePage })));
@@ -49,7 +48,6 @@ export const router = createBrowserRouter([
           { path: AppRoutes.SERVER_SETTINGS, element: <Lazy><ServerSettingsPage /></Lazy> },
           { path: AppRoutes.TEXT_CHANNEL, element: <ServerPage /> },
           { path: AppRoutes.VOICE_CHAT, element: <Lazy><VoiceChat /></Lazy> },
-          { path: AppRoutes.SETTINGS, element: <Lazy><Settings /></Lazy> },
         ],
       },
     ],

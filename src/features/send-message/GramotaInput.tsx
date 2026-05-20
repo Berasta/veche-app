@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { EmojiPicker } from '@shared/ui/EmojiPicker';
+import { Tooltip } from '@shared/ui/Tooltip';
 import { Send, Image, Smile, X } from 'lucide-react';
 
 interface GramotaInputProps {
@@ -20,6 +21,12 @@ export const GramotaInput = forwardRef<GramotaInputHandle, GramotaInputProps>(
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const objectUrlsRef = useRef<Map<File, string>>(new Map());
+
+  const resizeTextarea = () => {
+    if (!textareaRef.current) return;
+    textareaRef.current.style.height = 'auto';
+    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+  };
 
   const getFileUrl = (file: File) => {
     const cached = objectUrlsRef.current.get(file);
@@ -46,35 +53,38 @@ export const GramotaInput = forwardRef<GramotaInputHandle, GramotaInputProps>(
       onSend(message, selectedFiles.length > 0 ? selectedFiles : undefined);
       setMessage('');
       setSelectedFiles([]);
-      if (textareaRef.current) textareaRef.current.style.height = 'auto';
+      resizeTextarea();
       onTypingEnd?.();
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(e); }
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const items = e.clipboardData.items;
-    const imageFiles: File[] = [];
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.type.startsWith("image/")) {
+    const imageFiles = Array.from(e.clipboardData.items)
+      .filter((item) => item.type.startsWith('image/'))
+      .flatMap((item) => {
         const blob = item.getAsFile();
-        if (blob) imageFiles.push(new File([blob], `screenshot.${blob.type.split("/")[1] || "png"}`, { type: blob.type }));
-      }
+        if (!blob) return [];
+        const ext = blob.type.split('/')[1] || 'png';
+        return [new File([blob], `screenshot.${ext}`, { type: blob.type })];
+      });
+
+    if (imageFiles.length > 0) {
+      e.preventDefault();
+      setSelectedFiles((prev) => [...prev, ...imageFiles]);
     }
-    if (imageFiles.length > 0) { e.preventDefault(); setSelectedFiles((prev) => [...prev, ...imageFiles]); }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
     onTyping?.();
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
-    }
+    resizeTextarea();
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,11 +95,8 @@ export const GramotaInput = forwardRef<GramotaInputHandle, GramotaInputProps>(
   const handleEmojiSelect = (emoji: string) => {
     setMessage((prev) => prev + emoji);
     setShowEmojiPicker(false);
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
-    }
+    textareaRef.current?.focus();
+    resizeTextarea();
   };
 
   const removeFile = (index: number) => {
@@ -125,11 +132,12 @@ export const GramotaInput = forwardRef<GramotaInputHandle, GramotaInputProps>(
 
         <div className="flex items-center gap-1 px-3 py-2.5">
           <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileSelect} />
-          <button type="button" onClick={() => fileInputRef.current?.click()}
-            className="w-7 h-7 flex items-center justify-center text-foreground/20 hover:text-foreground/50 transition-colors flex-shrink-0"
-            title="Приложити изображеніе">
-            <Image className="w-3.5 h-3.5" strokeWidth={1.5} />
-          </button>
+          <Tooltip content="Приложити изображеніе" side="top">
+            <button type="button" onClick={() => fileInputRef.current?.click()}
+              className="w-7 h-7 flex items-center justify-center text-foreground/20 hover:text-foreground/50 transition-colors flex-shrink-0">
+              <Image className="w-3.5 h-3.5" strokeWidth={1.5} />
+            </button>
+          </Tooltip>
 
           <textarea ref={textareaRef} value={message} onChange={handleChange} onKeyDown={handleKeyDown} onPaste={handlePaste} onBlur={() => onTypingEnd?.()}
             placeholder="Грамота..."
@@ -137,11 +145,12 @@ export const GramotaInput = forwardRef<GramotaInputHandle, GramotaInputProps>(
             rows={1} />
 
           <div className="flex gap-0.5 items-center">
-            <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="w-7 h-7 flex items-center justify-center text-muted-foreground/40 hover:text-foreground transition-colors relative"
-              title="Додати улыбку">
-              <Smile className="w-3.5 h-3.5" strokeWidth={1.5} />
-            </button>
+            <Tooltip content="Додати улыбку" side="top">
+              <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                className="w-7 h-7 flex items-center justify-center text-muted-foreground/40 hover:text-foreground transition-colors relative">
+                <Smile className="w-3.5 h-3.5" strokeWidth={1.5} />
+              </button>
+            </Tooltip>
             {showEmojiPicker && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowEmojiPicker(false)} />

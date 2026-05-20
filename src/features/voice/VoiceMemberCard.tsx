@@ -21,11 +21,10 @@ interface VoiceMemberCardProps {
   onVolumeChange?: (volume: number) => void;
   role?: string;
   roleColor?: string;
-  bannerId?: string;
   joinedAt?: string;
 }
 
-export function VoiceMemberCard({ member, index, volume, onVolumeChange, role, roleColor, bannerId, joinedAt }: VoiceMemberCardProps) {
+export function VoiceMemberCard({ member, index, volume, onVolumeChange, role, roleColor, joinedAt }: VoiceMemberCardProps) {
   const initials = member.name.charAt(0).toUpperCase();
 
   return (
@@ -47,7 +46,6 @@ export function VoiceMemberCard({ member, index, volume, onVolumeChange, role, r
       <UserPopover
         username={member.name}
         avatarUrl={member.avatarUrl}
-        bannerId={bannerId}
         role={role}
         roleColor={roleColor}
         joinedAt={joinedAt}

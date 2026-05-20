@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Keyboard, X, RotateCcw } from "lucide-react";
+import { Mic, X } from "lucide-react";
 
 const STORAGE_KEY = "hotkeyBindings";
 const DEFAULT_MUTE = "Ctrl+M";
@@ -37,9 +37,15 @@ function formatKey(e: KeyboardEvent): string | null {
   return [...mods, key].join("+");
 }
 
-export function HotkeySettings() {
+export function HotkeySettings({ resetTrigger }: { resetTrigger?: number }) {
   const [muteKey, setMuteKey] = useState(loadMuteKey);
   const [recording, setRecording] = useState(false);
+
+  useEffect(() => {
+    if (!resetTrigger) return;
+    setMuteKey(DEFAULT_MUTE);
+    saveMuteKey(DEFAULT_MUTE);
+  }, [resetTrigger]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     e.preventDefault();
@@ -60,16 +66,11 @@ export function HotkeySettings() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [recording, handleKeyDown]);
 
-  const resetToDefault = () => {
-    setMuteKey(DEFAULT_MUTE);
-    saveMuteKey(DEFAULT_MUTE);
-  };
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2 min-w-0">
-          <Keyboard className="w-3.5 h-3.5 text-foreground/30 shrink-0" strokeWidth={1.5} />
+          <Mic className="w-3.5 h-3.5 text-foreground/30 shrink-0" strokeWidth={1.5} />
           <span className="text-sm text-foreground/60 truncate">Мутъ микрофона</span>
         </div>
 
@@ -95,14 +96,7 @@ export function HotkeySettings() {
       </div>
 
       <p className="text-xs text-foreground/25 leading-relaxed">
-        Нажмите на кнопку и введите новое сочетанiе клавишъ.{" "}
-        <button
-          onClick={resetToDefault}
-          className="inline-flex items-center gap-1 underline hover:text-foreground/40 transition-colors"
-        >
-          <RotateCcw className="w-2.5 h-2.5" strokeWidth={1.5} />
-          Сбросить
-        </button>
+        Нажмите на кнопку и введите новое сочетанiе клавишъ.
       </p>
     </div>
   );

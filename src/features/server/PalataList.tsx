@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useAppSelector } from "@app/hooks";
 import { useNavigate, useParams } from "react-router";
+import { useSettingsModal } from "@app/layout/SettingsModalContext";
+import { useServerSettingsModal } from "@app/layout/ServerSettingsModalContext";
 import { Palata } from "./Palata";
 import { TextPalata } from "./TextPalata";
 import { useAuth } from "@entities/user/model/useAuth";
@@ -27,6 +29,7 @@ import { InviteManager } from "@features/invite/InviteManager";
 import { CreateChannelModal } from "./CreateChannelModal";
 import { EditChannelModal } from "./EditChannelModal";
 import { ConfirmModal } from "@shared/ui/ConfirmModal";
+import { Tooltip } from "@shared/ui/Tooltip";
 
 interface PalataListProps {
   onMobileItemClick?: () => void;
@@ -34,6 +37,8 @@ interface PalataListProps {
 
 export function PalataList({ onMobileItemClick }: PalataListProps) {
   const navigate = useNavigate();
+  const { open } = useSettingsModal();
+  const { open: openServerSettings } = useServerSettingsModal();
   const dispatch = useAppDispatch();
   const { serverId } = useParams();
   const { user } = useAuth();
@@ -186,26 +191,28 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
           {canManageInvites && (
-            <button
-              onClick={() => setShowInvites(true)}
-              className="w-7 h-7 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
-              title="Приглашенiя"
-            >
-              <UserPlus className="w-3.5 h-3.5" strokeWidth={1.5} />
-            </button>
+            <Tooltip content="Приглашенія" side="bottom">
+              <button
+                onClick={() => setShowInvites(true)}
+                className="w-7 h-7 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
+              >
+                <UserPlus className="w-3.5 h-3.5" strokeWidth={1.5} />
+              </button>
+            </Tooltip>
           )}
 
             {isOwner && serverId && (
-              <button
-                onClick={() => navigate(AppRoutes.SERVER_SETTINGS.replace(":serverId", serverId))}
-                className="w-7 h-7 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
-                title="Настройки града"
-              >
-                <Settings className="w-3.5 h-3.5" strokeWidth={1.5} />
-              </button>
+              <Tooltip content="Настройки града" side="bottom">
+                <button
+                  onClick={() => openServerSettings(serverId)}
+                  className="w-7 h-7 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
+                >
+                  <Settings className="w-3.5 h-3.5" strokeWidth={1.5} />
+                </button>
+              </Tooltip>
             )}
           </div>
-        <div className="absolute bottom-0 left-3 right-3 h-px bg-foreground/5" />
+        <div className="absolute bottom-0 left-3 right-3 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
       </div>
 
       {/* Список палат */}
@@ -213,18 +220,21 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
         {(channels.filter((c) => c.type === "text").length > 0 || canManageChannels) && (
           <div className="mb-5">
             <div className="flex items-center gap-2 px-2 mb-2">
-              <MessageSquare size={11} className="text-foreground/30" strokeWidth={1.5} />
-              <span className="text-[10px] font-semibold text-foreground/30 uppercase tracking-[0.15em] flex-1">
+              <div className="h-px w-3 bg-gradient-to-r from-transparent via-foreground/15 to-transparent flex-shrink-0" />
+              <MessageSquare size={11} className="text-foreground/50" strokeWidth={1.5} />
+              <span className="text-[10px] font-semibold text-foreground/50 uppercase tracking-[0.15em]">
                 Текстовыя
               </span>
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
               {canManageChannels && (
-                <button
-                  onClick={() => { setCreatingType("text"); setNewChannelName(""); }}
-                  className="w-5 h-5 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/20 hover:text-foreground/50 transition-colors"
-                  title="Создати палату"
-                >
-                  <Plus className="w-3 h-3" strokeWidth={1.5} />
-                </button>
+                <Tooltip content="Создати палату" side="top">
+                  <button
+                    onClick={() => { setCreatingType("text"); setNewChannelName(""); }}
+                    className="w-5 h-5 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/20 hover:text-foreground/50 transition-colors"
+                  >
+                    <Plus className="w-3 h-3" strokeWidth={1.5} />
+                  </button>
+                </Tooltip>
               )}
             </div>
             <div className="space-y-0.5">
@@ -234,21 +244,24 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
                     isLocked={palata.is_locked} canManage={canManageChannels} />
                   {canManageChannels && (
                     <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-0.5 bg-background/80 backdrop-blur-sm rounded-xl p-0.5">
-                      <button onClick={() => handleToggleLock(palata.id, !!palata.is_locked)}
-                        className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
-                        title={palata.is_locked ? "Открыти" : "Запереть"}>
-                        {palata.is_locked ? <LockOpen className="w-3 h-3" strokeWidth={1.5} /> : <Lock className="w-3 h-3" strokeWidth={1.5} />}
-                      </button>
-                      <button onClick={() => setEditingChannel({ id: palata.id, name: palata.name })}
-                        className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
-                        title="Переименовати">
-                        <Pencil className="w-3 h-3" strokeWidth={1.5} />
-                      </button>
-                      <button onClick={() => setDeletingChannelId(palata.id)}
-                        className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-destructive/60 transition-colors"
-                        title="Удалити">
-                        <Trash2 className="w-3 h-3" strokeWidth={1.5} />
-                      </button>
+                      <Tooltip content={palata.is_locked ? "Открыти" : "Запереть"} side="top">
+                        <button onClick={() => handleToggleLock(palata.id, !!palata.is_locked)}
+                          className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors">
+                          {palata.is_locked ? <LockOpen className="w-3 h-3" strokeWidth={1.5} /> : <Lock className="w-3 h-3" strokeWidth={1.5} />}
+                        </button>
+                      </Tooltip>
+                      <Tooltip content="Переименовати" side="top">
+                        <button onClick={() => setEditingChannel({ id: palata.id, name: palata.name })}
+                          className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors">
+                          <Pencil className="w-3 h-3" strokeWidth={1.5} />
+                        </button>
+                      </Tooltip>
+                      <Tooltip content="Удалити" side="top">
+                        <button onClick={() => setDeletingChannelId(palata.id)}
+                          className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-destructive/60 transition-colors">
+                          <Trash2 className="w-3 h-3" strokeWidth={1.5} />
+                        </button>
+                      </Tooltip>
                     </div>
                   )}
                 </div>
@@ -260,18 +273,21 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
         {(channels.filter((c) => c.type === "voice" || !c.type).length > 0 || canManageChannels) && (
           <div>
             <div className="flex items-center gap-2 px-2 mb-2">
-              <Volume2 size={11} className="text-foreground/30" strokeWidth={1.5} />
-              <span className="text-[10px] font-semibold text-foreground/30 uppercase tracking-[0.15em] flex-1">
+              <div className="h-px w-3 bg-gradient-to-r from-transparent via-foreground/15 to-transparent flex-shrink-0" />
+              <Volume2 size={11} className="text-foreground/50" strokeWidth={1.5} />
+              <span className="text-[10px] font-semibold text-foreground/50 uppercase tracking-[0.15em]">
                 Голосовыя
               </span>
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
               {canManageChannels && (
-                <button
-                  onClick={() => { setCreatingType("voice"); setNewChannelName(""); }}
-                  className="w-5 h-5 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/20 hover:text-foreground/50 transition-colors"
-                  title="Создати палату"
-                >
-                  <Plus className="w-3 h-3" strokeWidth={1.5} />
-                </button>
+                <Tooltip content="Создати палату" side="top">
+                  <button
+                    onClick={() => { setCreatingType("voice"); setNewChannelName(""); }}
+                    className="w-5 h-5 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/20 hover:text-foreground/50 transition-colors"
+                  >
+                    <Plus className="w-3 h-3" strokeWidth={1.5} />
+                  </button>
+                </Tooltip>
               )}
             </div>
             <div className="space-y-0.5">
@@ -283,21 +299,24 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
                     isLocked={palata.is_locked} canManage={canManageChannels} />
                   {canManageChannels && (
                     <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-0.5 bg-background/80 backdrop-blur-sm rounded-xl p-0.5">
-                      <button onClick={() => handleToggleLock(palata.id, !!palata.is_locked)}
-                        className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
-                        title={palata.is_locked ? "Открыти" : "Запереть"}>
-                        {palata.is_locked ? <LockOpen className="w-3 h-3" strokeWidth={1.5} /> : <Lock className="w-3 h-3" strokeWidth={1.5} />}
-                      </button>
-                      <button onClick={() => setEditingChannel({ id: palata.id, name: palata.name })}
-                        className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
-                        title="Переименовати">
-                        <Pencil className="w-3 h-3" strokeWidth={1.5} />
-                      </button>
-                      <button onClick={() => setDeletingChannelId(palata.id)}
-                        className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-destructive/60 transition-colors"
-                        title="Удалити">
-                        <Trash2 className="w-3 h-3" strokeWidth={1.5} />
-                      </button>
+                      <Tooltip content={palata.is_locked ? "Открыти" : "Запереть"} side="top">
+                        <button onClick={() => handleToggleLock(palata.id, !!palata.is_locked)}
+                          className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors">
+                          {palata.is_locked ? <LockOpen className="w-3 h-3" strokeWidth={1.5} /> : <Lock className="w-3 h-3" strokeWidth={1.5} />}
+                        </button>
+                      </Tooltip>
+                      <Tooltip content="Переименовати" side="top">
+                        <button onClick={() => setEditingChannel({ id: palata.id, name: palata.name })}
+                          className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors">
+                          <Pencil className="w-3 h-3" strokeWidth={1.5} />
+                        </button>
+                      </Tooltip>
+                      <Tooltip content="Удалити" side="top">
+                        <button onClick={() => setDeletingChannelId(palata.id)}
+                          className="w-5 h-5 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-destructive/60 transition-colors">
+                          <Trash2 className="w-3 h-3" strokeWidth={1.5} />
+                        </button>
+                      </Tooltip>
                     </div>
                   )}
                 </div>
@@ -318,7 +337,7 @@ export function PalataList({ onMobileItemClick }: PalataListProps) {
         <div className="absolute top-0 left-3 right-3 h-px bg-foreground/5" />
         <button
           ref={userBtnRef}
-          onClick={() => { navigate(AppRoutes.SETTINGS); onMobileClose?.(); }}
+          onClick={() => { open(); onMobileClose?.(); }}
           className="flex items-center gap-2.5 w-full rounded-xl px-2.5 py-2 transition-all hover:bg-foreground/[0.03] group cursor-pointer"
         >
           <div className="relative flex-shrink-0">

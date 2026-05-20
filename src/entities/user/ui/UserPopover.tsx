@@ -1,8 +1,6 @@
 import { useRef, useEffect, useState, useCallback, ReactNode } from "react";
 import { Portal } from "@shared/ui/Portal";
 import { Crown, Calendar } from "lucide-react";
-import { PB_URL } from "@shared/api/pb";
-import { getFrameClass } from "@shared/lib/frames";
 
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -10,7 +8,6 @@ import { getFrameClass } from "@shared/lib/frames";
 export interface UserProfile {
   username: string;
   avatarUrl?: string | null;
-  bannerId?: string | null;
   role?: string;
   roleColor?: string;
   joinedAt?: string;
@@ -19,7 +16,6 @@ export interface UserProfile {
 }
 
 interface UserPopoverProps extends UserProfile {
-  frame?: string;
   children: ReactNode;
 }
 
@@ -28,35 +24,12 @@ interface UserPopoverProps extends UserProfile {
 const POPOVER_WIDTH = 256;
 const POPOVER_HEIGHT = 260;
 const GAP = 8;
-const BANNER_COLLECTION = "_pb_users_auth_";
 const HOVER_DELAY_MS = 150;
 const HOVER_LEAVE_MS = 120;
 
 
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-
-function buildBannerUrl(
-  bannerId?: string | null,
-  userId?: string,
-): string | null {
-  if (!bannerId || !userId) return null;
-  return `${PB_URL}/api/files/${BANNER_COLLECTION}/${userId}/${bannerId}`;
-}
-
-function loadBannerPosition(bannerId?: string | null): {
-  x: number;
-  y: number;
-} {
-  if (!bannerId) return { x: 50, y: 50 };
-  try {
-    const saved = localStorage.getItem(`bannerPosition_${bannerId}`);
-    if (saved) return JSON.parse(saved);
-  } catch {
-    /* ignore */
-  }
-  return { x: 50, y: 50 };
-}
 
 function computePopoverPosition(trigger: HTMLElement): {
   top: number;
@@ -85,21 +58,17 @@ function AvatarCircle({
   avatarUrl,
   username,
   size,
-  frame,
 }: {
   avatarUrl?: string | null;
   username: string;
   size: "sm" | "lg";
-  frame?: string;
 }) {
   const dim = size === "lg" ? "w-14 h-14" : "w-12 h-12";
   const iconSize = size === "lg" ? "w-7 h-7" : "w-6 h-6";
 
-  const frameClass = frame ? getFrameClass(frame) : "ring-[2px] ring-card";
-
   return (
     <div
-      className={`${dim} rounded-full bg-card shadow-lg shadow-black/30 overflow-hidden flex-shrink-0 ${frameClass}`}
+      className={`${dim} rounded-full bg-card shadow-lg shadow-black/30 overflow-hidden flex-shrink-0 ring-[2px] ring-card`}
     >
       {avatarUrl ? (
         <img
@@ -117,29 +86,12 @@ function AvatarCircle({
 }
 
 function BannerSection({
-  bannerUrl,
-  bannerPos,
   children,
 }: {
-  bannerUrl: string | null;
-  bannerPos: { x: number; y: number } | null;
   children: ReactNode;
 }) {
   return (
-    <div className="relative w-full aspect-[2.5/1] rounded-t-2xl overflow-hidden bg-black/10">
-      {bannerUrl && (
-        <img
-          src={bannerUrl}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          style={
-            bannerPos
-              ? { objectPosition: `${bannerPos.x}% ${bannerPos.y}%` }
-              : undefined
-          }
-        />
-      )}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/10" />
+    <div className="relative w-full aspect-[2.5/1] rounded-t-2xl overflow-hidden bg-foreground/[0.04]">
       {children}
     </div>
   );
@@ -220,18 +172,13 @@ function useHoverPopover() {
 export function UserPopover({
   username,
   avatarUrl,
-  bannerId,
   role,
   roleColor,
   joinedAt,
-  frame,
   userId,
   bio,
   children,
 }: UserPopoverProps) {
-  const bannerUrl = buildBannerUrl(bannerId, userId);
-  const bannerPos = bannerUrl ? loadBannerPosition(bannerId) : null;
-
   const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0 });
   const triggerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -264,13 +211,12 @@ export function UserPopover({
             className="fixed z-[100] w-64 bg-card/95 backdrop-blur-xl rounded-2xl border border-border/30 shadow-2xl shadow-black/40 overflow-hidden"
             style={{ top: popoverPos.top, left: popoverPos.left }}
           >
-            <BannerSection bannerUrl={bannerUrl} bannerPos={bannerPos}>
+            <BannerSection>
               <div className="absolute inset-0 flex items-center gap-2 p-3">
                 <AvatarCircle
                   avatarUrl={avatarUrl}
                   username={username}
                   size="sm"
-                  frame={frame}
                 />
                 <UsernameOverlay username={username} />
               </div>

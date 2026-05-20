@@ -1,10 +1,12 @@
 import { ButtonHTMLAttributes, forwardRef } from "react";
 import { motion } from "motion/react";
 import { LucideIcon } from "lucide-react";
+import { Tooltip, type TooltipProps } from "./Tooltip";
 
 export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon: LucideIcon;
   tooltip?: string;
+  tooltipSide?: TooltipProps["side"];
   variant?: "default" | "primary" | "ghost" | "destructive";
   size?: "sm" | "md" | "lg";
   active?: boolean;
@@ -15,6 +17,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     {
       icon: Icon,
       tooltip,
+      tooltipSide = "right",
       variant = "default",
       size = "md",
       active = false,
@@ -44,25 +47,21 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       destructive: "hover:bg-destructive/20 text-destructive",
     };
 
-    return (
-      <div className="relative group">
-        <motion.button
-          ref={ref}
-          className={`${sizes[size]} rounded-md flex items-center justify-center transition-colors ${variants[variant]} ${className}`}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          {...props}
-        >
-          <Icon className={iconSizes[size]} strokeWidth={2} />
-        </motion.button>
-
-        {tooltip && (
-          <div className="absolute left-full  top-1/2 -translate-y-0 px-3 py-1.5 bg-popover text-popover-foreground rounded-md text-sm whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-lg border border-border z-50">
-            {tooltip}
-          </div>
-        )}
-      </div>
+    const btn = (
+      <motion.button
+        ref={ref}
+        className={`${sizes[size]} rounded-md flex items-center justify-center transition-colors ${variants[variant]} ${className}`}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        {...props}
+      >
+        <Icon className={iconSizes[size]} strokeWidth={2} />
+      </motion.button>
     );
+
+    return tooltip ? (
+      <Tooltip content={tooltip} side={tooltipSide}>{btn}</Tooltip>
+    ) : btn;
   },
 );
 

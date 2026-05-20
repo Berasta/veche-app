@@ -11,11 +11,12 @@ export function groupMessages(messages: Message[]): GroupedMessage[] {
   let lastAuthor = "";
   let lastDate = "";
 
+  const today = new Date().toDateString();
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+
   for (const msg of messages) {
     const msgDate = new Date(msg.created);
     const dateKey = msgDate.toDateString();
-    const today = new Date().toDateString();
-    const yesterday = new Date(Date.now() - 86400000).toDateString();
 
     let dateLabel: string | undefined;
     if (dateKey !== lastDate) {

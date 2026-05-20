@@ -1,16 +1,27 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import { toast } from "sonner";
-import { ArrowLeft, Crown, Image, Loader2, Check, Shield, Settings } from "lucide-react";
+import { Crown, Image, Loader2, Check, Shield, Settings, X } from "lucide-react";
 import { pb, PB_URL } from "@shared/api/pb";
 import { useAppSelector } from "@app/hooks";
 import { RolesManager } from "@features/invite/RolesManager";
 
 type SettingsTab = "overview" | "roles";
 
-export function ServerSettingsPage() {
-  const { serverId } = useParams();
+const TABS = [
+  { id: "overview" as SettingsTab, label: "Общее", icon: Crown },
+  { id: "roles" as SettingsTab, label: "Роли", icon: Shield },
+];
+
+interface ServerSettingsPageProps {
+  serverIdProp?: string;
+  onClose?: () => void;
+}
+
+export function ServerSettingsPage({ serverIdProp, onClose }: ServerSettingsPageProps = {}) {
+  const { serverId: routeServerId } = useParams();
   const navigate = useNavigate();
+  const serverId = serverIdProp ?? routeServerId;
   const servers = useAppSelector((state) => state.servers.servers);
   const server = servers.find((s) => s.id === serverId);
   const [tab, setTab] = useState<SettingsTab>("overview");
@@ -23,6 +34,11 @@ export function ServerSettingsPage() {
   useEffect(() => {
     if (server) { setName(server.name); setAvatarUrl((server as any).avatar_url || null); }
   }, [server]);
+
+  const handleClose = () => {
+    if (onClose) onClose();
+    else navigate(`/app/server/${serverId}`);
+  };
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -41,7 +57,7 @@ export function ServerSettingsPage() {
     setSaving(true);
     try {
       await pb.collection("servers").update(serverId, { name: name.trim() });
-      navigate(`/app/server/${serverId}`);
+      toast.success("Настройки сохранены");
     } catch { toast.error("Не удалось сохранить настройки града"); }
     finally { setSaving(false); }
   };
@@ -49,78 +65,99 @@ export function ServerSettingsPage() {
   if (!serverId) return null;
 
   return (
-    <div className="flex-1 flex flex-col bg-background min-w-0">
-      {/* Top bar */}
-      <div className="h-12 bg-background/40 backdrop-blur-xl flex items-center px-4 border-b border-foreground/5">
-        <button onClick={() => navigate(`/app/server/${serverId}`)}
-          className="w-8 h-8 rounded-lg hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors mr-2">
-          <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
-        </button>
-        <span className="text-sm text-foreground/80 font-medium">{server?.name || "Градъ"}</span>
-        <Settings className="w-3.5 h-3.5 text-foreground/30 ml-2" strokeWidth={1.5} />
+    <div className="flex flex-col sm:flex-row w-full h-full overflow-hidden">
+      {/* Nav sidebar */}
+      <div className="sm:w-48 bg-foreground/[0.02] flex-shrink-0 flex sm:flex-col overflow-x-auto sm:overflow-y-auto border-b sm:border-b-0 sm:border-r border-foreground/5">
+        <div className="hidden sm:flex items-center gap-2 px-4 pt-4 pb-3 relative">
+          <Settings className="w-3.5 h-3.5 text-foreground/30 flex-shrink-0" strokeWidth={1.5} />
+          <h3 className="text-xs text-foreground/50 tracking-[0.15em] uppercase font-semibold flex-1">Настройки града</h3>
+          <div className="absolute bottom-0 left-3 right-3 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
+        </div>
+        <nav className="flex sm:flex-col gap-0.5 px-2 py-2 sm:py-0 sm:flex-1">
+          {TABS.map((t) => {
+            const Icon = t.icon;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${
+                  tab === t.id
+                    ? "bg-foreground/[0.06] text-foreground/80"
+                    : "text-foreground/30 hover:bg-foreground/[0.03] hover:text-foreground/60"
+                }`}
+              >
+                <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
+                <span className="text-xs sm:text-sm">{t.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+        <div className="hidden sm:block mt-auto px-4 py-3 text-[10px] text-foreground/15 font-mono">
+          {serverId.slice(0, 8)}
+        </div>
       </div>
 
-      <div className="flex-1 flex min-h-0">
-        {/* Sidebar */}
-        <div className="w-48 bg-foreground/[0.02] flex-shrink-0 flex flex-col p-2 border-r border-foreground/5">
-          <div className="text-[10px] font-semibold text-foreground/30 uppercase tracking-widest px-3 py-2">Настройки града</div>
-          <button onClick={() => setTab("overview")}
-            className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${tab === "overview" ? "bg-foreground/[0.06] text-foreground/80" : "text-foreground/40 hover:text-foreground/60 hover:bg-foreground/[0.03]"}`}>
-            <Crown className="w-4 h-4" strokeWidth={1.5} /> Общее
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="sticky top-0 flex items-center justify-end px-4 pt-3 pb-1 bg-background/90 backdrop-blur-sm z-10">
+          <button
+            onClick={handleClose}
+            className="w-7 h-7 rounded-xl hover:bg-foreground/10 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
+          >
+            <X className="w-4 h-4" strokeWidth={1.5} />
           </button>
-          <button onClick={() => setTab("roles")}
-            className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${tab === "roles" ? "bg-foreground/[0.06] text-foreground/80" : "text-foreground/40 hover:text-foreground/60 hover:bg-foreground/[0.03]"}`}>
-            <Shield className="w-4 h-4" strokeWidth={1.5} /> Роли
-          </button>
-          <div className="mt-auto px-3 py-2 text-[10px] text-foreground/20">server id: {serverId.slice(0, 8)}</div>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-5">
+        <div className="px-5 pb-5 space-y-4">
           {tab === "overview" && (
-            <div className="max-w-xl mx-auto space-y-4">
-              <h2 className="text-base font-semibold text-foreground/80 mb-4">Общее</h2>
-
+            <>
               {/* Avatar */}
-              <div className="bg-foreground/[0.02] rounded-xl p-4">
-                <p className="text-xs text-foreground/50 mb-3">Аватарка града</p>
+              <div className="bg-foreground/[0.02] rounded-2xl p-4">
+                <p className="text-[10px] font-semibold text-foreground/30 uppercase tracking-widest mb-3">Аватарка града</p>
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-foreground/5 flex-shrink-0 flex items-center justify-center">
-                    {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-                    : <Crown className="w-6 h-6 text-foreground/20" strokeWidth={1.5} />}
+                  <div className="w-16 h-16 rounded-2xl overflow-hidden bg-foreground/5 flex-shrink-0 flex items-center justify-center">
+                    {avatarUrl
+                      ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                      : <Crown className="w-6 h-6 text-foreground/20" strokeWidth={1.5} />}
                   </div>
                   <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-                  <button onClick={() => fileInputRef.current?.click()}
-                    className="px-3 py-1.5 rounded-lg bg-foreground/5 hover:bg-foreground/10 text-foreground/60 hover:text-foreground text-sm transition-colors">
-                    <Image className="w-3.5 h-3.5 inline mr-1.5" strokeWidth={1.5} /> Загрузити
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground/60 hover:text-foreground text-sm transition-colors"
+                  >
+                    <Image className="w-3.5 h-3.5" strokeWidth={1.5} /> Загрузити
                   </button>
                 </div>
               </div>
 
               {/* Name */}
-              <div className="bg-foreground/[0.02] rounded-xl p-4">
-                <p className="text-xs text-foreground/50 mb-3">Названіе града</p>
-                <input value={name} onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-foreground/5 rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20" />
+              <div className="bg-foreground/[0.02] rounded-2xl p-4">
+                <p className="text-[10px] font-semibold text-foreground/30 uppercase tracking-widest mb-3">Названіе града</p>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSave()}
+                  className="w-full bg-foreground/5 rounded-xl px-3 py-2 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20"
+                />
               </div>
 
-              {/* Actions */}
-              <div className="flex items-center gap-2 pt-2">
-                <button onClick={handleSave} disabled={saving || !name.trim()}
-                  className="px-5 py-2 rounded-lg bg-foreground/10 hover:bg-foreground/15 text-foreground/80 text-sm font-medium transition-colors disabled:opacity-30 flex items-center gap-1.5">
+              {/* Save */}
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  onClick={handleSave}
+                  disabled={saving || !name.trim()}
+                  className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-foreground/10 hover:bg-foreground/15 text-foreground/80 text-sm font-medium transition-colors disabled:opacity-30"
+                >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" strokeWidth={1.5} />}
                   {saving ? "Сохраненіе..." : "Сохранити"}
                 </button>
               </div>
-            </div>
+            </>
           )}
 
           {tab === "roles" && (
-            <div className="max-w-xl mx-auto space-y-4">
-              <h2 className="text-base font-semibold text-foreground/80 mb-4">Роли</h2>
-              <div className="bg-foreground/[0.02] rounded-xl p-4">
-                <RolesManager serverId={serverId} />
-              </div>
+            <div className="bg-foreground/[0.02] rounded-2xl p-4">
+              <RolesManager serverId={serverId} />
             </div>
           )}
         </div>

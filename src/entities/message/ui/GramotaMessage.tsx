@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { MessageHeader } from './MessageHeader';
 import { MessageContent } from './MessageContent';
 import { MessageImages } from './MessageImages';
 import { ReactionsBar, type ReactionGroup } from './ReactionsBar';
-import { MoreHorizontal, Pencil, Trash2, Check, X } from 'lucide-react';
+import { EmojiPicker } from '@shared/ui/EmojiPicker';
+import { UserAvatar } from '@entities/user/ui/UserAvatar';
+import { UserPopover } from '@entities/user/ui/UserPopover';
+import { MoreHorizontal, Pencil, Trash2, Check, X, Smile } from 'lucide-react';
 
 interface GramotaMessageProps {
   author: string;
@@ -18,8 +20,6 @@ interface GramotaMessageProps {
   authorId?: string;
   authorRole?: string;
   authorRoleColor?: string;
-  authorBanner?: string;
-  authorFrame?: string;
   authorJoinedAt?: string;
   isOwn?: boolean;
   edited?: boolean;
@@ -27,8 +27,26 @@ interface GramotaMessageProps {
   onDelete?: (messageId: string) => void;
 }
 
-export function GramotaMessage({ author, avatar, time, content, images, reactions, onReaction, messageId, authorId, authorRole, authorRoleColor, authorBanner, authorFrame, authorJoinedAt, isOwn, edited, onEdit, onDelete }: GramotaMessageProps) {
+export function GramotaMessage({
+  author,
+  avatar,
+  time,
+  content,
+  images,
+  reactions,
+  onReaction,
+  messageId,
+  authorId,
+  authorRole,
+  authorRoleColor,
+  authorJoinedAt,
+  isOwn,
+  edited,
+  onEdit,
+  onDelete,
+}: GramotaMessageProps) {
   const [showMenu, setShowMenu] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(content);
 
@@ -37,6 +55,14 @@ export function GramotaMessage({ author, avatar, time, content, images, reaction
       onEdit(messageId, editText.trim());
       setEditing(false);
     }
+  };
+
+  const avatarUser = {
+    id: authorId || '',
+    username: author,
+    avatarUrl: avatar,
+    role: authorRole,
+    roleColor: authorRoleColor,
   };
 
   if (editing) {
@@ -53,49 +79,136 @@ export function GramotaMessage({ author, avatar, time, content, images, reaction
     );
   }
 
+  const isHeader = avatar !== undefined;
+
   return (
     <motion.div
-      className="px-3 md:px-5 py-2 md:py-2.5 hover:bg-foreground/[0.02] rounded-xl transition-all duration-150 group relative"
+      className="px-3 md:px-5 py-0.5 md:py-1 hover:bg-foreground/[0.02] rounded-xl transition-all duration-150 group relative"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.12, ease: 'easeOut' }}
     >
-      <MessageHeader author={author} avatar={avatar} time={time} userId={authorId} role={authorRole} roleColor={authorRoleColor} bannerId={authorBanner} joinedAt={authorJoinedAt} frame={authorFrame} />
-      <MessageContent content={content} />
-      {edited && <span className="text-[10px] text-foreground/30 ml-0.5">(измѣнено)</span>}
-      {images && <MessageImages images={images} />}
-      {onReaction && messageId && (
-        <ReactionsBar reactions={reactions || []} onToggle={(emoji) => onReaction(messageId, emoji)} messageId={messageId} />
-      )}
+      <div className="flex gap-3">
+        {/* Left: avatar column (w-8 matches UserAvatar size="md") */}
+        <div className="flex-shrink-0 w-8 flex justify-center pt-0.5">
+          {isHeader ? (
+            <UserPopover
+              username={author}
+              avatarUrl={avatar}
+              userId={authorId}
+              role={authorRole}
+              roleColor={authorRoleColor}
+              joinedAt={authorJoinedAt}
+            >
+              <UserAvatar user={avatarUser} size="md" />
+            </UserPopover>
+          ) : (
+            <span className="text-[9px] text-foreground/20 opacity-0 group-hover:opacity-100 transition-opacity tabular-nums leading-none mt-1 select-none">
+              {time}
+            </span>
+          )}
+        </div>
 
-      {/* Actions menu on hover */}
-      {(isOwn || onDelete) && (
-        <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="relative">
-            <button onClick={() => setShowMenu(!showMenu)}
-              className="w-7 h-7 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors">
-              <MoreHorizontal className="w-4 h-4" strokeWidth={1.5} />
-            </button>
-            {showMenu && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-                <div className="absolute right-0 top-full mt-0.5 z-50 w-36 bg-popover/80 backdrop-blur-xl border border-border/50 rounded-xl shadow-xl overflow-hidden">
-                  {isOwn && onEdit && (
-                    <button onClick={() => { setEditing(true); setShowMenu(false); }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-foreground/5 transition-colors text-left">
-                      <Pencil className="w-3.5 h-3.5" strokeWidth={1.5} /> Редактировати
-                    </button>
-                  )}
-                  {onDelete && (
-                    <button onClick={() => { onDelete(messageId || ""); setShowMenu(false); }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive/70 hover:text-destructive hover:bg-destructive/5 transition-colors text-left">
-                      <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} /> Удалити
-                    </button>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
+        {/* Right: header row + content */}
+        <div className="flex-1 min-w-0">
+          {isHeader && (
+            <div className="flex items-baseline gap-2 mb-0.5">
+              <UserPopover
+                username={author}
+                avatarUrl={avatar}
+                userId={authorId}
+                role={authorRole}
+                roleColor={authorRoleColor}
+                joinedAt={authorJoinedAt}
+              >
+                <span
+                  className="text-sm font-semibold cursor-pointer hover:underline"
+                >
+                  {author}
+                </span>
+              </UserPopover>
+              <span className="text-xs text-foreground/40">{time}</span>
+            </div>
+          )}
+          <MessageContent content={content} />
+          {edited && <span className="text-[10px] text-foreground/30 ml-0.5">(измѣнено)</span>}
+          {images && <MessageImages images={images} />}
+          {onReaction && messageId && reactions && reactions.length > 0 && (
+            <ReactionsBar reactions={reactions} onToggle={(emoji) => onReaction(messageId, emoji)} messageId={messageId} />
+          )}
+        </div>
+      </div>
+
+      {/* Actions on hover */}
+      {(onReaction || isOwn || onDelete) && (
+        <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+
+          {/* Emoji reaction picker */}
+          {onReaction && messageId && (
+            <div className="relative">
+              <button
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                className="w-7 h-7 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
+              >
+                <Smile className="w-3.5 h-3.5" strokeWidth={1.5} />
+              </button>
+              {showEmojiPicker && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowEmojiPicker(false)} />
+                  <div className="absolute right-0 top-full mt-0.5 z-50">
+                    <EmojiPicker
+                      onSelect={(emoji) => {
+                        onReaction(messageId, emoji);
+                        setShowEmojiPicker(false);
+                      }}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Three-dot menu (edit / delete) */}
+          {(isOwn || onDelete) && (
+            <div className="relative">
+              <button
+                onClick={() => setShowMenu(!showMenu)}
+                className="w-7 h-7 rounded-xl hover:bg-foreground/5 flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors"
+              >
+                <MoreHorizontal className="w-4 h-4" strokeWidth={1.5} />
+              </button>
+              {showMenu && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+                  <div className="absolute right-0 top-full mt-1.5 z-50 w-40 rounded-2xl shadow-2xl shadow-black/30 overflow-hidden p-1"
+                    style={{
+                      background: "color-mix(in srgb, var(--background) 55%, transparent)",
+                      backdropFilter: "blur(24px) saturate(180%)",
+                      WebkitBackdropFilter: "blur(24px) saturate(180%)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                    }}
+                  >
+                    {isOwn && onEdit && (
+                      <button
+                        onClick={() => { setEditing(true); setShowMenu(false); }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-colors text-left rounded-xl"
+                      >
+                        <Pencil className="w-3.5 h-3.5" strokeWidth={1.5} /> Редактировати
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        onClick={() => { onDelete(messageId || ""); setShowMenu(false); }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive/70 hover:text-destructive hover:bg-destructive/5 transition-colors text-left rounded-xl"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} /> Удалити
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       )}
     </motion.div>

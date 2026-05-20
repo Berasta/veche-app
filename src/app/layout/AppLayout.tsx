@@ -4,6 +4,11 @@ import { GradList } from "@features/server/GradList";
 import { Outlet, useLocation } from "react-router";
 import { MobileMenuProvider } from "./MobileMenuContext";
 import { VoiceRoomProvider } from "./VoiceRoomProvider";
+import { SettingsModalProvider, useSettingsModal } from "./SettingsModalContext";
+import { ServerSettingsModalProvider, useServerSettingsModal } from "./ServerSettingsModalContext";
+import { Settings } from "@pages/Settings";
+import { ServerSettingsPage } from "@pages/ServerSettingsPage";
+import { Portal } from "@shared/ui/Portal";
 import { useAppDispatch } from "@store/hooks";
 import { toggleMute } from "@store/thunks/roomThunk";
 import { useTauriHotkeys } from "@shared/hooks/useTauriHotkeys";
@@ -65,15 +70,122 @@ export const AppLayout = () => {
 
   return (
     <MobileMenuProvider>
-      <VoiceRoomProvider>
-        <div className="h-dvh w-screen overflow-hidden grid grid-rows-[1fr_auto]">
-          <div className="min-h-0 flex overflow-hidden pt-12 md:pt-0">
-            <GradList />
-            <Outlet />
+      <ServerSettingsModalProvider>
+        <SettingsModalProvider>
+        <VoiceRoomProvider>
+          <div className="h-dvh w-screen overflow-hidden grid grid-rows-[1fr_auto]">
+            <div className="min-h-0 flex overflow-hidden pt-12 md:pt-0">
+              <GradList />
+              <Outlet />
+            </div>
+            {!isVoiceChat && <ActiveVoiceBar />}
           </div>
-          {!isVoiceChat && <ActiveVoiceBar />}
-        </div>
-      </VoiceRoomProvider>
+        </VoiceRoomProvider>
+        <SettingsModalRenderer />
+      </SettingsModalProvider>
+      <ServerSettingsModalRenderer />
+    </ServerSettingsModalProvider>
     </MobileMenuProvider>
   );
 };
+
+function SettingsModalRenderer() {
+  const { isOpen, close } = useSettingsModal();
+  const [rendered, setRendered] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setRendered(true);
+      const raf1 = requestAnimationFrame(() => {
+        const raf2 = requestAnimationFrame(() => setVisible(true));
+        return () => cancelAnimationFrame(raf2);
+      });
+      return () => cancelAnimationFrame(raf1);
+    } else {
+      setVisible(false);
+      const timer = setTimeout(() => setRendered(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  if (!rendered) return null;
+
+  return (
+    <Portal>
+      <div
+        className={`fixed inset-0 z-[200] flex items-center justify-center p-4 ${
+          visible ? "" : "pointer-events-none"
+        }`}
+        onClick={close}
+      >
+        <div
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          style={{
+            opacity: visible ? 1 : 0,
+            transition: "opacity 250ms ease",
+          }}
+        />
+        <div
+          className="relative bg-background rounded-2xl w-[680px] h-[540px] max-w-[calc(100vw-2rem)] max-h-[calc(100dvh-2rem)] flex overflow-hidden shadow-2xl shadow-black/40"
+          style={{
+            opacity: visible ? 1 : 0,
+            transform: visible ? "scale(1)" : "scale(0.96)",
+            transition: "opacity 280ms cubic-bezier(0.16,1,0.3,1), transform 280ms cubic-bezier(0.16,1,0.3,1)",
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Settings onClose={close} />
+        </div>
+      </div>
+    </Portal>
+  );
+}
+
+function ServerSettingsModalRenderer() {
+  const { isOpen, serverId, close } = useServerSettingsModal();
+  const [rendered, setRendered] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setRendered(true);
+      const raf1 = requestAnimationFrame(() => {
+        const raf2 = requestAnimationFrame(() => setVisible(true));
+        return () => cancelAnimationFrame(raf2);
+      });
+      return () => cancelAnimationFrame(raf1);
+    } else {
+      setVisible(false);
+      const timer = setTimeout(() => setRendered(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  if (!rendered || !serverId) return null;
+
+  return (
+    <Portal>
+      <div
+        className={`fixed inset-0 z-[200] flex items-center justify-center p-4 ${visible ? "" : "pointer-events-none"}`}
+        onClick={close}
+      >
+        <div
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          style={{ opacity: visible ? 1 : 0, transition: "opacity 250ms ease" }}
+        />
+        <div
+          className="relative bg-background rounded-2xl w-[680px] h-[540px] max-w-[calc(100vw-2rem)] max-h-[calc(100dvh-2rem)] flex overflow-hidden shadow-2xl shadow-black/40"
+          style={{
+            opacity: visible ? 1 : 0,
+            transform: visible ? "scale(1)" : "scale(0.96)",
+            transition: "opacity 280ms cubic-bezier(0.16,1,0.3,1), transform 280ms cubic-bezier(0.16,1,0.3,1)",
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <ServerSettingsPage serverIdProp={serverId} onClose={close} />
+        </div>
+      </div>
+    </Portal>
+  );
+}

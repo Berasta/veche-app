@@ -22,27 +22,40 @@ export function EmojiPicker({ onSelect }: EmojiPickerProps) {
   const emojis = EMOJI_LISTS[category];
 
   return (
-    <div className="bg-popover border border-border rounded-xl shadow-2xl overflow-hidden w-72">
-      <div className="flex border-b border-border bg-sidebar/30">
+    <div
+      className="w-72 rounded-2xl shadow-2xl shadow-black/30 overflow-hidden"
+      style={{
+        background: "color-mix(in srgb, var(--background) 60%, transparent)",
+        backdropFilter: "blur(28px) saturate(180%)",
+        WebkitBackdropFilter: "blur(28px) saturate(180%)",
+        border: "1px solid rgba(255,255,255,0.08)",
+      }}
+    >
+      {/* Category tabs */}
+      <div className="flex gap-0.5 p-1.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         {CATEGORIES.map((cat) => (
           <button
             key={cat}
             onClick={() => setCategory(cat)}
-            className={`flex-1 px-2 py-2 text-center text-sm transition-colors ${
-              category === cat ? "bg-primary/10 border-b-2 border-primary" : "hover:bg-muted/50"
-            }`}
             title={cat}
+            className={`flex-1 h-8 flex items-center justify-center rounded-xl text-lg transition-all ${
+              category === cat
+                ? "bg-foreground/10"
+                : "opacity-35 hover:opacity-70 hover:bg-foreground/5"
+            }`}
           >
-            <span className="text-lg leading-none">{CATEGORY_ICONS[cat]}</span>
+            {CATEGORY_ICONS[cat]}
           </button>
         ))}
       </div>
-      <div className="p-2 max-h-48 overflow-y-auto grid grid-cols-8 gap-0.5">
+
+      {/* Emoji grid */}
+      <div className="p-2 max-h-52 overflow-y-auto grid grid-cols-8 gap-0.5">
         {emojis.map((emoji, i) => (
           <button
             key={`${emoji}-${i}`}
             onClick={() => onSelect(emoji)}
-            className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-muted text-lg transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-xl text-lg transition-all hover:bg-foreground/10 hover:scale-110 active:scale-95"
           >
             {emoji}
           </button>

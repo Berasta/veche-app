@@ -3,6 +3,8 @@
 
 @import 'tw-animate-css';
 
+button { cursor: pointer; }
+
 @keyframes speak {
   0%, 100% { height: 4px; }
   50% { height: 12px; }

@@ -147,17 +147,17 @@ export function VoiceRoomProvider({ children }: { children: React.ReactNode }) {
     return subscribeRoom(setRoom);
   }, []);
 
-  if (!room) {
-    return <>{children}</>;
-  }
-
   return (
-    <RoomContext.Provider value={room}>
-      <VoiceAudioRenderer />
-      <VoiceStateSyncer />
-      <VoiceSoundSyncer />
-      <P2PScreenShareSyncer />
+    <>
+      {room && (
+        <RoomContext.Provider value={room}>
+          <VoiceAudioRenderer />
+          <VoiceStateSyncer />
+          <VoiceSoundSyncer />
+          <P2PScreenShareSyncer />
+        </RoomContext.Provider>
+      )}
       {children}
-    </RoomContext.Provider>
+    </>
   );
 }

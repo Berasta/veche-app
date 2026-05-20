@@ -15,11 +15,16 @@ export async function fetchReactions(channelId: string): Promise<Reaction[]> {
   return result;
 }
 
-export async function addReaction(messageId: string, emoji: string): Promise<void> {
-  const existing = await pb.collection("reactions").getList(1, 1, {
+async function findUserReaction(messageId: string, emoji: string): Promise<string | null> {
+  const result = await pb.collection("reactions").getList(1, 1, {
     filter: `message_id = "${messageId}" && user_id = "${pb.authStore.record!.id}" && emoji = "${emoji}"`,
   });
-  if (existing.items.length > 0) return;
+  return result.items[0]?.id ?? null;
+}
+
+export async function addReaction(messageId: string, emoji: string): Promise<void> {
+  const existingId = await findUserReaction(messageId, emoji);
+  if (existingId) return;
   await pb.collection("reactions").create({
     message_id: messageId,
     user_id: pb.authStore.record!.id,
@@ -28,10 +33,8 @@ export async function addReaction(messageId: string, emoji: string): Promise<voi
 }
 
 export async function removeReaction(messageId: string, emoji: string): Promise<void> {
-  const existing = await pb.collection("reactions").getList(1, 1, {
-    filter: `message_id = "${messageId}" && user_id = "${pb.authStore.record!.id}" && emoji = "${emoji}"`,
-  });
-  if (existing.items.length > 0) {
-    await pb.collection("reactions").delete(existing.items[0].id);
+  const existingId = await findUserReaction(messageId, emoji);
+  if (existingId) {
+    await pb.collection("reactions").delete(existingId);
   }
 }
