@@ -4,7 +4,6 @@ VITE_PB_URL   ?= https://admin.weche.ru
 TARGET         = x86_64-pc-windows-gnu
 BUNDLE_DIR     = src-tauri/target/$(TARGET)/release/bundle/nsis
 
-GHCR_FRONTEND  = ghcr.io/berasta/veche-app
 NAMESPACE      = veche
 UPDATES_DIR    = ../updates
 
@@ -28,13 +27,14 @@ clean:
 
 deploy:
 	@echo "=== Building frontend image ==="
-	docker build --platform linux/amd64 -t $(GHCR_FRONTEND):latest .
+	$(eval _TAG := ttl.sh/veche-frontend-$(shell date +%s):24h)
+	docker build --platform linux/amd64 -t $(_TAG) .
 	@echo "=== Pushing ==="
-	docker push $(GHCR_FRONTEND):latest
+	docker push $(_TAG)
 	@echo "=== Rolling out ==="
-	kubectl rollout restart deployment/veche-frontend-app -n $(NAMESPACE)
+	kubectl set image deployment/veche-frontend-app frontend=$(_TAG) -n $(NAMESPACE)
 	kubectl rollout status deployment/veche-frontend-app -n $(NAMESPACE) --timeout=120s
-	@echo "=== Done ==="
+	@echo "=== Done: $(_TAG) ==="
 
 # ─── Deploy updater server ───────────────────────────────────────────────────
 
